@@ -10,9 +10,9 @@ const indexes = util.extractColumnIndexes(cols, cols);
 
 // Format Ids + Remove Rows With Null Ids
 data = data.map(v => { 
-    v[indexes.PATIENT_ID] = util.formatKey(v[indexes.PATIENT_ID]);
+    v[indexes.PATIENTID] = util.formatKey(v[indexes.PATIENTID]);
     return v;
-}).filter( v => (v[indexes.PATIENT_ID] !== null) );
+}).filter( v => (v[indexes.PATIENTID] !== null) );
 
 
 // Create A Set To Hold All Possible Values Of Fields
@@ -41,13 +41,13 @@ const values = data.map( (row) => {
 });
 
 // Remove Patient Id From Field Map + Values
-delete fieldMap.PATIENT_ID
+delete fieldMap.PATIENTID
 values.forEach( value => { 
-    value.splice(indexes.PATIENT_ID, 1);
+    value.splice(indexes.PATIENTID, 1);
 })
 
 // Ids
-ids = data.map(v => v[indexes.PATIENT_ID]);
+ids = data.map(v => v[indexes.PATIENTID]);
 
 var output = {
     fields: fieldMap,

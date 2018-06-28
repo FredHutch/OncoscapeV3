@@ -7,8 +7,8 @@ let data = util.loadCsv('Mutation.csv');
 
 // Extract Lookups
 const cols = util.shiftColumns(data);
-const indexes = util.extractColumnIndexes(cols, ['SAMPLE_ID', 'HGNC_ID', 'TYPE']);
-const sids =  util.extractColumnValues(data, indexes.SAMPLE_ID, util.formatKey);
+const indexes = util.extractColumnIndexes(cols, ['SAMPLEID', 'HGNC_ID', 'TYPE']);
+const sids =  util.extractColumnValues(data, indexes.SampleID, util.formatKey);
 const genes = util.extractColumnValues(data, indexes.HGNC_ID, util.formatHgnc);
 
 // Loop Through Data
@@ -19,7 +19,7 @@ let values = data.reduce( (p, c) => {
     if (mut === null) { return p; }
 
     // Combine SampleID + GeneId To Create Key
-    const key = sids.indexOf(  util.formatKey(c[indexes.SAMPLE_ID])) + '-' + genes.indexOf( util.formatHgnc(c[indexes.HGNC_ID]));
+    const key = sids.indexOf(  util.formatKey(c[indexes.SampleID])) + '-' + genes.indexOf( util.formatHgnc(c[indexes.HGNC_ID]));
     
     // If Key Exists Bitwise Add Else Set Default
     if (p.hasOwnProperty(key)){

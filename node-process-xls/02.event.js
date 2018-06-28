@@ -14,10 +14,17 @@ files.forEach( (file, fileIndex) => {
         v[v.length-1] =  v[v.length-1].substr(0,-1);
     });
     const cols = data.shift().map(v => formatAttribute(v));
-    const pidIndex = cols.indexOf('PATIENT_ID');
-    const startIndex = cols.indexOf('START_DATE');
-    const stopIndex = cols.indexOf('STOP_DATE');
-
+    // const pidIndex = cols.indexOf('PATIENT_ID');
+    // const startIndex = cols.indexOf('START_DATE');
+    // const stopIndex = cols.indexOf('STOP_DATE');
+    const pidIndex = cols.indexOf('PATIENTID');
+    const startIndex = cols.indexOf('START');
+    const stopIndex = cols.indexOf('END');
+    console.log('***', cols);
+    console.log('=> ', files[fileIndex]);
+    console.log(pidIndex);
+    console.log(startIndex);
+    console.log(stopIndex);
     if (pidIndex === -1 || startIndex === -1 || stopIndex === -1) {
         { throw new Error('Missing Key Field'); }
     }

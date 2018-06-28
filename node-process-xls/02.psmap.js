@@ -3,14 +3,14 @@ const util = require('./util');
 const fs = require('fs');
 
 // Load Data
-let data = util.loadCsv('Sample.csv');
+let data = util.loadCsv('SAMPLE.csv');
 
 const cols = util.shiftColumns(data);
-const indexes = util.extractColumnIndexes(cols, ['PATIENT_ID','SAMPLE_ID']);
+const indexes = util.extractColumnIndexes(cols, ['PATIENTID','SAMPLEID']);
 
 const output = data.reduce( (p, c) => { 
-    const pid = util.formatKey(c[indexes.PATIENT_ID]);
-    const sid = util.formatKey(c[indexes.SAMPLE_ID]);
+    const pid = util.formatKey(c[indexes.PatientID]);
+    const sid = util.formatKey(c[indexes.SampleID]);
     if (pid === null || sid === null) { return p; }
     if (!p.hasOwnProperty(pid)) { p[pid] = []; }
     p[pid].push(sid);
