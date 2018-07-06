@@ -16,7 +16,7 @@ del wb
     
 for idx, sheetName in enumerate(sheetNames):
     print sheetName, idx
-    converter.convert('data/' + sheetName + '.csv', sheetid=idx)
+    converter.convert('data/' + sheetName + '.csv', sheetid=idx+1)
 
 
 # from openpyxl import load_workbook
