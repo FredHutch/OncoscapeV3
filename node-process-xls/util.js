@@ -31,6 +31,7 @@ const mutationType = {
 };
 exports.loadCsv = (file) => { 
     let data = fs.readFileSync( process.cwd()+'/data/'+file, 'UTF-8').split('\n').map(v => v.split('","'));
+    // console.log(data)
     data.forEach(v => { 
         v[0] = v[0].substring(1);
         v[v.length-1] =  v[v.length-1].substr(0,-1);
