@@ -42,6 +42,7 @@ export class GenomeGraph extends AbstractVisualization {
     lineGeom.vertices.push(new THREE.Vector3(-2, 0, 0), new THREE.Vector3(0, 0, 0));
     const line = new THREE.Line(lineGeom, lineMat);
     group.add(line);
+    // tslint:disable-next-line:semicolon
   };
 
   chromosomeToNumber(chromosome: string, x: boolean = true): number {
@@ -162,7 +163,7 @@ export class GenomeGraph extends AbstractVisualization {
       band.forEach(cyto => {
         const centro = data.chromo[i].C;
         const geometry: THREE.PlaneGeometry = new THREE.PlaneGeometry(0.5, cyto.l);
-        const material: THREE.Material = ChartFactory.getColorPhong(cyto.c);
+        const material: THREE.MeshBasicMaterial = ChartFactory.getColorPhong(cyto.c);
         const mesh: THREE.Mesh = new THREE.Mesh(geometry, material);
         mesh.userData.type = GenomicEnum.CYTOBAND;
         mesh.position.set(xPos, yPos + cyto.l / 2 - centro, 0);
