@@ -30,12 +30,12 @@ const mutationType = {
     'R' : 1 << 25
 };
 exports.loadCsv = (file) => { 
-    let data = fs.readFileSync( process.cwd()+'/data/'+file, 'UTF-8').split('\n').map(v => v.split('","'));
-    // console.log(data)
-    data.forEach(v => { 
-        v[0] = v[0].substring(1);
-        v[v.length-1] =  v[v.length-1].substr(0,-1);
-    });
+    // let data = fs.readFileSync( process.cwd()+'/data/'+file, 'UTF-8').split('\n').map(v => v.split('","'));
+    let data = fs.readFileSync( process.cwd()+'/data/'+file, 'UTF-8').replace(/"/g, '').split('\n').map(v => v.split(','));
+    // data.forEach(v => { 
+    //     v[0] = v[0].substring(1);
+    //     v[v.length-1] =  v[v.length-1].substr(0,-1);
+    // });
     return data;
 }
 

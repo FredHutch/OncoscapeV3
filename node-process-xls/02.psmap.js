@@ -9,8 +9,8 @@ const cols = util.shiftColumns(data);
 const indexes = util.extractColumnIndexes(cols, ['PATIENTID','SAMPLEID']);
 
 const output = data.reduce( (p, c) => { 
-    const pid = util.formatKey(c[indexes.PatientID]);
-    const sid = util.formatKey(c[indexes.SampleID]);
+    const pid = util.formatKey(c[indexes.PATIENTID]);
+    const sid = util.formatKey(c[indexes.SAMPLEID]);
     if (pid === null || sid === null) { return p; }
     if (!p.hasOwnProperty(pid)) { p[pid] = []; }
     p[pid].push(sid);

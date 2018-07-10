@@ -55,5 +55,6 @@ const output = {
 };
 
 // Serialize To Json + Save
+
 fs.writeFileSync(process.cwd()+'/output/manifest-events.json', JSON.stringify(eventMap), {'encoding':'UTF-8'});
 fs.writeFileSync(process.cwd()+'/output/events.json', JSON.stringify(output), {'encoding':'UTF-8'});
