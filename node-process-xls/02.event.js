@@ -20,11 +20,6 @@ files.forEach( (file, fileIndex) => {
     const pidIndex = cols.indexOf('PATIENTID');
     const startIndex = cols.indexOf('START');
     const stopIndex = cols.indexOf('END');
-    console.log('***', cols);
-    console.log('=> ', files[fileIndex]);
-    console.log(pidIndex);
-    console.log(startIndex);
-    console.log(stopIndex);
     if (pidIndex === -1 || startIndex === -1 || stopIndex === -1) {
         { throw new Error('Missing Key Field'); }
     }

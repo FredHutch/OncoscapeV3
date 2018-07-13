@@ -19,4 +19,3 @@ if not os.path.exists('output'):
 for idx, sheetName in enumerate(sheetNames):
     converter.convert('data', sheetid=idx)
     # converter.convert(sheetName + '.csv', sheetid=idx)
-
