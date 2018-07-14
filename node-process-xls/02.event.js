@@ -8,11 +8,14 @@ const eventMap = files.map(v => {  return v.split('-').filter(w => w !== 'event'
     
 let events = [];
 files.forEach( (file, fileIndex) => { 
-    data = fs.readFileSync( process.cwd()+'/data/'+file, 'UTF-8').split('\n').map(v => v.split('","'));
-    data.forEach(v => { 
-        v[0] = v[0].substring(1);
-        v[v.length-1] =  v[v.length-1].substr(0,-1);
-    });
+    // data = fs.readFileSync( process.cwd()+'/data/'+file, 'UTF-8').split('\n').map(v => v.split('","'));
+    // data.forEach(v => { 
+    //     v[0] = v[0].substring(1);
+    //     v[v.length-1] =  v[v.length-1].substr(0,-1);
+    // });
+    
+    data = fs.readFileSync( process.cwd()+'/data/'+file, 'UTF-8').replace(/"/g, '').split('\n').map(v => v.split(','));
+
     const cols = data.shift().map(v => formatAttribute(v));
     // const pidIndex = cols.indexOf('PATIENT_ID');
     // const startIndex = cols.indexOf('START_DATE');

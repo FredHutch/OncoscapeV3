@@ -1,4 +1,5 @@
 #!/usr/bin/bash
+python 01.split.xls.py $1
 node 02.event.js
 node 02.matrix.js
 if [ -e data/Mutation.csv]
