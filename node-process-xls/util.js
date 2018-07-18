@@ -44,7 +44,10 @@ exports.extractColumnValues = (data, columnIndex, formatter) => {
 }
 
 exports.formatHgnc = (value) => { 
-    return value.toUpperCase().trim();
+    if (value === undefined || value === null || value === '') { return null; }
+    else {
+        return value.toUpperCase().trim();
+    }
 };
 
 exports.formatKey = (value) => {

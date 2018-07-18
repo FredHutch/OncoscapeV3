@@ -2,6 +2,8 @@
 // Libs
 const util = require('./util');
 const fs = require('fs');
+const isNumber = require('is-number');
+const _ = require('lodash');
 
 // Load Data
 let data = util.loadCsv('Patient.csv');
@@ -30,15 +32,31 @@ const fieldMap = Object.keys(fields).reduce( (p, c) => {
     return p;
 }, {});
 
+// Handling numeric values
+var numeric_fields = [];
+Object.keys(fieldMap).forEach(key => {
+    if (isNumber(fieldMap[key].sort().filter(s => s!== '')[0])) {
+        var arr = fieldMap[key].map( str => parseFloat(str));
+        numeric_fields = numeric_fields.concat(key);
+        var obj = {};
+        obj.min = _.min(arr);
+        obj.max = _.max(arr);
+        fieldMap[key] = obj;
+    }
+});
 
 // Values
 const values = data.map( (row) => { 
     return row.filter(v => v !== '').map( ( cell, index ) => {
         const fieldName = cols[index];
         if (!fieldName) { return null; }
-        return fieldMap[fieldName].indexOf(cell);
+        if ('min' in fieldMap[fieldName]) {
+            return parseFloat(cell);
+        } else {
+            return fieldMap[fieldName].indexOf(cell);
+        }
     });
-});
+}); 
 
 // Remove Patient Id From Field Map + Values
 delete fieldMap.PATIENTID

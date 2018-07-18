@@ -8,7 +8,7 @@ let data = util.loadCsv('Mutation.csv');
 // Extract Lookups
 const cols = util.shiftColumns(data);
 const indexes = util.extractColumnIndexes(cols, ['SAMPLEID', 'HGNC_ID', 'TYPE']);
-const sids =  util.extractColumnValues(data, indexes.SampleID, util.formatKey);
+const sids =  util.extractColumnValues(data, indexes.SAMPLEID, util.formatKey);
 const genes = util.extractColumnValues(data, indexes.HGNC_ID, util.formatHgnc);
 
 // Loop Through Data
