@@ -163,6 +163,25 @@ export class DataEffect {
       ];
     });
 
+  // Load Data From Public
+  @Effect()
+  dataLoadFromPrivate$: Observable<any> = this.actions$
+    .ofType(data.DATA_LOAD_FROM_PRIVATE)
+    .map((action: UnsafeAction) => action.payload)
+    .switchMap(args => {
+      args['uid'] = args['bucket'];
+      args['baseUrl'] = 'https://oncoscape.v3.sttrcancer.org/datasets/' + args['bucket'] + '/';
+      args['manifest'] =
+        'https://oncoscape.v3.sttrcancer.org/datasets/' + args['bucket'] + '/manifest.json.gz';
+      return this.datasetService.load(args);
+    })
+    .mergeMap(args => {
+      return [
+        // new FilePanelToggleAction(),
+        new DataLoadFromDexieAction(args.uid)
+      ];
+    });
+
   // Load Data From Dexie
   @Effect()
   dataLoadFromDexie$: Observable<DataLoadedAction> = this.actions$
@@ -247,11 +266,11 @@ export class DataEffect {
       // graphAConfig.graph = GraphEnum.GRAPH_A;
       // graphAConfig.table = args.tables.filter( v => ( (v.ctype & CollectionTypeEnum.MOLECULAR) > 0) )[1];
 
-      const pcaIncConfig2 = new PcaIncrementalConfigModel();
-      pcaIncConfig2.graph = GraphEnum.GRAPH_B;
-      pcaIncConfig2.table = args.tables.filter(
-        v => (v.ctype & CollectionTypeEnum.MOLECULAR) > 0
-      )[1];
+      // const pcaIncConfig2 = new PcaIncrementalConfigModel();
+      // pcaIncConfig2.graph = GraphEnum.GRAPH_B;
+      // pcaIncConfig2.table = args.tables.filter(
+      //   v => (v.ctype & CollectionTypeEnum.MOLECULAR) > 0
+      // )[1];
 
       const pcaIncConfig = new PcaIncrementalConfigModel();
       pcaIncConfig.graph = GraphEnum.GRAPH_A;
@@ -295,9 +314,9 @@ export class DataEffect {
         // new compute.SurvivalAction({ config: survivalConfig }),
         // new compute.ChromosomeAction( { config: chromosomeConfig } )
         // new compute.PathwaysAction({ config: pathwaysConfig }),
-        // new compute.GenomeAction({ config: genomeConfig }),
+        new compute.GenomeAction({ config: genomeConfig }),
         new compute.PcaIncrementalAction({ config: pcaIncConfig }),
-        new compute.PcaIncrementalAction({ config: pcaIncConfig2 }),
+        // new compute.PcaIncrementalAction({ config: pcaIncConfig2 }),
         // new GraphPanelToggleAction( GraphPanelEnum.GRAPH_A )
         // new compute.PcaAction({ config: pcaConfig }),
         new LoaderShowAction(),
