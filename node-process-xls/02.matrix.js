@@ -1,6 +1,7 @@
 // Libs
 const util = require('./util');
 const fs = require('fs');
+const _ = require('lodash');
 
 // Globals
 const manifest = [];
@@ -8,7 +9,7 @@ const manifest = [];
 // Loop Through Matrix Files
 fs.readdirSync(process.cwd()+'/data').map(v => v.toLowerCase()).filter(v => v.indexOf('matrix') === 0)
     .forEach( file => { 
-
+  
     let data = util.loadCsv(file);
     
     // Extract FileType From Cell 0:0 - ADD CHECK HERE THAT IT IS VALID
@@ -32,6 +33,27 @@ fs.readdirSync(process.cwd()+'/data').map(v => v.toLowerCase()).filter(v => v.in
 
     // Convert Values To Numbers (could be better, save index of id and gene and do all lookups using that...)
     output.values = data.map(row => row.map(cell => util.formatFloat(cell) ).filter(v => (v !== null)) ).filter(v => v.length);
+
+
+    /* Vali
+        1. make sure all the 
+        var e = output.values.filter(r=>r.length !== 14);
+        2. check duplidated ids/genes
+        _.uniq(output.ids).length === output.ids.length;
+        _.uniq(output.genes).length === output.genes.length;
+        3. find duplicated */
+        function getAllIndexes(arr, val) {
+            var indexes = [], i = -1;
+            while ((i = arr.indexOf(val, i+1)) != -1){
+                indexes.push(i);
+            }
+            return indexes;
+        }
+        
+        var getDuplicates = function(arr) {
+            var arr_sorted = _.sort
+        }
+
 
     // Serialize To Json + Save
     const fileName = file.replace('.csv','.json');

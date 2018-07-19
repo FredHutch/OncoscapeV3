@@ -35,8 +35,9 @@ const fieldMap = Object.keys(fields).reduce( (p, c) => {
 // Handling numeric values
 var numeric_fields = [];
 Object.keys(fieldMap).forEach(key => {
-    if (isNumber(fieldMap[key].sort().filter(s => s!== '')[0])) {
-        var arr = fieldMap[key].map( str => parseFloat(str));
+    var arr = fieldMap[key].map(v => v.replace(' ', ''));
+    if (isNumber(arr.sort().filter(s => s!== '')[0])) {
+        var arr = arr.map( str => parseFloat(str));
         numeric_fields = numeric_fields.concat(key);
         var obj = {};
         obj.min = _.min(arr);
