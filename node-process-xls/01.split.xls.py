@@ -9,8 +9,8 @@ file = sys.argv[1]
 
 wb = load_workbook(filename=file, read_only=True)
 sheetNames = wb.sheetnames
-# converter = xlsx2csv.Xlsx2csv(file, sheetid=0, outputencoding='utf-8')
-converter = xlsx2csv.Xlsx2csv(file, sheetid=0)
+converter = xlsx2csv.Xlsx2csv(file, sheetid=0, outputencoding='utf-8')
+# converter = xlsx2csv.Xlsx2csv(file, sheetid=0)
 del wb
 
 
