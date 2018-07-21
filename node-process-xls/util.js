@@ -39,6 +39,25 @@ exports.loadCsv = (file) => {
     return data;
 }
 
+exports.removeExtraCols = (data, colLength) => {
+    return data.map(d => {
+        d.splice(colLength-1, d.length-colLength)
+        return d;
+    });
+}
+
+exports.fillBlankNull = (data) => {
+    return data.map(row => {
+        return row.map(d => {
+            if (d === ''){
+                return null;
+            } else {
+                return d;
+            }
+        })
+    });
+}
+
 exports.extractColumnValues = (data, columnIndex, formatter) => { 
     return Array.from(new Set(data.map(v => formatter(v[columnIndex])))).filter(v => v !== '').filter(v => v !== null);
 }
@@ -53,7 +72,7 @@ exports.formatHgnc = (value) => {
 exports.formatKey = (value) => {
     if (value === undefined || value === null || value === '') { return null; }
     else {
-        return value.trim().toLowerCase().replace(/\s/gi,'_');
+        return value.trim().toUpperCase().replace(/\s/gi,'_');
     } 
 }
 
