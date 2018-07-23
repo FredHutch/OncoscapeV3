@@ -1,0 +1,24 @@
+{
+    "patient":{
+        "required_fields":["PATIENTID"],
+        "unique_fields":["PATIENTID"]
+    },
+    "sample":{
+        "required_fields":["SAMPLEID", "PATIENTID"],
+        "unique_fields":["SAMPLEID"],
+        "sheet_specific_checking": ["PatientId_overlapping", "check_column_uniqueness"]
+    },
+    "event":{
+        "required_fields":["PATIENTID","START", "END"],
+        "sheet_specific_checking": ["Type_Category_inclusion", "PatientId_overlapping", "check_column_uniqueness"]
+    },
+    "geneset":{
+        "sheet_specific_checking": ["Check_Gene_Symbols", "check_column_uniqueness"]
+    },
+    "mutation":{
+        "sheet_specific_checking": ["Check_Gene_Symbols", "SampleId_overlapping", "check_column_uniqueness"]
+    },
+    "matrix":{
+        "sheet_specific_checking": ["Check_Gene_Symbols", "SampleId_overlapping", "check_column_uniqueness", "check_row_uniqueness"]
+    }
+}

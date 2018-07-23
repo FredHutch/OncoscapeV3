@@ -2,6 +2,7 @@ const _ = require('lodash');
 const fs = require('fs');
 const files = fs.readdirSync(process.cwd()+'/data').map(v => v.toLowerCase());
 const help = require('./helping.js');
+var requirement = require('./DatasetRequirements.json');
 var getFileType = (filename) => filename.replace('.csv','').split('-')[0].split('_')[0];
 
 let evaluation = {};
@@ -71,3 +72,10 @@ uniq_file_types.forEach(t => {
         - gene symbols from [matrix, mutations] <-> HGNC list
         - genesets <-> HGNC list
 */ 
+
+var required_field = function(filename, requirement){
+    console.log(filename);
+    let data = util.loadCsv(filename);
+    const cols = util.shiftColumns(data);
+
+};
