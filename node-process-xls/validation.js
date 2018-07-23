@@ -111,16 +111,30 @@ files.forEach(f =>{
     var rows = util.shiftColumns(data);
     console.log('size of', f, ':', data.length, 'x', data[0].length);
 
+    // Generic column names unique checking:
+    if(!help.check_uniqueness(cols)) {
+        evaluation[type][f]['warning'] = true;
+        evaluation[type][f]['error'] = 'There is duplicated columns';
+    };
+
+    // Checking aginst Requirement config
     var type = getFileType(f);
     var r = requirement[type];
     if('required_fields' in r) {
-
+        var cols = cols.map(c => c.toUpperCase());
+        var notExistingCols = r['required_fields'].filter(k => cols.indexOf(k) === -1);
+        if(notExistingCols.length > 0) {
+            evaluation[type][f]['fail'] = true;
+            evaluation[type][f]['warning'] = false;
+            evaluation[type][f]['pass'] = false;
+            evaluation[type][f]['error'] = evaluation[type][f]['error'] + '|' + f + 'does not container required fields: ' + notExistingCols;
+        }
     }
     if('unique_fields' in r) {
-
+        
     }
     if('sheet_specific_checking' in r){
-        
+
     }
 
 });
