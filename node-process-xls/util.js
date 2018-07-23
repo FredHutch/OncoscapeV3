@@ -49,14 +49,14 @@ exports.removeExtraCols = (data, colLength) => {
 exports.fillBlankNull = (data) => {
     return data.map(row => {
         return row.map(d => {
-            if (d === ''){ return null;
+            if (d === '' || d === 'NA'){ return null;
             } else { return d;}
         })
     });
 }
 
-exports.removeExtraRows = (data) => {
-    return data.map()
+exports.removeExtraRows = (data, colLength) => {
+    return data.filter(d => d.length === colLength);
 }
 
 exports.extractColumnValues = (data, columnIndex, formatter) => { 
@@ -93,6 +93,10 @@ exports.formatMut = (value) => {
 exports.shiftColumns = (value) => { 
     const rv = value.shift().map(v => exports.formatColumn(v)).filter(v => v !== '');
     return rv;
+}
+
+exports.getRowNames = (data) => {
+    return data.map(d => d[0]);
 }
 /**
  * Input: Columns, Array of column names

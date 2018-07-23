@@ -102,8 +102,25 @@ var required_field = function(filename, requirement){
 
 };
 
-files.map(f =>{
-    let data = util.loadCsv(f);
-    const cols = util.shiftColumns(data);
-    
+files.forEach(f =>{
+    var data = util.loadCsv(f);
+    var cols = util.shiftColumns(data);
+    data = util.removeExtraCols(data, cols.length);
+    data = util.fillBlankNull(data);
+    data = util.removeExtraRows(data, cols.length);
+    var rows = util.shiftColumns(data);
+    console.log('size of', f, ':', data.length, 'x', data[0].length);
+
+    var type = getFileType(f);
+    var r = requirement[type];
+    if('required_fields' in r) {
+
+    }
+    if('unique_fields' in r) {
+
+    }
+    if('sheet_specific_checking' in r){
+        
+    }
+
 });
