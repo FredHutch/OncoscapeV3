@@ -105,6 +105,7 @@ var required_field = function(filename, requirement){
 files.forEach(f =>{
     var data = util.loadCsv(f);
     var cols = util.shiftColumns(data);
+    var cols_upper = cols.map(c => c.toUpperCase());
     data = util.removeExtraCols(data, cols.length);
     data = util.fillBlankNull(data);
     data = util.removeExtraRows(data, cols.length);
@@ -121,8 +122,7 @@ files.forEach(f =>{
     var type = getFileType(f);
     var r = requirement[type];
     if('required_fields' in r) {
-        var cols = cols.map(c => c.toUpperCase());
-        var notExistingCols = r['required_fields'].filter(k => cols.indexOf(k) === -1);
+        var notExistingCols = r['required_fields'].filter(k => cols_upper.indexOf(k) === -1);
         if(notExistingCols.length > 0) {
             evaluation[type][f]['fail'] = true;
             evaluation[type][f]['warning'] = false;
@@ -131,7 +131,19 @@ files.forEach(f =>{
         }
     }
     if('unique_fields' in r) {
-        
+        var obj = {};
+        r['unique_fields'].forEach(k => {
+            var index = cols_upper.indexOf(k);
+            var col_values = data.map(d=>d[index]);
+            obj[k] = help.check_uniqueness(col_values);
+        });
+        evaluation[type][f]['unique_fields'] = obj;
+        if(_.values(obj).indexOf(false) > -1) {
+            evaluation[type][f]['fail'] = true;
+            evaluation[type][f]['warning'] = false;
+            evaluation[type][f]['pass'] = false;
+            evaluation[type][f]['error'] = evaluation[type][f]['error'] + '|' + f + 'field(s) with replicated values:' + Object.keys(obj).filter(k => !obj(k));
+        };
     }
     if('sheet_specific_checking' in r){
 
