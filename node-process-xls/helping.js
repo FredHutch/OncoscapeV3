@@ -44,13 +44,13 @@
             return loc.map(l=>sheet[l].v);
         }
 
-        get_geneSetNames = (geneset_sheet ) => {
+        get_geneSetNames = (geneset_sheet) => {
             var re = /[0-9]+/gi;
             var loc = Object.keys(geneset_sheet).filter(k=>k.match(re) !== null && parseInt(k.match(re)[0]) ===1 && geneset_sheet[k].t !=='z');
             return loc.map(l=>geneset_sheet[l].v);
         }
 
-        check_uniqueness = (arr ) => {
+        check_uniqueness = (arr) => {
             return arr.length == new Set(arr).size;
         }
 

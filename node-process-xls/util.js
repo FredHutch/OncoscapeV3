@@ -49,13 +49,14 @@ exports.removeExtraCols = (data, colLength) => {
 exports.fillBlankNull = (data) => {
     return data.map(row => {
         return row.map(d => {
-            if (d === ''){
-                return null;
-            } else {
-                return d;
-            }
+            if (d === ''){ return null;
+            } else { return d;}
         })
     });
+}
+
+exports.removeExtraRows = (data) => {
+    return data.map()
 }
 
 exports.extractColumnValues = (data, columnIndex, formatter) => { 

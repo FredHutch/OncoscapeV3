@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const fs = require('fs');
 const files = fs.readdirSync(process.cwd()+'/data').map(v => v.toLowerCase());
+const util = require('./util.js');
 const help = require('./helping.js');
 var requirement = require('./DatasetRequirements.json');
 var getFileType = (filename) => filename.replace('.csv','').split('-')[0].split('_')[0];
@@ -29,26 +30,47 @@ uniq_file_types.forEach(t => {
     Warning will not
 */
 
-
-
 /* After spliting the excel file into multiple csv files
     Check the existance of file types
     required: patient, psmap, at least one matrix | mutation
 */
-    var file_existant = function(evaluation) {
-        if (!'patient' in evaluation && !'sample' in evaluation) {
-            evaluation['pass'] = false;
-            evaluation['fail'] = true;
-            evaluation['warning'] = false;
-            evaluation['error'] = 'PATIENT or SAMPLE table does not exist.';
-        } else if (!'matrix' in evaluation && !'mutation' in evaluation) {
-            evaluation['pass'] = true;
-            evaluation['fail'] = false;
-            evaluation['warning'] = true;
-            evaluation['error'] = 'Do not have molecular data to initiate plotting.';
-            evaluation['available_tools'] = ['spreadsheet'];
-        }
-    };
+
+/* 
+   check if all the types are validated 
+   return the files that do not fit into current data model, or there is typo in the first token
+   valid types : ['patient', 'sample', 'event', 'geneset', 'matrix', 'mutation']
+*/
+var file_types_validation = function(uniq_file_types, requirement, evaluation) {
+    valid_types = Object.keys(requirement);
+    return uniq_file_types.filter(t => {
+        valid_types.indexOf(t) === -1
+    }).map(t => {
+        evaluation[t]['files'];
+    });
+};
+
+var file_types_validation_res = file_types_validation(uniq_file_types, requirement, evaluation);
+if (file_types_validation_res.length > 0 ){
+    evaluation['warning'] = true;
+    evaluation['error'] = evaluation['error'] + '| The following files cannot be incorporated into Oncoscape V3.' + file_types_validation_res;
+}
+
+var file_existant = function(evaluation) {
+    if (!'patient' in evaluation && !'sample' in evaluation) {
+        evaluation['pass'] = false;
+        evaluation['fail'] = true;
+        evaluation['warning'] = false;
+        evaluation['error'] = 'PATIENT or SAMPLE table does not exist.';
+    } else if (!'matrix' in evaluation && !'mutation' in evaluation) {
+        evaluation['pass'] = true;
+        evaluation['fail'] = false;
+        evaluation['warning'] = true;
+        evaluation['error'] = 'Do not have molecular data to initiate plotting.';
+        evaluation['available_tools'] = ['spreadsheet'];
+    }
+};
+
+
 
 /*
     Sheet level validation
@@ -79,3 +101,9 @@ var required_field = function(filename, requirement){
     const cols = util.shiftColumns(data);
 
 };
+
+files.map(f =>{
+    let data = util.loadCsv(f);
+    const cols = util.shiftColumns(data);
+    
+});
