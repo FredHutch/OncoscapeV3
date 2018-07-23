@@ -10,6 +10,10 @@ let data = util.loadCsv('Patient.csv');
 const cols = util.shiftColumns(data);
 const indexes = util.extractColumnIndexes(cols, cols);
 
+// Remove Extra Columns and Keep Enough Columns and fill the empty strings with null
+data = util.removeExtraCols(data, cols.length);
+data = util.fillBlankNull(data);
+
 // Format Ids + Remove Rows With Null Ids
 data = data.map(v => { 
     v[indexes.PATIENTID] = util.formatKey(v[indexes.PATIENTID]);
@@ -63,7 +67,7 @@ const values = data.map( (row) => {
 delete fieldMap.PATIENTID
 values.forEach( value => { 
     value.splice(indexes.PATIENTID, 1);
-})
+});
 
 // Ids
 ids = data.map(v => v[indexes.PATIENTID]);
