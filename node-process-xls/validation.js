@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const fs = require('fs');
 const files = fs.readdirSync(process.cwd()+'/data').map(v => v.toLowerCase());
-
+const help = require('./helping.js');
 var getFileType = (filename) => filename.replace('.csv','').split('-')[0].split('_')[0];
 
 let evaluation = {};
@@ -51,7 +51,7 @@ uniq_file_types.forEach(t => {
 
 /*
     Sheet level validation
-
+    --- since the serialization doesn't take long, this step of validation can be performed after the serialization ---
     Targets:
     - patient
     - sample
