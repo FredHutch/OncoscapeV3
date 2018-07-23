@@ -7,7 +7,20 @@ var getFileType = (filename) => filename.replace('.csv','').split('-')[0].split(
 let evaluation = {};
 var uniq_file_types = _.uniq(files.map(file => getFileType(file)));
 uniq_file_types.forEach(t => {
-    
+    var obj = {};
+    obj.pass = false;
+    obj.warning = false;
+    obj.fail = true;
+    var related_files = files.filter(f => getFileType(f) === t);
+    var fileobj = {};
+    related_files.forEach(f => {
+        fileobj[f] = {};
+        fileobj[f]['pass'] = false;
+        fileobj[f]['warning'] = false;
+        fileobj[f]['fail'] = true;
+    });
+    obj['files'] = fileobj;
+    evaluation[t] = obj;
 });
 /*
     generate validation result in json format
@@ -17,14 +30,24 @@ uniq_file_types.forEach(t => {
 
 
 
-
 /* After spliting the excel file into multiple csv files
     Check the existance of file types
     required: patient, psmap, at least one matrix | mutation
 */
-
-
-
+    var file_existant = function(evaluation) {
+        if (!'patient' in evaluation && !'sample' in evaluation) {
+            evaluation['pass'] = false;
+            evaluation['fail'] = true;
+            evaluation['warning'] = false;
+            evaluation['error'] = 'PATIENT or SAMPLE table does not exist.';
+        } else if (!'matrix' in evaluation && !'mutation' in evaluation) {
+            evaluation['pass'] = true;
+            evaluation['fail'] = false;
+            evaluation['warning'] = true;
+            evaluation['error'] = 'Do not have molecular data to initiate plotting.';
+            evaluation['available_tools'] = ['spreadsheet'];
+        }
+    };
 
 /*
     Sheet level validation
