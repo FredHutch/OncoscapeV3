@@ -80,7 +80,7 @@ export class DataService {
     'Short Noncoding',
     'Other'
   ];
-  public static API_PATH = 'https://dev.oncoscape.sttrcancer.io/api/';
+
   public static headersJson = {
     Accept: 'application/json',
     'Content-Type': 'application/json',
@@ -106,8 +106,10 @@ export class DataService {
     };
 
     // Make map from VisualizationEnum To FileName
-    // const jsonFile = this.getJsonFileFromVisualization(v);
-    const jsonFile = 'pathways.json';
+    let jsonFile = this.getTipFileFromVisualization(v);
+    if (jsonFile === null) {
+      jsonFile = 'pathways.json';
+    }
     return fetch('./assets/tips/' + jsonFile, requestInit).then(res => res.json());
   }
 
@@ -588,71 +590,77 @@ export class DataService {
     return Observable.fromPromise(DataService.db.table('bandcoords').toArray());
   }
   getGeneSetByCategory(categoryCode: string): Observable<any> {
-    const subcats = [
-      'CGP',
-      'CP',
-      'CP:BIOCARTA',
-      'CP:KEGG',
-      'CP:REACTOME',
-      'MIR',
-      'TFT',
-      'CGN',
-      'CM',
-      'BP',
-      'CC',
-      'MF',
-      'C6',
-      'c7'
-    ];
-    const field = subcats.indexOf(categoryCode) === -1 ? 'category' : 'subcategory';
     return Observable.fromPromise(
-      fetch(
-        DataService.API_PATH +
-          'z_lookup_geneset/%7B%22$fields%22:[%22name%22,%22hugo%22,%22summary%22],%20%22$query%22:%7B%22' +
-          field +
-          '%22:%22' +
-          categoryCode +
-          '%22%7D%20%7D',
-        {
-          method: 'GET',
-          headers: DataService.headersJson
-        }
-      ).then(res => res.json())
+      fetch('https://oncoscape.v3.sttrcancer.org/data/genesets/' + categoryCode + '.json.gz', {
+        method: 'GET',
+        headers: DataService.headersJson
+      }).then(res => res.json())
     );
+    // const subcats = [
+    //   'CGP',
+    //   'CP',
+    //   'CP:BIOCARTA',
+    //   'CP:KEGG',
+    //   'CP:REACTOME',
+    //   'MIR',
+    //   'TFT',
+    //   'CGN',
+    //   'CM',
+    //   'BP',
+    //   'CC',
+    //   'MF',
+    //   'C6',
+    //   'c7'
+    // ];
+    // const field = subcats.indexOf(categoryCode) === -1 ? 'category' : 'subcategory';
+    // return Observable.fromPromise(
+    //   fetch(
+    //     DataService.API_PATH +
+    //       'z_lookup_geneset/%7B%22$fields%22:[%22name%22,%22hugo%22,%22summary%22],%20%22$query%22:%7B%22' +
+    //       field +
+    //       '%22:%22' +
+    //       categoryCode +
+    //       '%22%7D%20%7D',
+    //     {
+    //       method: 'GET',
+    //       headers: DataService.headersJson
+    //     }
+    //   ).then(res => res.json())
+    // );
   }
-  getGeneSetQuery(categoryCode: string, searchTerm: string): Observable<any> {
-    return Observable.fromPromise(
-      fetch(
-        DataService.API_PATH +
-          'z_lookup_geneset/%20%7B%22category%22%3A%22' +
-          categoryCode +
-          '%22%2C%20%20%22%24text%22%3A%20%7B%20%22%24search%22%3A%20%22' +
-          searchTerm +
-          '%22%20%7D%20%20%7D',
-        {
-          method: 'GET',
-          headers: DataService.headersJson
-        }
-      ).then(res => res.json())
-    );
-  }
-  getGenesetBySearchTerm(searchTerm: string): Observable<any> {
-    return Observable.fromPromise(
-      fetch(
-        DataService.API_PATH +
-          'z_lookup_geneset/%7B%22%24text%22%3A%7B%22%24search%22%3A%22' +
-          searchTerm +
-          '%22%7D%7D',
-        {
-          method: 'GET',
-          headers: DataService.headersJson
-        }
-      ).then(res => res.json())
-    );
-  }
+  // getGeneSetQuery(categoryCode: string, searchTerm: string): Observable<any> {
+  //   return Observable.fromPromise(
+  //     fetch(
+  //       DataService.API_PATH +
+  //         'z_lookup_geneset/%20%7B%22category%22%3A%22' +
+  //         categoryCode +
+  //         '%22%2C%20%20%22%24text%22%3A%20%7B%20%22%24search%22%3A%20%22' +
+  //         searchTerm +
+  //         '%22%20%7D%20%20%7D',
+  //       {
+  //         method: 'GET',
+  //         headers: DataService.headersJson
+  //       }
+  //     ).then(res => res.json())
+  //   );
+  // }
+  // getGenesetBySearchTerm(searchTerm: string): Observable<any> {
+  //   return Observable.fromPromise(
+  //     fetch(
+  //       DataService.API_PATH +
+  //         'z_lookup_geneset/%7B%22%24text%22%3A%7B%22%24search%22%3A%22' +
+  //         searchTerm +
+  //         '%22%7D%7D',
+  //       {
+  //         method: 'GET',
+  //         headers: DataService.headersJson
+  //       }
+  //     ).then(res => res.json())
+  //   );
+  // }
   getGeneSetCategories(): Observable<any> {
     return Observable.fromPromise(
-      fetch(DataService.API_PATH + 'z_lookup_geneset_categories', {
+      fetch('https://oncoscape.v3.sttrcancer.org/data/genesets/categories.json.gz', {
         method: 'GET',
         headers: DataService.headersJson
       }).then(res => res.json())
@@ -661,6 +669,66 @@ export class DataService {
 
   getDatasetInfo(): Promise<any> {
     return DataService.db.table('dataset').toArray();
+  }
+
+  getTipFileFromVisualization(v: VisualizationEnum): string {
+    switch (v) {
+      case VisualizationEnum.LINKED_GENE:
+      case VisualizationEnum.BOX_WHISKERS:
+      case VisualizationEnum.PARALLEL_COORDS:
+      case VisualizationEnum.HIC:
+      case VisualizationEnum.DENDOGRAM:
+      case VisualizationEnum.SPREADSHEET:
+      case VisualizationEnum.SPARSE_CODER:
+      case VisualizationEnum.HAZARD:
+      case VisualizationEnum.DASHBOARD:
+      case VisualizationEnum.HISTOGRAM:
+      case VisualizationEnum.CHROMOSOME:
+        return null;
+      case VisualizationEnum.SURVIVAL:
+        return 'survival.json';
+      case VisualizationEnum.HEATMAP:
+          return 'heatmap.json';
+      case VisualizationEnum.TIMELINES:
+        return 'timelines.json';
+      case VisualizationEnum.PATHWAYS:
+        return 'pathways.json';
+      case VisualizationEnum.DECOMPOSITION:
+      case VisualizationEnum.MANIFOLDLEARNING:
+      case VisualizationEnum.SUPPORT_VECTOR_MACHINES:
+      case VisualizationEnum.PCA:
+      case VisualizationEnum.PLS:
+      case VisualizationEnum.TSNE:
+      case VisualizationEnum.KMEANS:
+      case VisualizationEnum.KMEDIAN:
+      case VisualizationEnum.KMEDOIDS:
+      case VisualizationEnum.SOM:
+      case VisualizationEnum.MDS:
+      case VisualizationEnum.DA:
+      case VisualizationEnum.DE:
+      case VisualizationEnum.FA:
+      case VisualizationEnum.TRUNCATED_SVD:
+      case VisualizationEnum.INCREMENTAL_PCA:
+      case VisualizationEnum.KERNAL_PCA:
+      case VisualizationEnum.SPARSE_PCA:
+      case VisualizationEnum.PROBABILISTIC_PCA:
+      case VisualizationEnum.RANDOMIZED_PCA:
+      case VisualizationEnum.FAST_ICA:
+      case VisualizationEnum.DICTIONARY_LEARNING:
+      case VisualizationEnum.LDA:
+      case VisualizationEnum.NMF:
+      case VisualizationEnum.ISOMAP:
+      case VisualizationEnum.LOCALLY_LINEAR_EMBEDDING:
+      case VisualizationEnum.MINI_BATCH_DICTIONARY_LEARNING:
+      case VisualizationEnum.MINI_BATCH_SPARSE_PCA:
+      case VisualizationEnum.LINEAR_DISCRIMINANT_ANALYSIS:
+      case VisualizationEnum.QUADRATIC_DISCRIMINANT_ANALYSIS:
+      case VisualizationEnum.SPARSE_CODER:
+      case VisualizationEnum.SPECTRAL_EMBEDDING:
+        return 'clustering.json';
+      case VisualizationEnum.GENOME:
+        return 'genome.json';
+    }
   }
 
   getJsonFileFromVisualization(v: VisualizationEnum): string {
@@ -1233,8 +1301,8 @@ export class DataService {
       });
     });
   }
-  getGenesetCategories(): Promise<Array<{ c: string; n: string; d: string }>> {
-    return fetch('https://oncoscape.v3.sttrcancer.org/data/reference/genesets.json.gz', {
+  getGenesetCategories(): Promise<Array<{ code: string; name: string; desc: string }>> {
+    return fetch('https://oncoscape.v3.sttrcancer.org/data/genesets/categories.json.gz', {
       method: 'GET',
       headers: DataService.headersJson
     }).then(res => res.json());
