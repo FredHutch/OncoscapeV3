@@ -212,3 +212,5 @@ files.forEach(f =>{
     }
 
 });
+
+fs.writeFile('evaluation.json', JSON.stringify(evaluation),(err) => console.error(err));
