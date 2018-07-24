@@ -92,6 +92,19 @@ var file_existant = function(evaluation) {
         - gene symbols from [matrix, mutations] <-> HGNC list
         - genesets <-> HGNC list
 */ 
+let ids = {};
+
+files.forEach(f => {
+        if (getFileType(f) === 'patient') {
+            var data = util.loadCsv(f);
+            var pid_ind = util.shiftColumns(data).indexOf('PATIENTID');
+            ids['pids'] = data.map(d => d[pid_ind]);
+        } else if (getFileType(f) === 'sample') {
+            var data = util.loadCsv(f);
+            var sid_ind = util.shiftColumns(data).indexOf('SAMPLEID');
+            ids['sids'] = data.map(d => d[sid_ind]); 
+        }
+     });
 
 files.forEach(f =>{
     console.log(f);
@@ -148,7 +161,19 @@ files.forEach(f =>{
         }
     }
     if('sheet_specific_checking' in r){
-
+        var fun_arr = r['sheet_specific_checking'];
+        fun_arr.forEach(fnstring => {
+            var fn = window['sheet_checking_fn.' + fnstring];
+            fn();
+        })
     }
 
 });
+
+var sheet_checking_fn = {
+    Type_Category_inclusion : function() {},
+    PatientId_overlapping : function() {},
+    Check_Gene_Symbols : function() {},
+    SampleId_overlapping : function() {},
+    check_row_uniqueness : function() {}
+};
