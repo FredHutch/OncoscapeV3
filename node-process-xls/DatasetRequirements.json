@@ -16,6 +16,7 @@
         "sheet_specific_checking": ["Check_Gene_Symbols"]
     },
     "mutation":{
+        "required_fields": ["SAMPLEID", "HGNC_ID", "TYPE"],
         "sheet_specific_checking": ["Check_Gene_Symbols", "SampleId_overlapping"]
     },
     "matrix":{

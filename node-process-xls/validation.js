@@ -93,7 +93,8 @@ var file_existant = function(evaluation) {
         - genesets <-> HGNC list
 */ 
 let ids = {};
-
+// TODO: get HGNC list from Michael
+ids.hgnc = [];
 files.forEach(f => {
         if (getFileType(f) === 'patient') {
             var data = util.loadCsv(f);
@@ -172,8 +173,36 @@ files.forEach(f =>{
 
 var sheet_checking_fn = {
     Type_Category_inclusion : function() {},
-    PatientId_overlapping : function() {},
-    Check_Gene_Symbols : function() {},
-    SampleId_overlapping : function() {},
-    check_row_uniqueness : function() {}
+    PatientId_overlapping : function(data, cols, pid_ref) {
+        var pid_ind = cols.indexOf('PATIENTID');
+        return help.overlapping(data.map(d => d[pid_ind]), pid_ref); 
+    },
+    Check_Gene_Symbols : function(data, type, gene_ref) {
+        switch(type) {
+            case 'geneset':
+                return data.map(d => {
+                    return help.overlapping(d, gene_ref);
+                });
+                break;
+            case 'matrix':
+                return help.overlapping(data.map(d => d[0]), gene_ref);
+            case 'mutation':
+                var g_ind = cols.indexOf('HGNC_ID');
+                return help.overlapping(data.map(d => d[g_ind]), gene_ref);
+        }
+    },
+    SampleId_overlapping : function(data, type, cols, sid_ref) {
+        switch (type) {
+            case 'mutation':
+                var sid_ind = cols.indexOf('SAMPLEID');
+                return help.overlapping(data.map(d => d[sid_ind]), sid_ref);
+                break;
+            case 'matrix':
+                return help.overlapping(cols, sid_ref);
+                break;
+        }
+    },
+    check_row_uniqueness : function(data) {
+        return help.check_uniqueness(data.map(d => d[0]));
+    }
 };
