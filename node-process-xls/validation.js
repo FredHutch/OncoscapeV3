@@ -10,18 +10,20 @@ let evaluation = {};
 var uniq_file_types = _.uniq(files.map(file => getFileType(file)));
 uniq_file_types.forEach(t => {
     var obj = {};
-    obj.pass = false;
+    obj.pass = true;
     obj.warning = false;
+    obj.error = [];
     var related_files = files.filter(f => getFileType(f) === t);
     var fileobj = {};
     related_files.forEach(f => {
         fileobj[f] = {};
-        fileobj[f]['pass'] = false;
+        fileobj[f]['pass'] = true;
         fileobj[f]['warning'] = false;
     });
     obj['files'] = fileobj;
     evaluation[t] = obj;
 });
+
 /*
     generate validation result in json format
     Error will end the validatioan
@@ -50,20 +52,19 @@ var file_types_validation = function(uniq_file_types, requirement, evaluation) {
 var file_types_validation_res = file_types_validation(uniq_file_types, requirement, evaluation);
 if (file_types_validation_res.length > 0 ){
     evaluation['warning'] = true;
-    evaluation['error'] = evaluation['error'] + '| The following files cannot be incorporated into Oncoscape V3.' + file_types_validation_res;
+    evaluation['error'] = evaluation['error'].concat({'file_types_valiation':'The following files cannot be incorporated into Oncoscape V3.' + file_types_validation_res});
 } else {
-    evaluation['file_types_validation'] = 'All file types can be accomodated by current Oncoscape V3 data';
+    evaluation['comments'] = 'All file types can be accomodated by current Oncoscape V3 data';
 }
 
 var file_existant = function(evaluation) {
     if (!'patient' in evaluation && !'sample' in evaluation) {
         evaluation['pass'] = false;
         evaluation['warning'] = false;
-        evaluation['error'] = 'PATIENT or SAMPLE table does not exist.';
+        evaluation['error'] = evaluation['error'].concat({'file_existant':'PATIENT or SAMPLE table does not exist.'});
     } else if (!'matrix' in evaluation && !'mutation' in evaluation) {
-        evaluation['pass'] = true;
         evaluation['warning'] = true;
-        evaluation['error'] = 'Do not have molecular data to initiate plotting.';
+        evaluation['error'] = evaluation['error'].concat({'molecular_data_existant': 'Do not have molecular data to initiate plotting.'});
         evaluation['available_tools'] = ['spreadsheet'];
     }
 };
@@ -106,6 +107,43 @@ files.forEach(f => {
             ids['sids'] = data.map(d => d[sid_ind]); 
         }
      });
+
+
+
+var sheet_checking_fn = {
+    PatientId_overlapping : function(data, type, cols, pid_ref, gene_ref, sid_ref) {
+        var pid_ind = cols.indexOf('PATIENTID');
+        return help.overlapping(data.map(d => d[pid_ind]), pid_ref); 
+    },
+    Check_Gene_Symbols : function(data, type, cols, pid_ref, gene_ref, sid_ref) {
+        switch(type) {
+            case 'geneset':
+                return data.map(d => {
+                    return help.overlapping(d, gene_ref);
+                });
+                break;
+            case 'matrix':
+                return help.overlapping(data.map(d => d[0]), gene_ref);
+            case 'mutation':
+                var g_ind = cols.indexOf('HGNC_ID');
+                return help.overlapping(data.map(d => d[g_ind]), gene_ref);
+        }
+    },
+    SampleId_overlapping : function(data, type, cols, pid_ref, gene_ref, sid_ref) {
+        switch (type) {
+            case 'mutation':
+                var sid_ind = cols.indexOf('SAMPLEID');
+                return help.overlapping(data.map(d => d[sid_ind]), sid_ref);
+                break;
+            case 'matrix':
+                return help.overlapping(cols, sid_ref);
+                break;
+        }
+    },
+    check_row_uniqueness : function(data, type, cols, pid_ref, gene_ref, sid_ref) {
+        return help.check_uniqueness(data.map(d => d[0]));
+    }
+};
 
 files.forEach(f =>{
     console.log(f);
@@ -162,47 +200,15 @@ files.forEach(f =>{
         }
     }
     if('sheet_specific_checking' in r){
-        var fun_arr = r['sheet_specific_checking'];
+        var fun_arr = r['sheet_specific_checking']; 
+        var pid_ref = ids.pids;
+        var gene_ref = ids.hgnc;
+        var sid_ref = ids.sids;
         fun_arr.forEach(fnstring => {
-            var fn = window['sheet_checking_fn.' + fnstring];
-            fn();
+            console.log(fnstring);
+            var fn = eval('sheet_checking_fn.' + fnstring);
+            fn(data, type, cols, pid_ref, gene_ref, sid_ref);
         })
     }
 
 });
-
-var sheet_checking_fn = {
-    Type_Category_inclusion : function() {},
-    PatientId_overlapping : function(data, cols, pid_ref) {
-        var pid_ind = cols.indexOf('PATIENTID');
-        return help.overlapping(data.map(d => d[pid_ind]), pid_ref); 
-    },
-    Check_Gene_Symbols : function(data, type, gene_ref) {
-        switch(type) {
-            case 'geneset':
-                return data.map(d => {
-                    return help.overlapping(d, gene_ref);
-                });
-                break;
-            case 'matrix':
-                return help.overlapping(data.map(d => d[0]), gene_ref);
-            case 'mutation':
-                var g_ind = cols.indexOf('HGNC_ID');
-                return help.overlapping(data.map(d => d[g_ind]), gene_ref);
-        }
-    },
-    SampleId_overlapping : function(data, type, cols, sid_ref) {
-        switch (type) {
-            case 'mutation':
-                var sid_ind = cols.indexOf('SAMPLEID');
-                return help.overlapping(data.map(d => d[sid_ind]), sid_ref);
-                break;
-            case 'matrix':
-                return help.overlapping(cols, sid_ref);
-                break;
-        }
-    },
-    check_row_uniqueness : function(data) {
-        return help.check_uniqueness(data.map(d => d[0]));
-    }
-};

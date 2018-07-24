@@ -10,7 +10,8 @@
     },
     "event":{
         "required_fields":["PATIENTID","START", "END"],
-        "sheet_specific_checking": ["Type_Category_inclusion", "PatientId_overlapping"]
+        "sheet_specific_checking": ["PatientId_overlapping"],
+        "post_serialization_checking": ["Type_Category_inclusion"]
     },
     "geneset":{
         "sheet_specific_checking": ["Check_Gene_Symbols"]
