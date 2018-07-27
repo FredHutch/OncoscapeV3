@@ -39,6 +39,26 @@ exports.loadCsv = (file) => {
     return data;
 }
 
+exports.removeExtraCols = (data, colLength) => {
+    return data.map(d => {
+        d.splice(colLength-1, d.length-colLength)
+        return d;
+    });
+}
+
+exports.fillBlankNull = (data) => {
+    return data.map(row => {
+        return row.map(d => {
+            if (d === '' || d === 'NA'){ return null;
+            } else { return d;}
+        })
+    });
+}
+
+exports.removeExtraRows = (data, colLength) => {
+    return data.filter(d => d.length === colLength);
+}
+
 exports.extractColumnValues = (data, columnIndex, formatter) => { 
     return Array.from(new Set(data.map(v => formatter(v[columnIndex])))).filter(v => v !== '').filter(v => v !== null);
 }
@@ -53,7 +73,7 @@ exports.formatHgnc = (value) => {
 exports.formatKey = (value) => {
     if (value === undefined || value === null || value === '') { return null; }
     else {
-        return value.trim().toLowerCase().replace(/\s/gi,'_');
+        return value.trim().toUpperCase().replace(/\s/gi,'_');
     } 
 }
 
@@ -73,6 +93,10 @@ exports.formatMut = (value) => {
 exports.shiftColumns = (value) => { 
     const rv = value.shift().map(v => exports.formatColumn(v)).filter(v => v !== '');
     return rv;
+}
+
+exports.getRowNames = (data) => {
+    return data.map(d => d[0]);
 }
 /**
  * Input: Columns, Array of column names

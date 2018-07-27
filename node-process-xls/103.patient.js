@@ -10,6 +10,10 @@ let data = util.loadCsv('Patient.csv');
 const cols = util.shiftColumns(data);
 const indexes = util.extractColumnIndexes(cols, cols);
 
+// Remove Extra Columns and Keep Enough Columns and fill the empty strings with null
+data = util.removeExtraCols(data, cols.length);
+data = util.fillBlankNull(data);
+
 // Format Ids + Remove Rows With Null Ids
 data = data.map(v => { 
     v[indexes.PATIENTID] = util.formatKey(v[indexes.PATIENTID]);
@@ -35,8 +39,9 @@ const fieldMap = Object.keys(fields).reduce( (p, c) => {
 // Handling numeric values
 var numeric_fields = [];
 Object.keys(fieldMap).forEach(key => {
-    if (isNumber(fieldMap[key].sort().filter(s => s!== '')[0])) {
-        var arr = fieldMap[key].map( str => parseFloat(str));
+    var arr = fieldMap[key].map(v => v.replace(' ', ''));
+    if (isNumber(arr.sort().filter(s => s!== '')[0])) {
+        var arr = arr.map( str => parseFloat(str));
         numeric_fields = numeric_fields.concat(key);
         var obj = {};
         obj.min = _.min(arr);
@@ -62,7 +67,7 @@ const values = data.map( (row) => {
 delete fieldMap.PATIENTID
 values.forEach( value => { 
     value.splice(indexes.PATIENTID, 1);
-})
+});
 
 // Ids
 ids = data.map(v => v[indexes.PATIENTID]);
