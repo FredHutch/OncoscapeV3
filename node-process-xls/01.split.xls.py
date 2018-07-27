@@ -12,10 +12,9 @@ sheetNames = wb.sheetnames
 converter = xlsx2csv.Xlsx2csv(file, sheetid=0, outputencoding='utf-8')
 del wb
 
-
 if not os.path.exists('output'):
     os.makedirs('output')
 
 for idx, sheetName in enumerate(sheetNames):
-    converter.convert('data', sheetid=idx)
-    # converter.convert(sheetName + '.csv', sheetid=idx)
+    converter.convert('output', sheetid=idx)
+    # converter.convert('output/' + sheetName + '.csv', sheetid=idx)
