@@ -52,7 +52,7 @@ const metadata = Object.keys(values)
             value +
             ' Contains ' +
             Math.round((numberNumericValues / numberRawValues) * 100) +
-            '% Numeric Values - If This is a numeric column, leave unknown, NA or blank cells empty',
+            '% Numeric Values - If This is a numeric column, leave non-numeric cells empty empty',
           'sample'
         );
       }
