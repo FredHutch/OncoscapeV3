@@ -39,7 +39,8 @@ const fieldMap = Object.keys(fields).reduce( (p, c) => {
 // Handling numeric values
 var numeric_fields = [];
 Object.keys(fieldMap).forEach(key => {
-    var arr = fieldMap[key].map(v => v.replace(' ', ''));
+    console.log(key);
+    var arr = fieldMap[key].map(v => v === null ? null : v.replace(' ', ''));
     if (isNumber(arr.sort().filter(s => s!== '')[0])) {
         var arr = arr.map( str => parseFloat(str));
         numeric_fields = numeric_fields.concat(key);
