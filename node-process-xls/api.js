@@ -63,11 +63,19 @@ exports.io = {
   }
 };
 
+_filename = null;
+filename = () => {
+  return process.mainModule.filename.substring(
+    process.mainModule.filename.lastIndexOf('/') + 1,
+    process.mainModule.filename.length - 3
+  );
+};
+
 exports.log = {
   error: (msg, sheet) => {
-    console.log(sheet + ':' + msg);
+    console.log(filename() + ':' + sheet + ':' + msg);
   },
   warn: (msg, sheet) => {
-    console.log(sheet + ':' + msg);
+    console.log(filename() + ':' + sheet + ':' + msg);
   }
 };
