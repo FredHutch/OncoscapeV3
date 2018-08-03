@@ -39,6 +39,7 @@ const fieldMap = Object.keys(fields).reduce( (p, c) => {
 // Handling numeric values
 var numeric_fields = [];
 Object.keys(fieldMap).forEach(key => {
+    console.log(key);
     var arr = fieldMap[key].map(v => v === null ? null : v.replace(' ', ''));
     if (isNumber(arr.sort().filter(s => s!== '')[0])) {
         var arr = arr.map( str => parseFloat(str));
@@ -79,5 +80,5 @@ var output = {
 };
 
 // Serialize To Json + Save
-fs.writeFileSync(process.cwd()+'/output/manifest-fields.json', JSON.stringify(fieldMap), {'encoding':'UTF-8'});
+fs.writeFileSync(process.cwd()+'/output/manifest-fields-patient.json', JSON.stringify(fieldMap), {'encoding':'UTF-8'});
 fs.writeFileSync(process.cwd()+'/output/clinical.json', JSON.stringify(output), {'encoding':'UTF-8'});

@@ -1,0 +1,41 @@
+config: {
+    genesetA: '',
+    genesetB: '',
+    genesets: [],
+    toolA: 'pca-incrementsal',
+    toolB: ''
+  },
+   
+  events: {
+    patient: {
+          "Drug": "Treatment",
+          "Follow Up": "Status",
+          "Birth": "Status",
+          "Last Follow Up": "Status",
+          "Diagnosis": "Status",
+          "Death": "Status",
+          "Radiation"
+    }
+    sample: {}
+  },
+   
+  meta: {
+    patient: {
+    },
+    sample: {
+    },
+    mutation: {
+    },
+    gene {
+    }
+  },
+   
+  "schema": {
+    "sample":
+    "sampleMeta":
+    "mutMeta":
+   “gene”: [‘g’],
+    “patient”: “key”
+ }
+  
+   
