@@ -1,18 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var IO_1 = require("./IO");
+const IO_1 = require("./IO");
 var fs = require('fs');
 var zlib = require('zlib');
-var WriteZips = /** @class */ (function () {
-    function WriteZips() {
-    }
-    WriteZips.All = function () {
-        return new Promise(function (resolve, reject) {
-            var files = IO_1.IO.ReadJson('./src/output/', 'manifest.json')
-                .files.map(function (v) { return v.file; })
+class WriteZips {
+    static All() {
+        return new Promise((resolve, reject) => {
+            const files = IO_1.IO.ReadJson('./src/output/', 'manifest.json')
+                .files.map((v) => v.file)
                 .concat(['manifest.json', 'log.json']);
-            Promise.all(files.map(function (file) {
-                return new Promise(function (resolve, reject) {
+            Promise.all(files.map((file) => {
+                return new Promise((resolve, reject) => {
                     var gzip = zlib.createGzip({ level: 9 });
                     var rstream = fs.createReadStream('./src/output/' + file);
                     var wstream = fs.createWriteStream('./src/output/' + file + '.gz');
@@ -24,13 +22,12 @@ var WriteZips = /** @class */ (function () {
                         console.log('done compressing');
                         resolve();
                     });
-                }).then(function () {
+                }).then(() => {
                     resolve();
                 });
             }));
         });
-    };
-    return WriteZips;
-}());
+    }
+}
 exports.WriteZips = WriteZips;
 //# sourceMappingURL=step6_compress.js.map

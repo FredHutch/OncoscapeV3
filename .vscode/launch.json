@@ -1,19 +1,4 @@
 {
-<<<<<<< HEAD
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Launch Program",
-            "program": "${file}",
-            "outFiles": [
-                "${workspaceRoot}/out/**/*.js"
-            ]
-        }
-    ]
-}
-=======
   "version": "0.2.0",
   "configurations": [
     {
@@ -26,4 +11,3 @@
     }
   ]
 }
->>>>>>> a947a94743ca0203655e535e63bac428d1227be3

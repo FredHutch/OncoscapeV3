@@ -10,17 +10,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var xlsx = __importStar(require("xlsx"));
-var fs_1 = __importDefault(require("fs"));
-var Xls2Csv = /** @class */ (function () {
-    function Xls2Csv() {
-    }
-    Xls2Csv.Run = function () {
-        return new Promise(function (resolve, reject) {
+const xlsx = __importStar(require("xlsx"));
+const fs_1 = __importDefault(require("fs"));
+class Xls2Csv {
+    static Run() {
+        return new Promise((resolve, reject) => {
             var workbook = xlsx.readFile('./src/input/ASCp_Oncoscape_06292018.xlsx');
-            Promise.all(workbook.SheetNames.map(function (sheetName) {
-                return new Promise(function (resolve, reject) {
-                    var data = xlsx.utils.sheet_to_csv(workbook.Sheets[sheetName], {
+            Promise.all(workbook.SheetNames.map(sheetName => {
+                return new Promise((resolve, reject) => {
+                    const data = xlsx.utils.sheet_to_csv(workbook.Sheets[sheetName], {
                         FS: ',',
                         RS: '\n',
                         strip: true,
@@ -31,12 +29,11 @@ var Xls2Csv = /** @class */ (function () {
                     console.log('Exported CSV : ' + sheetName.toLowerCase());
                     resolve();
                 });
-            })).then(function () {
+            })).then(() => {
                 resolve();
             });
         });
-    };
-    return Xls2Csv;
-}());
+    }
+}
 exports.Xls2Csv = Xls2Csv;
 //# sourceMappingURL=step1_xls2csv.js.map

@@ -7,90 +7,88 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ToLowerCase_1 = require("./transform/ToLowerCase");
-var InterfacesAndEnums_1 = require("./InterfacesAndEnums");
-var hl = __importStar(require("highland"));
-var fs = __importStar(require("fs"));
-var csv = __importStar(require("fast-csv"));
-var IO = /** @class */ (function () {
-    function IO() {
+const ToLowerCase_1 = require("./transform/ToLowerCase");
+const InterfacesAndEnums_1 = require("./InterfacesAndEnums");
+const hl = __importStar(require("highland"));
+const fs = __importStar(require("fs"));
+const csv = __importStar(require("fast-csv"));
+class IO {
+    static ReadEventFiles(path) {
+        return new Promise((resolve, reject) => {
+            fs.readdir(path, (err, files) => {
+                resolve(files.filter(v => v.indexOf('event') === 0));
+            });
+        });
     }
-    IO.ReadEventFiles = function (path) {
-        return new Promise(function (resolve, reject) {
-            fs.readdir(path, function (err, files) {
-                resolve(files.filter(function (v) { return v.indexOf('event') === 0; }));
+    static ReadMutationFiles(path) {
+        return new Promise((resolve, reject) => {
+            fs.readdir(path, (err, files) => {
+                resolve(files.filter(v => v.indexOf('mutation') === 0));
             });
         });
-    };
-    IO.ReadMutationFiles = function (path) {
-        return new Promise(function (resolve, reject) {
-            fs.readdir(path, function (err, files) {
-                resolve(files.filter(function (v) { return v.indexOf('mutation') === 0; }));
+    }
+    static ReadMatrixFiles(path) {
+        return new Promise((resolve, reject) => {
+            fs.readdir(path, (err, files) => {
+                resolve(files.filter(v => v.indexOf('matrix') === 0));
             });
         });
-    };
-    IO.ReadMatrixFiles = function (path) {
-        return new Promise(function (resolve, reject) {
-            fs.readdir(path, function (err, files) {
-                resolve(files.filter(function (v) { return v.indexOf('matrix') === 0; }));
-            });
-        });
-    };
-    IO.ReadJson = function (path, file) {
+    }
+    static ReadJson(path, file) {
         return JSON.parse(fs.readFileSync(path + file, 'UTF8'));
-    };
-    IO.ReadZips = function () {
-        return fs.readdirSync('./src/output/').filter(function (v) { return v.endsWith('.gz'); });
-    };
-    IO.ReadMutations = function () {
-        var file = fs.readFileSync('./src/ref/mutations.json', 'UTF8');
-        var json = JSON.parse(file);
+    }
+    static ReadZips() {
+        return fs.readdirSync('./src/output/').filter(v => v.endsWith('.gz'));
+    }
+    static ReadMutations() {
+        const file = fs.readFileSync('./src/ref/mutations.json', 'UTF8');
+        const json = JSON.parse(file);
         return json;
-    };
-    IO.ReadMutationIdMap = function () {
-        var file = fs.readFileSync('./src/ref/mutations.json', 'UTF8');
-        var json = JSON.parse(file);
+    }
+    static ReadMutationIdMap() {
+        const file = fs.readFileSync('./src/ref/mutations.json', 'UTF8');
+        const json = JSON.parse(file);
         var x = 1;
-        return json.reduce(function (p, c) {
+        return json.reduce((p, c) => {
             x += x;
             p[c] = x;
             return p;
         }, {});
-    };
-    IO.DeleteArtifacts = function () {
-        return new Promise(function (resolve, reject) {
-            fs.readdir('./src/output/', function (err, files) {
-                var filesToDelete = files.filter(function (v) { return !v.endsWith('.gz') && !v.endsWith('.md'); });
-                filesToDelete.forEach(function (v) {
+    }
+    static DeleteArtifacts() {
+        return new Promise((resolve, reject) => {
+            fs.readdir('./src/output/', (err, files) => {
+                const filesToDelete = files.filter(v => !v.endsWith('.gz') && !v.endsWith('.md'));
+                filesToDelete.forEach(v => {
                     fs.unlinkSync('./src/output/' + v);
                 });
                 resolve();
             });
         });
-    };
-    IO.ReadGenes = function () {
-        var file = fs.readFileSync('./src/ref/hgnc.json', 'UTF8');
-        var json = JSON.parse(file);
+    }
+    static ReadGenes() {
+        const file = fs.readFileSync('./src/ref/hgnc.json', 'UTF8');
+        const json = JSON.parse(file);
         return json;
-    };
+    }
     /**
      * Takes the result of a stream of value objects, transposes the object and properties and wraps in a TestVO
      * @param inputStream
      * @param omitFields Fields not to include in the transpose
      */
-    IO.loadMetadata = function (inputStream, omitFields) {
-        var omit = new Set(omitFields.map(function (v) { return v.trim().toLowerCase(); }));
-        return new Promise(function (resolve, reject) {
+    static loadMetadata(inputStream, omitFields) {
+        const omit = new Set(omitFields.map(v => v.trim().toLowerCase()));
+        return new Promise((resolve, reject) => {
             inputStream
-                .filter(function (v) {
+                .filter(v => {
                 // Remove Items With Errors
                 return v.error.length === 0;
             })
-                .reduce({}, function (meta, obj) {
+                .reduce({}, (meta, obj) => {
                 Object.keys(obj.data)
-                    .filter(function (prop) { return !omit.has(prop); })
-                    .forEach(function (prop) {
-                    var value = obj.data[prop];
+                    .filter(prop => !omit.has(prop))
+                    .forEach(prop => {
+                    const value = obj.data[prop];
                     if (!meta.hasOwnProperty(prop)) {
                         meta[prop] = new Set();
                     }
@@ -98,10 +96,10 @@ var IO = /** @class */ (function () {
                 });
                 return meta;
             })
-                .toArray(function (result) {
-                var testVos = Object.keys(result[0])
-                    .filter(function (v) { return !omit.has(v); })
-                    .map(function (v) { return ({
+                .toArray(result => {
+                const testVos = Object.keys(result[0])
+                    .filter(v => !omit.has(v))
+                    .map(v => ({
                     data: {
                         name: v,
                         label: v,
@@ -111,11 +109,11 @@ var IO = /** @class */ (function () {
                     },
                     error: [],
                     info: []
-                }); });
+                }));
                 resolve(hl.default(testVos));
             });
         });
-    };
+    }
     /**
      * Loads A CSV File Into a Highland Stream, Converts Content To LowerCase,
      * Transforms Each Row Into A Object Wrapped In TestVo
@@ -123,58 +121,58 @@ var IO = /** @class */ (function () {
      * @param uri Location Of File
      * @api public
      */
-    IO.loadCsv = function (uri) {
+    static loadCsv(uri) {
         return hl
             .default(fs
             .createReadStream(uri)
             .pipe(new ToLowerCase_1.TransformToLowerCase())
             .pipe(csv.default({ headers: true, ignoreEmpty: true, discardUnmappedColumns: true, strictColumnHandling: false, trim: true, objectMode: true })))
-            .map(function (obj) {
+            .map((obj) => {
             return { data: obj, info: [], error: [] };
         });
-    };
+    }
     /**
      *
      * @param uri File Name For Output
      * @param inputStream Stream to extract the
      */
-    IO.WriteLog = function (uri, inputStream) {
-        return new Promise(function (resolve, reject) {
-            var outputStream = fs.createWriteStream('./src/output/' + uri);
+    static WriteLog(uri, inputStream) {
+        return new Promise((resolve, reject) => {
+            const outputStream = fs.createWriteStream('./src/output/' + uri);
             outputStream.write('[');
-            outputStream.on('finish', function () { return resolve(); });
+            outputStream.on('finish', () => resolve());
             inputStream
-                .filter(function (v) { return v.error.length !== 0 || v.info.length !== 0; })
-                .map(function (v) { return JSON.stringify(v); })
+                .filter(v => v.error.length !== 0 || v.info.length !== 0)
+                .map(v => JSON.stringify(v))
                 .intersperse(',')
                 .append(']')
                 .pipe(outputStream);
         });
-    };
-    IO.WriteProperty = function (uri, inputStream, prop) {
-        return new Promise(function (resolve, reject) {
+    }
+    static WriteProperty(uri, inputStream, prop) {
+        return new Promise((resolve, reject) => {
             prop = prop.toLowerCase().trim();
-            var outputStream = fs.createWriteStream('./src/output/' + uri);
-            outputStream.on('finish', function () { return resolve(); });
+            const outputStream = fs.createWriteStream('./src/output/' + uri);
+            outputStream.on('finish', () => resolve());
             outputStream.write('[');
             inputStream
-                .filter(function (v) { return v.error.length === 0; })
-                .map(function (v) { return JSON.stringify(v.data[prop]); })
+                .filter(v => v.error.length === 0)
+                .map(v => JSON.stringify(v.data[prop]))
                 .intersperse(',')
                 .append(']')
                 .pipe(outputStream);
         });
-    };
-    IO.WriteMeta = function (uri, inputStream) {
-        return new Promise(function (resolve, reject) {
-            var outputStream = fs.createWriteStream('./src/output/' + uri);
-            outputStream.on('finish', function () { return resolve(); });
+    }
+    static WriteMeta(uri, inputStream) {
+        return new Promise((resolve, reject) => {
+            const outputStream = fs.createWriteStream('./src/output/' + uri);
+            outputStream.on('finish', () => resolve());
             outputStream.write('[');
             inputStream
-                .filter(function (v) { return v.error.length === 0; })
-                .filter(function (v) { return v.data.type !== InterfacesAndEnums_1.eDataType.ID; })
-                .map(function (v) {
-                var obj = {};
+                .filter(v => v.error.length === 0)
+                .filter(v => v.data.type !== InterfacesAndEnums_1.eDataType.ID)
+                .map(v => {
+                const obj = {};
                 obj[v.data.name] = v.data.type === InterfacesAndEnums_1.eDataType.Number ? v.data.values : v.data.values.string;
                 return JSON.stringify(obj);
             })
@@ -182,70 +180,69 @@ var IO = /** @class */ (function () {
                 .append(']')
                 .pipe(outputStream);
         });
-    };
-    IO.WriteEvent = function (uri, inputStream) {
-        return new Promise(function (resolve, reject) {
-            var outputStream = fs.createWriteStream('./src/output/' + uri);
-            outputStream.on('finish', function () { return resolve(); });
+    }
+    static WriteEvent(uri, inputStream) {
+        return new Promise((resolve, reject) => {
+            const outputStream = fs.createWriteStream('./src/output/' + uri);
+            outputStream.on('finish', () => resolve());
             outputStream.write('[');
             inputStream
-                .filter(function (v) { return v.error.length === 0; })
-                .map(function (v) {
+                .filter(v => v.error.length === 0)
+                .map(v => {
                 return JSON.stringify(v);
             })
                 .intersperse(',')
                 .append(']')
                 .pipe(outputStream);
         });
-    };
-    IO.WriteMutation = function (uri, inputStream) {
-        return new Promise(function (resolve, reject) {
-            var outputStream = fs.createWriteStream('./src/output/' + uri);
-            outputStream.on('finish', function () { return resolve(); });
+    }
+    static WriteMutation(uri, inputStream) {
+        return new Promise((resolve, reject) => {
+            const outputStream = fs.createWriteStream('./src/output/' + uri);
+            outputStream.on('finish', () => resolve());
             outputStream.write('[');
             inputStream
-                .filter(function (v) { return v.error.length === 0; })
-                .map(function (v) {
+                .filter(v => v.error.length === 0)
+                .map(v => {
                 return JSON.stringify(v);
             })
                 .intersperse(',')
                 .append(']')
                 .pipe(outputStream);
         });
-    };
-    IO.WriteMatrix = function (uri, inputStream) {
-        return new Promise(function (resolve, reject) {
-            var outputStream = fs.createWriteStream('./src/output/' + uri);
-            outputStream.on('finish', function () { return resolve(); });
+    }
+    static WriteMatrix(uri, inputStream) {
+        return new Promise((resolve, reject) => {
+            const outputStream = fs.createWriteStream('./src/output/' + uri);
+            outputStream.on('finish', () => resolve());
             outputStream.write('[');
             inputStream
-                .filter(function (v) { return v.error.length === 0; })
-                .map(function (v) { return JSON.stringify(v); })
+                .filter(v => v.error.length === 0)
+                .map(v => JSON.stringify(v))
                 .intersperse(',')
                 .append(']')
                 .pipe(outputStream);
         });
-    };
-    IO.WriteString = function (uri, content) {
-        return new Promise(function (resolve, reject) {
+    }
+    static WriteString(uri, content) {
+        return new Promise((resolve, reject) => {
             fs.writeFileSync('./src/output/' + uri, content);
             resolve();
         });
-    };
-    IO.WriteJson = function (uri, inputStream) {
-        return new Promise(function (resolve, reject) {
-            var outputStream = fs.createWriteStream('./src/output/' + uri);
-            outputStream.on('finish', function () { return resolve(); });
+    }
+    static WriteJson(uri, inputStream) {
+        return new Promise((resolve, reject) => {
+            const outputStream = fs.createWriteStream('./src/output/' + uri);
+            outputStream.on('finish', () => resolve());
             outputStream.write('[');
             inputStream
-                .filter(function (v) { return v.error.length === 0; })
-                .map(function (v) { return JSON.stringify(v); })
+                .filter(v => v.error.length === 0)
+                .map(v => JSON.stringify(v))
                 .intersperse(',')
                 .append(']')
                 .pipe(outputStream);
         });
-    };
-    return IO;
-}());
+    }
+}
 exports.IO = IO;
 //# sourceMappingURL=IO.js.map

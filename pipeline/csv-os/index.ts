@@ -14,10 +14,10 @@ class Startup {
         WriteJson.Run().then(v => {
           WriteParquet.All().then(v => {
             WriteZips.All().then(v => {
-              // Deploy.All().then(v => {
-              //   console.log('done');
-              //   EXIT = true;
-              // });
+              Deploy.All().then(v => {
+                console.log('done');
+                EXIT = true;
+              });
             });
           });
         });

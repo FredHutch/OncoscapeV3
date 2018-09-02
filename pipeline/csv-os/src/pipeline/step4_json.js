@@ -3,26 +3,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var InterfacesAndEnums_1 = require("./InterfacesAndEnums");
-var IO_1 = require("./IO");
-var fs_1 = __importDefault(require("fs"));
-var WriteJson = /** @class */ (function () {
-    function WriteJson() {
-    }
-    WriteJson.Run = function () {
-        var _this = this;
+const InterfacesAndEnums_1 = require("./InterfacesAndEnums");
+const IO_1 = require("./IO");
+const fs_1 = __importDefault(require("fs"));
+class WriteJson {
+    static Run() {
         // Write All Json Files, Then Create Manifest
-        return Promise.all([this.writePatientJson('patient.json'), this.writeSampleJson('sample.json'), this.writePatientSampleJson('psmap.json'), this.writeMatriciesJson(), this.writeMutationJson(), this.writeEventsJson()]).then(function () {
-            _this.writeManifestJson();
+        return Promise.all([this.writePatientJson('patient.json'), this.writeSampleJson('sample.json'), this.writePatientSampleJson('psmap.json'), this.writeMatriciesJson(), this.writeMutationJson(), this.writeEventsJson()]).then(() => {
+            this.writeManifestJson();
         });
-    };
-    WriteJson.writeManifestJson = function () {
-        return new Promise(function (resolve, reject) {
+    }
+    static writeManifestJson() {
+        return new Promise((resolve, reject) => {
             console.log('manifest.json');
-            var manifest = {};
+            const manifest = {};
             manifest.patient = IO_1.IO.ReadJson('./src/output/', 'patient.json').fields;
             manifest.sample = IO_1.IO.ReadJson('./src/output/', 'sample.json').fields;
-            var dir = fs_1.default.readdirSync('./src/output');
+            const dir = fs_1.default.readdirSync('./src/output');
             manifest.version = '3.1';
             manifest.schema = {
                 dataset: 'name',
@@ -31,11 +28,11 @@ var WriteJson = /** @class */ (function () {
                 sampleMeta: 'key',
                 patient: 'p,' +
                     Object.keys(manifest.patient)
-                        .map(function (v) { return v.replace(/ /gi, '_'); })
+                        .map(v => v.replace(/ /gi, '_'))
                         .join(','),
                 sample: 's,' +
                     Object.keys(manifest.sample)
-                        .map(function (v) { return v.replace(/ /gi, '_'); })
+                        .map(v => v.replace(/ /gi, '_'))
                         .join(',')
             };
             manifest.files = [
@@ -70,10 +67,10 @@ var WriteJson = /** @class */ (function () {
                 manifest.files.push({ name: 'mutations', dataType: 'mut', file: 'mut.json' });
             }
             dir
-                .filter(function (v) { return v.indexOf('matrix') === 0; })
-                .filter(function (v) { return v.indexOf('data.json') !== -1; })
-                .forEach(function (file) {
-                var fname = file.replace('.data.json', '').replace('matrix-', '');
+                .filter(v => v.indexOf('matrix') === 0)
+                .filter(v => v.indexOf('data.json') !== -1)
+                .forEach(file => {
+                const fname = file.replace('.data.json', '').replace('matrix-', '');
                 manifest.schema[fname] = 'm';
                 manifest.schema[fname + 'Map'] = 's';
                 manifest.files.push({
@@ -82,33 +79,33 @@ var WriteJson = /** @class */ (function () {
                     file: file
                 });
             });
-            var str = JSON.stringify(manifest);
-            IO_1.IO.WriteString('manifest.json', str).then(function () {
+            const str = JSON.stringify(manifest);
+            IO_1.IO.WriteString('manifest.json', str).then(() => {
                 console.log('manifest.json');
                 resolve();
             });
         });
-    };
-    WriteJson.writeMutationJson = function () {
-        return new Promise(function (resolve, reject) {
-            var files = fs_1.default
+    }
+    static writeMutationJson() {
+        return new Promise((resolve, reject) => {
+            const files = fs_1.default
                 .readdirSync('./src/output')
-                .filter(function (v) { return v.indexOf('mutation.data.raw.json') === 0; })
-                .filter(function (v) { return v.indexOf('raw.json') !== -1; });
-            files.forEach(function (v) {
-                var data = IO_1.IO.ReadJson('./src/output/', v).filter(function (v) { return v.error.length === 0; });
+                .filter(v => v.indexOf('mutation.data.raw.json') === 0)
+                .filter(v => v.indexOf('raw.json') !== -1);
+            files.forEach(v => {
+                const data = IO_1.IO.ReadJson('./src/output/', v).filter((v) => v.error.length === 0);
                 // gene-id-mut
-                var agg = data.filter(function (v) { return v.error.length === 0; }).map(function (v) { return ({ hgnc: v.data.symbol, sid: v.data['sample id'], type: v.data.type }); });
-                var genes = Array.from(new Set(agg.map(function (v) { return v.hgnc; })));
-                var sids = Array.from(new Set(agg.map(function (v) { return v.sid; })));
-                var muts = Array.from(new Set(agg.map(function (v) { return v.type; }))).reduce(function (p, c, i) {
+                let agg = data.filter(v => v.error.length === 0).map(v => ({ hgnc: v.data.symbol, sid: v.data['sample id'], type: v.data.type }));
+                const genes = Array.from(new Set(agg.map(v => v.hgnc)));
+                const sids = Array.from(new Set(agg.map(v => v.sid)));
+                const muts = Array.from(new Set(agg.map(v => v.type))).reduce((p, c, i) => {
                     p[c] = 1 * Math.pow(2, i);
                     return p;
                 }, {});
-                var values = agg.reduce(function (p, c) {
+                const values = agg.reduce((p, c) => {
                     // dont map this pass
-                    var gid = genes.indexOf(c.hgnc);
-                    var sid = sids.indexOf(c.sid);
+                    const gid = genes.indexOf(c.hgnc);
+                    const sid = sids.indexOf(c.sid);
                     if (!p.hasOwnProperty(gid)) {
                         p[gid] = {};
                     }
@@ -118,48 +115,48 @@ var WriteJson = /** @class */ (function () {
                     p[gid][sid] |= muts[c.type];
                     return p;
                 }, {});
-                var strGenes = '["' + genes.join('","') + '"]';
-                var strSids = '["' + sids.join('","') + '"]';
-                var strMuts = JSON.stringify(muts);
-                var strValues = '["' +
-                    Object.keys(values).reduce(function (p, gid) {
-                        p += Object.keys(values[gid]).reduce(function (ip, sid) {
+                const strGenes = '["' + genes.join('","') + '"]';
+                const strSids = '["' + sids.join('","') + '"]';
+                const strMuts = JSON.stringify(muts);
+                const strValues = '["' +
+                    Object.keys(values).reduce((p, gid) => {
+                        p += Object.keys(values[gid]).reduce((ip, sid) => {
                             ip += gid + '-' + sid + '-' + values[gid][sid] + '","';
                             return ip;
                         }, '');
                         return p;
                     }, '') +
                     '"]';
-                var vals = JSON.parse(strValues).filter(function (v) { return v.length !== 3; });
-                var rv = {
+                const vals = JSON.parse(strValues).filter((v) => v.length !== 3);
+                const rv = {
                     genes: JSON.parse(strGenes),
                     ids: JSON.parse(strSids),
                     muts: JSON.parse(strMuts),
                     values: vals
                 };
-                var str = JSON.stringify(rv);
-                IO_1.IO.WriteString('mut.json', str).then(function () {
+                const str = JSON.stringify(rv);
+                IO_1.IO.WriteString('mut.json', str).then(() => {
                     console.log('mut.json');
                     resolve();
                 });
             });
         });
-    };
-    WriteJson.writeEventsJson = function () {
-        return new Promise(function (resolve, reject) {
-            var files = fs_1.default
+    }
+    static writeEventsJson() {
+        return new Promise((resolve, reject) => {
+            const files = fs_1.default
                 .readdirSync('./src/output')
-                .filter(function (v) { return v.indexOf('event-') === 0; })
-                .filter(function (v) { return v.indexOf('data.raw.json') !== -1; });
+                .filter(v => v.indexOf('event-') === 0)
+                .filter(v => v.indexOf('data.raw.json') !== -1);
             // for (var )
             // IO.ReadJson(fs)
-            var eventMap = {};
-            var eventIndex = new Array();
-            var allEvents = new Array();
-            Promise.all(files.map(function (file) {
-                return new Promise(function (resolve, reject) {
-                    var events = IO_1.IO.ReadJson('./src/output/', file).filter(function (v) { return v.error.length === 0; });
-                    var eventType = file.split('.')[0].split('-');
+            const eventMap = {};
+            const eventIndex = new Array();
+            const allEvents = new Array();
+            Promise.all(files.map(file => {
+                return new Promise((resolve, reject) => {
+                    const events = IO_1.IO.ReadJson('./src/output/', file).filter((v) => v.error.length === 0);
+                    const eventType = file.split('.')[0].split('-');
                     // This event has no subcategory
                     if (eventType.length === 2) {
                         eventMap[eventType[1]] = 'Event';
@@ -170,13 +167,13 @@ var WriteJson = /** @class */ (function () {
                         eventMap[eventType[2]] = eventType[1];
                         eventIndex.push(eventType[2]);
                     }
-                    var currentEventIndex = eventIndex.length - 1;
-                    allEvents.push.apply(allEvents, events.map(function (event) {
-                        var data = Object.keys(event.data)
-                            .filter(function (key) {
+                    const currentEventIndex = eventIndex.length - 1;
+                    allEvents.push(...events.map(event => {
+                        const data = Object.keys(event.data)
+                            .filter(key => {
                             return key !== 'patient id' && key !== 'start' && key !== 'end';
                         })
-                            .reduce(function (p, c) {
+                            .reduce((p, c) => {
                             if (event.data[c].toString().trim() !== '') {
                                 p[c] = event.data[c];
                             }
@@ -186,150 +183,145 @@ var WriteJson = /** @class */ (function () {
                     }));
                     resolve();
                 });
-            })).then(function () {
-                var str = JSON.stringify({
+            })).then(() => {
+                const str = JSON.stringify({
                     map: eventMap,
                     data: allEvents
                 });
-                IO_1.IO.WriteString('events.json', str).then(function () {
+                IO_1.IO.WriteString('events.json', str).then(() => {
                     console.log('events.json');
                     resolve();
                 });
             });
         });
-    };
-    WriteJson.writeMatriciesJson = function () {
-        return new Promise(function (resolve, reject) {
-            var files = fs_1.default
+    }
+    static writeMatriciesJson() {
+        return new Promise((resolve, reject) => {
+            const files = fs_1.default
                 .readdirSync('./src/output')
-                .filter(function (v) { return v.indexOf('matrix-') === 0; })
-                .filter(function (v) { return v.indexOf('raw.json') !== -1; });
-            var samples = IO_1.IO.ReadJson('./src/output/', 'sample.data.id.json');
-            Promise.all(files.map(function (v) {
-                return new Promise(function (resolve, reject) {
-                    var matrix = IO_1.IO.ReadJson('./src/output/', v).filter(function (v) { return v.error.length === 0; });
-                    var dataGenes = matrix.reduce(function (p, c) {
-                        var datum = c.data;
+                .filter(v => v.indexOf('matrix-') === 0)
+                .filter(v => v.indexOf('raw.json') !== -1);
+            const samples = IO_1.IO.ReadJson('./src/output/', 'sample.data.id.json');
+            Promise.all(files.map(v => {
+                return new Promise((resolve, reject) => {
+                    const matrix = IO_1.IO.ReadJson('./src/output/', v).filter((v) => v.error.length === 0);
+                    const dataGenes = matrix.reduce((p, c) => {
+                        const datum = c.data;
                         p.genes.push(datum.symbol);
-                        p.data.push(samples.map(function (sample) { return parseFloat(datum[sample]); }));
+                        p.data.push(samples.map((sample) => parseFloat(datum[sample])));
                         return p;
                     }, { data: [], genes: [] });
-                    IO_1.IO.WriteString(v.replace('data.raw.json', 'data.json'), JSON.stringify({ ids: samples, genes: dataGenes.genes, data: dataGenes.data })).then(function () {
+                    IO_1.IO.WriteString(v.replace('data.raw.json', 'data.json'), JSON.stringify({ ids: samples, genes: dataGenes.genes, data: dataGenes.data })).then(() => {
                         console.log(v.replace('data.raw.json', 'data.json'));
                         resolve();
                     });
                 });
-            })).then(function () {
+            })).then(() => {
                 resolve();
             });
         });
-    };
-    WriteJson.writeSampleJson = function (uri) {
-        return new Promise(function (resolve, reject) {
-            var meta = IO_1.IO.ReadJson('./src/output/', 'sample.meta.log.json');
-            var fields = meta.filter(function (v) { return v.error.length === 0; }).reduce(function (p, c) {
+    }
+    static writeSampleJson(uri) {
+        return new Promise((resolve, reject) => {
+            const meta = IO_1.IO.ReadJson('./src/output/', 'sample.meta.log.json');
+            const fields = meta.filter(v => v.error.length === 0).reduce((p, c) => {
                 if (c.data.type === InterfacesAndEnums_1.eDataType.Number) {
-                    var numericValues = c.data.values.map(function (v) { return parseFloat(v); }).filter(function (v) { return !isNaN(v); });
-                    var max = Math.max.apply(null, numericValues);
-                    var min = Math.min.apply(null, numericValues);
+                    const numericValues = c.data.values.map((v) => parseFloat(v)).filter((v) => !isNaN(v));
+                    const max = Math.max.apply(null, numericValues);
+                    const min = Math.min.apply(null, numericValues);
                     p[c.data.label.trim().toLowerCase()] = { min: min, max: max };
                 }
                 else if (c.data.type === InterfacesAndEnums_1.eDataType.String) {
-                    var stringValues = c.data.values.map(function (v) {
-                        return v
-                            .toString()
-                            .trim()
-                            .toLowerCase();
-                    });
+                    const stringValues = c.data.values.map((v) => v
+                        .toString()
+                        .trim()
+                        .toLowerCase());
                     p[c.data.label.trim().toLowerCase()] = stringValues;
                 }
                 return p;
             }, {});
-            var data = IO_1.IO.ReadJson('./src/output/', 'sample.data.raw.json');
-            var ids = data.map(function (v) { return v.data['sample id'].toLowerCase().trim(); });
-            var fieldNames = meta.filter(function (v) { return v.error.length === 0; }).map(function (v) { return v.data.name.trim().toLowerCase(); });
-            var fieldLabels = meta.filter(function (v) { return v.error.length === 0; }).map(function (v) { return v.data.label; });
-            var values = data.map(function (datum) {
-                return fieldNames.map(function (fieldName, i) {
-                    var lbl = fieldLabels[i];
-                    var value = datum.data[fieldName.trim().toLowerCase()];
-                    var f = fields[lbl.trim().toLowerCase()];
+            const data = IO_1.IO.ReadJson('./src/output/', 'sample.data.raw.json');
+            const ids = data.map(v => v.data['sample id'].toLowerCase().trim());
+            const fieldNames = meta.filter(v => v.error.length === 0).map(v => v.data.name.trim().toLowerCase());
+            const fieldLabels = meta.filter(v => v.error.length === 0).map(v => v.data.label);
+            const values = data.map(datum => {
+                return fieldNames.map((fieldName, i) => {
+                    const lbl = fieldLabels[i];
+                    const value = datum.data[fieldName.trim().toLowerCase()];
+                    const f = fields[lbl.trim().toLowerCase()];
                     return f.hasOwnProperty('min') ? parseFloat(value) : f.indexOf(value);
                 });
             });
-            var output = {
+            const output = {
                 ids: ids,
                 fields: fields,
                 values: values
             };
-            IO_1.IO.WriteString('sample.json', JSON.stringify(output)).then(function () {
+            IO_1.IO.WriteString('sample.json', JSON.stringify(output)).then(() => {
                 resolve();
             });
         });
-    };
-    WriteJson.writePatientJson = function (uri) {
-        return new Promise(function (resolve, reject) {
-            var meta = IO_1.IO.ReadJson('./src/output/', 'patient.meta.log.json');
-            var fields = meta.filter(function (v) { return v.error.length === 0; }).reduce(function (p, c) {
+    }
+    static writePatientJson(uri) {
+        return new Promise((resolve, reject) => {
+            const meta = IO_1.IO.ReadJson('./src/output/', 'patient.meta.log.json');
+            const fields = meta.filter(v => v.error.length === 0).reduce((p, c) => {
                 if (c.data.type === InterfacesAndEnums_1.eDataType.Number) {
-                    var numericValues = c.data.values.map(function (v) { return parseFloat(v); }).filter(function (v) { return !isNaN(v); });
-                    var max = Math.max.apply(null, numericValues);
-                    var min = Math.min.apply(null, numericValues);
+                    const numericValues = c.data.values.map((v) => parseFloat(v)).filter((v) => !isNaN(v));
+                    const max = Math.max.apply(null, numericValues);
+                    const min = Math.min.apply(null, numericValues);
                     p[c.data.label.trim().toLowerCase()] = { min: min, max: max };
                 }
                 else if (c.data.type === InterfacesAndEnums_1.eDataType.String) {
-                    var stringValues = c.data.values.map(function (v) {
-                        return v
-                            .toString()
-                            .trim()
-                            .toLowerCase();
-                    });
+                    const stringValues = c.data.values.map((v) => v
+                        .toString()
+                        .trim()
+                        .toLowerCase());
                     p[c.data.label.trim().toLowerCase()] = stringValues;
                 }
                 return p;
             }, {});
-            var data = IO_1.IO.ReadJson('./src/output/', 'patient.data.raw.json');
-            var ids = data.map(function (v) { return v.data['patient id'].toLowerCase().trim(); });
-            var fieldNames = meta.filter(function (v) { return v.error.length === 0; }).map(function (v) { return v.data.name.trim().toLowerCase(); });
-            var fieldLabels = meta.filter(function (v) { return v.error.length === 0; }).map(function (v) { return v.data.label; });
-            var values = data.map(function (datum) {
-                return fieldNames.map(function (fieldName, i) {
-                    var lbl = fieldLabels[i];
-                    var value = datum.data[fieldName.trim().toLowerCase()];
-                    var f = fields[lbl.trim().toLowerCase()];
+            const data = IO_1.IO.ReadJson('./src/output/', 'patient.data.raw.json');
+            const ids = data.map(v => v.data['patient id'].toLowerCase().trim());
+            const fieldNames = meta.filter(v => v.error.length === 0).map(v => v.data.name.trim().toLowerCase());
+            const fieldLabels = meta.filter(v => v.error.length === 0).map(v => v.data.label);
+            const values = data.map(datum => {
+                return fieldNames.map((fieldName, i) => {
+                    const lbl = fieldLabels[i];
+                    const value = datum.data[fieldName.trim().toLowerCase()];
+                    const f = fields[lbl.trim().toLowerCase()];
                     return f.hasOwnProperty('min') ? parseFloat(value) : f.indexOf(value);
                 });
             });
-            var output = {
+            const output = {
                 ids: ids,
                 fields: fields,
                 values: values
             };
-            IO_1.IO.WriteString('patient.json', JSON.stringify(output)).then(function () {
+            IO_1.IO.WriteString('patient.json', JSON.stringify(output)).then(() => {
                 console.log('patient.json');
                 resolve();
             });
         });
-    };
-    WriteJson.writePatientSampleJson = function (uri) {
-        return new Promise(function (resolve, reject) {
-            var data = IO_1.IO.ReadJson('./src/output/', 'sample.data.raw.json');
-            var psMap = data.filter(function (v) { return v.error.length === 0; }).reduce(function (p, c) {
-                var pid = c.data['patient id'].trim().toLowerCase();
-                var sid = c.data['sample id'].trim().toLowerCase();
+    }
+    static writePatientSampleJson(uri) {
+        return new Promise((resolve, reject) => {
+            const data = IO_1.IO.ReadJson('./src/output/', 'sample.data.raw.json');
+            const psMap = data.filter(v => v.error.length === 0).reduce((p, c) => {
+                const pid = c.data['patient id'].trim().toLowerCase();
+                const sid = c.data['sample id'].trim().toLowerCase();
                 if (!p.hasOwnProperty(pid)) {
                     p[pid] = [];
                 }
                 p[pid].push(sid);
                 return p;
             }, {});
-            IO_1.IO.WriteString('psmap.json', JSON.stringify(psMap)).then(function () {
+            IO_1.IO.WriteString('psmap.json', JSON.stringify(psMap)).then(() => {
                 console.log('psmap.json');
                 resolve();
             });
         });
-    };
-    return WriteJson;
-}());
+    }
+}
 exports.WriteJson = WriteJson;
 //# sourceMappingURL=step4_json.js.map
