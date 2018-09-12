@@ -22,7 +22,6 @@ export class Validate {
                     return this.Mutation('./src/output/', file, sampleIds, genes, mutations);
                   })
                 ).then(v => {
-                  console.log('mtx');
                   IO.ReadMatrixFiles('./src/output').then(files => {
                     Promise.all(
                       files.map(file => {
@@ -62,7 +61,7 @@ export class Validate {
       const results = IO.loadCsv(path + file)
         .map<iTest>(Test.requireProperties(['sample id', 'hgnc', 'variant']))
         .map<iTest>(Test.propertyValuesInSet('sample id', sampleIds))
-        .map<iTest>(Test.propertyValuesInSet('type', mutations))
+        // .map<iTest>(Test.propertyValuesInSet('variant', mutations))
         .map<iTest>(Test.resolveGenes());
 
       // Write Initial Data
@@ -101,7 +100,7 @@ export class Validate {
       console.log(baseFileName + '.data.raw.json');
 
       // Load Meta Data
-      IO.loadMetadata(results, ['patient id', 'start', 'end']).then(metadata => {
+      IO.loadMetadata(results.fork(), ['patient id', 'start', 'end']).then(metadata => {
         const results = metadata
           .map<iTest>(Test.metaFieldsWithOneValue())
           .map<iTest>(Test.metaFieldLabels())
@@ -411,19 +410,29 @@ export class Test {
   public static geneMap: any = IO.ReadGenes();
   public static resolveGenes(): (x: iTest) => iTest {
     return (obj: iTest) => {
-      const gene = obj.data.hgnc.toLowerCase().trim();
-      if (this.geneMap[gene]) {
-        const geneInfo = this.geneMap[gene];
-        const symbol = geneInfo[0];
-        const lookup = geneInfo[1];
-        obj.data.symbol = geneInfo[0];
-        if (lookup !== 'symbol') {
-          obj.info.push({
-            action: eAction.MOD,
+      if ('hgnc' in obj.data) {
+        const gene = obj.data.hgnc.toLowerCase().trim();
+        if (this.geneMap[gene]) {
+          const geneInfo = this.geneMap[gene];
+          const symbol = geneInfo[0];
+          const lookup = geneInfo[1];
+          obj.data.symbol = geneInfo[0];
+          if (lookup !== 'symbol') {
+            obj.info.push({
+              action: eAction.MOD,
+              element: eElement.GENE,
+              constraint: eConstraint.INVALID_VALUE,
+              prop: gene,
+              value: symbol + ' using ' + lookup
+            });
+          }
+        } else {
+          obj.error.push({
+            action: eAction.REM,
             element: eElement.GENE,
             constraint: eConstraint.INVALID_VALUE,
             prop: gene,
-            value: symbol + ' using ' + lookup
+            value: ''
           });
         }
       } else {
@@ -431,10 +440,12 @@ export class Test {
           action: eAction.REM,
           element: eElement.GENE,
           constraint: eConstraint.INVALID_VALUE,
-          prop: gene,
+          prop: '',
           value: ''
         });
       }
+      
+      
 
       return obj as iTest;
     };

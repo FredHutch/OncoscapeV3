@@ -20,14 +20,12 @@ export class WriteZips {
               .pipe(wstream) // writes to myfile.txt.gz
               .on('finish', function() {
                 // finished
-                console.log('done compressing');
+                console.log(file, ' --- done compressing');
                 resolve();
               });
-          }).then(() => {
-            resolve();
-          });
+          })
         })
-      );
+      ).then(() => resolve());
     });
   }
 }
