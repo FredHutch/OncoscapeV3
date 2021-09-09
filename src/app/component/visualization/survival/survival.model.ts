@@ -19,6 +19,54 @@ export class SurvivalConfigModel extends GraphConfig {
     }
     censorEvent: string;
     cohortsToCompare: Array<string> = [];
+
+    static isPatientDead = (v) => {
+        return v.vital_status ==='dead'
+        || v.vital_status === '1'
+        || v.os_status ==='DECEASED'
+        || v.os_status ==='deceased';
+    };
+
+    // Clinical data harmonization: Support GDC/TCGA  and cBioPortal fields.
+    // See https://wiki.fhcrc.org/display/ON/Clinical+Data+Harmonization -MJ
+
+    static patientHasSurvivalData = (v) => {
+        let hasTcgaSurvival:boolean =
+        v['vital_status'] &&
+        (v['days_to_death'] || v['days_to_last_follow_up'] || v['days_to_last_followup']);
+        
+
+        let hasCbioportalSurvival:boolean =
+        v['os_status'] &&
+        v['os_months'];
+
+        return hasTcgaSurvival || hasCbioportalSurvival;
+    }
+
+    static survivalTime = (v) => {
+        if (
+            v['vital_status'] &&
+            (v['days_to_death'] || v['days_to_last_follow_up'] || v['days_to_last_followup'])) {
+            // Use GDC/TCGA fields
+            if (SurvivalConfigModel.isPatientDead(v)) {
+                return v['days_to_death'];
+            } else {
+                return (v['days_to_last_follow_up'] === undefined
+                ? v['days_to_last_followup']
+                : v['days_to_last_follow_up']);
+            }
+        } else {
+            if (
+            v['os_status'] &&
+            v['os_months']) {
+                // Use cBioPortal fields
+                return v['os_months'];
+            } else {
+                // Neither GDC/TCGA nor cBioPOrtal fields are valid, treat as missing.
+                return -1;
+            }
+        }
+    }    
 }
 export interface SurvivalDatumModel {
     line: Array<[number, number]>;

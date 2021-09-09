@@ -7,6 +7,11 @@ export const PlsRegressionCompute = (
   config: PlsRegressionConfigModel,
   worker: DedicatedWorkerGlobalScope
 ): void => {
+  if(config.reuseLastComputation) {
+    worker.postMessage({config: config, data: {cmd:'reuse'}});
+    return;
+  }
+  
   worker.util.getDataMatrix(config).then(matrix => {
     const classes = matrix.sid.map(v => {
       return [
@@ -29,6 +34,9 @@ export const PlsRegressionCompute = (
         tol: config.tol
       })
       .then(result => {
+        if (result && result['message'] && result['stack']) { // duck typecheck for error
+          return worker.util.postCpuError(result, worker);
+        }
         result.resultScaled = worker.util.scale3d(
           result.result,
           config.pcx - 1,
@@ -39,7 +47,7 @@ export const PlsRegressionCompute = (
         result.mid = matrix.mid;
         result.pid = matrix.pid;
         result.legends = [
-          Legend.create(
+          Legend.create(result,
             'Data Points',
             config.entity === EntityTypeEnum.GENE ? ['Genes'] : ['Samples'],
             [SpriteMaterialEnum.CIRCLE],

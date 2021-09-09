@@ -254,6 +254,7 @@ export class ConnectionTypeEnum {
   static readonly GENES_SAMPLES = 'GENES-SAMPLES';
   static readonly GENES_PATIENTS = 'GENES-PATIENTS';
   static createFromEntities(entityA: EntityTypeEnum, entityB: EntityTypeEnum): ConnectionTypeEnum {
+    console.log('entity===========');
     const entities = [entityA, entityB]
       .sort()
       .map(v => v.toString().toUpperCase())
@@ -317,7 +318,7 @@ export const enum SelectionTypeEnum {
   HULL = 1 << 2,
   LASSO = 1 << 3
 }
-export const enum VisualizationEnum {
+export enum VisualizationEnum {
   DECOMPOSITION = -1,
   MANIFOLDLEARNING = -2,
   SUPPORT_VECTOR_MACHINES = -3,
@@ -376,11 +377,101 @@ export const enum VisualizationEnum {
   LINEAR_SVC = 1.12589990684262e15,
   LINEAR_SVR = 2.25179981368524e15,
   NU_SVC = 4.50359962737048e15,
-  NU_SVR = 9.00719925474096e15,
+  NU_SVR = 9.00719925474096e15,  // 2^53
   ONE_CLASS_SVM = 1.439850948e27,
   SVR = 2.879701896e27,
-  PROTEINS = 5.759403792e27
+  PROTEINS = 5.759403792e27,
+  SAVED_POINTS = 18014398509481984, // 2^54
+  TABLE_LOADER = 36028797018963968 // 2^55
+  
 }
+
+export function VisualizationNameFromValue (enumValue:number){
+  let name = 'Unknown';
+  Object.keys(VisualizationNameList).forEach(k => {
+    let thisVal = VisualizationNameList[k];
+    if (thisVal == enumValue) {
+      name = k;
+      return;
+    }
+    
+  });
+  return name;
+}
+
+
+// This is to let us lookup name of a visualization.
+// You'd think we could directly loop through VisualizationEnum, but
+// TypeScript implementations of Enum are not guaranteed.
+// Use this like so, assuming "8" is the value to look up:
+//   Object.entries(VisualizationNameList).filter(kvp => kvp[1] == 8)[0][0]
+export const VisualizationNameList =  {
+  DECOMPOSITION : -1,
+  MANIFOLDLEARNING : -2,
+  SUPPORT_VECTOR_MACHINES : -3,
+  NONE : 0,
+  PCA : 1,
+  PLS : 2,
+  CHROMOSOME : 3,
+  TSNE : 4,
+  EDGES : 8,
+  SURVIVAL : 16,
+  HEATMAP : 32,
+  HISTOGRAM : 64,
+  TIMELINES : 128,
+  PATHWAYS : 256,
+  KMEANS : 512,
+  KMEDIAN : 1024,
+  KMEDOIDS : 2048,
+  SOM : 4096,
+  MDS : 8192,
+  DA : 16384,
+  DE : 32768,
+  FA : 65536,
+  TRUNCATED_SVD : 131072,
+  INCREMENTAL_PCA : 262144,
+  KERNAL_PCA : 524288,
+  SPARSE_PCA : 1048576,
+  PROBABILISTIC_PCA : 2097152,
+  RANDOMIZED_PCA : 4194304,
+  FAST_ICA : 8388608,
+  DICTIONARY_LEARNING : 16777216,
+  LDA : 33554432,
+  NMF : 67108864,
+  ISOMAP : 134217728,
+  LOCALLY_LINEAR_EMBEDDING : 268435456,
+  SPECTRAL_EMBEDDING : 536870912,
+  LINKED_GENE : 1073741824,
+  GENOME : 2147483648,
+  BOX_WHISKERS : 4294967296,
+  PARALLEL_COORDS : 8589934592,
+  HIC : 17179869184,
+  MINI_BATCH_DICTIONARY_LEARNING : 34359738368,
+  MINI_BATCH_SPARSE_PCA : 68719476736,
+  LINEAR_DISCRIMINANT_ANALYSIS : 137438953472,
+  QUADRATIC_DISCRIMINANT_ANALYSIS : 274877906944,
+  DENDOGRAM : 549755813888,
+  SPREADSHEET : 1099511627776,
+  SPARSE_CODER : 2199023255552,
+  HAZARD : 4398046511104,
+  DASHBOARD : 8796093022208,
+  UMAP : 17592186044416,
+  SCATTER : 35184372088832,
+  PLSSVD : 70368744177664,
+  PLSREGRESSION : 140737488355328,
+  PLSCANONICAL : 281474976710656,
+  CCA : 562949953421312,
+  LINEAR_SVC : 1.12589990684262e15,
+  LINEAR_SVR : 2.25179981368524e15,
+  NU_SVC : 4.50359962737048e15,
+  NU_SVR : 9.00719925474096e15,  // 2^53
+  ONE_CLASS_SVM : 1.439850948e27,
+  SVR : 2.879701896e27,
+  PROTEINS : 5.759403792e27,
+  SAVED_POINTS : 18014398509481984, // 2^54
+  TABLE_LOADER : 36028797018963968 // 2^55
+}
+
 
 // Visibility
 export const enum VisibilityEnum {

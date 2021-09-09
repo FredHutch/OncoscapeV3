@@ -35,6 +35,10 @@ export class SvdGraph extends AbstractVisualization
   private data: SvdDataModel;
   private config: SvdConfigModel;
 
+  public tooltipColorFromDecorator(id:any, color:any){
+    return color;
+  };
+
   // Objects
   public meshes: Array<THREE.Mesh>;
   public decorators: DataDecorator[];
@@ -49,10 +53,12 @@ export class SvdGraph extends AbstractVisualization
   // private sMouseUp: Subscription;
 
   create(
+    entity: EntityTypeEnum,
     labels: HTMLElement,
     events: ChartEvents,
     view: VisualizationView
   ): ChartObjectInterface {
+    super.create(entity, labels, events, view);
     this.labels = labels;
     this.events = events;
     this.view = view;

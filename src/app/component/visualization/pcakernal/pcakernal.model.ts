@@ -5,6 +5,7 @@ import {
 } from 'app/model/enum.model';
 import { GraphConfig } from './../../../model/graph-config.model';
 import { GraphData } from './../../../model/graph-data.model';
+import { VisualizationAbstractScatterConfigModel } from "../visualization.abstract.scatter.model";
 
 export class PcaKernalMethods {
   public static LINEAR = 'linear';
@@ -20,7 +21,7 @@ export class PcaKernalEigenSolver {
   public static ARPACK = 'arpack';
 }
 
-export class PcaKernalConfigModel extends GraphConfig {
+export class PcaKernalConfigModel extends VisualizationAbstractScatterConfigModel {
   constructor() {
     super();
     this.entity = EntityTypeEnum.SAMPLE;

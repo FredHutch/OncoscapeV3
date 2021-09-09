@@ -77,9 +77,14 @@ export const hicComputeFn = (config: HicConfigModel): Promise<any> => {
 };
 
 export const hicCompute = (config: HicConfigModel, worker: DedicatedWorkerGlobalScope): void => {
+  if(config.reuseLastComputation) {
+    worker.postMessage({config: config, data: {cmd:'reuse'}});
+    return;
+  }
+  
   hicComputeFn(config).then(result => {
     result.legends = [
-      Legend.create('Data Points', ['Genes'], [SpriteMaterialEnum.CIRCLE], 'SHAPE', 'DISCRETE')
+      Legend.create(result, 'Data Points', ['Genes'], [SpriteMaterialEnum.CIRCLE], 'SHAPE', 'DISCRETE')
     ];
     worker.postMessage({
       config: config,

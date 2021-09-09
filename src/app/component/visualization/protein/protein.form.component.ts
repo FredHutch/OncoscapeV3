@@ -1,7 +1,9 @@
 import { distinctUntilChanged, debounceTime } from 'rxjs/operators';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { CollectionTypeEnum, DimensionEnum, DirtyEnum } from 'app/model/enum.model';
+import { CollectionTypeEnum } from 'app/model/enum.model';
+import { DimensionEnum } from 'app/model/enum.model';
+import { DirtyEnum } from 'app/model/enum.model';
 import { DataField, DataFieldFactory, DataTable } from './../../../model/data-field.model';
 import { EntityTypeEnum } from './../../../model/enum.model';
 import { GraphConfig } from './../../../model/graph-config.model';

@@ -51,6 +51,8 @@ import { IsoMapConfigModel, IsoMapDataModel } from './../component/visualization
 import { LdaConfigModel, LdaDataModel } from './../component/visualization/lda/lda.model';
 import { LinkedGeneConfigModel } from './../component/visualization/linkedgenes/linkedgenes.model';
 import { MdsConfigModel, MdsDataModel } from './../component/visualization/mds/mds.model';
+import { SavedPointsConfigModel, SavedPointsDataModel } from './../component/visualization/savedpoints/savedpoints.model';
+import { TableLoaderConfigModel, TableLoaderDataModel } from './../component/visualization/tableLoader/tableLoader';
 import { NmfConfigModel, NmfDataModel } from './../component/visualization/nmf/nmf.model';
 import {
   ParallelCoordsConfigModel,
@@ -176,6 +178,10 @@ export const COMPUTE_MEAN = '[Compute] Mean';
 export const COMPUTE_MEAN_COMPLETE = '[Compute] Meam Complete';
 export const COMPUTE_MDS = '[Compute] MDS';
 export const COMPUTE_MDS_COMPLETE = '[Compute] MDS Complete';
+export const COMPUTE_SAVED_POINTS= '[Compute] Saved Points';
+export const COMPUTE_SAVED_POINTS_COMPLETE = '[Compute] Saved Points Complete';
+export const COMPUTE_TABLE_LOADER= '[Compute] Table Loader';
+export const COMPUTE_TABLE_LOADER_COMPLETE = '[Compute] Table Loader Complete';
 export const COMPUTE_MINI_BATCH_SPARSE_PCA = '[Compute] Mini Batch Sparse PCA';
 export const COMPUTE_MINI_BATCH_SPARSE_PCA_COMPLETE = '[Compute] Mini Batch Sparse PCA Complete';
 export const COMPUTE_MINI_BATCH_DICTIONARY_LEARNING = '[Compute] Mini Batch Dictionary Learning';
@@ -717,6 +723,23 @@ export class MdsCompleteAction implements Action {
   readonly type: string = COMPUTE_MDS_COMPLETE;
   constructor(public payload: { config: MdsConfigModel; data: MdsDataModel }) {}
 }
+export class SavedPointsAction implements Action {
+  readonly type: string = COMPUTE_SAVED_POINTS;
+  constructor(public payload: { config: SavedPointsConfigModel }) {}
+}
+export class SavedPointsCompleteAction implements Action {
+  readonly type: string = COMPUTE_SAVED_POINTS_COMPLETE;
+  constructor(public payload: { config: SavedPointsConfigModel; data: SavedPointsDataModel }) {}
+}
+export class TableLoaderAction implements Action {
+  readonly type: string = COMPUTE_TABLE_LOADER
+  constructor(public payload: { config: TableLoaderConfigModel }) {}
+}
+export class TableLoaderCompleteAction implements Action {
+  readonly type: string = COMPUTE_TABLE_LOADER_COMPLETE;
+  constructor(public payload: { config: TableLoaderConfigModel; data: any }) {}
+}
+
 export class SvmAction implements Action {
   readonly type: string = COMPUTE_SVM;
   constructor(
@@ -874,6 +897,10 @@ export type Actions =
   | ProteinCompleteAction
   | MdsAction
   | MdsCompleteAction
+  | SavedPointsAction
+  | SavedPointsCompleteAction
+  | TableLoaderAction
+  | TableLoaderCompleteAction
   | SomAction
   | SomCompleteAction
   | SvmAction

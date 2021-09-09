@@ -13,6 +13,7 @@ import {
 import { GraphConfig } from './../../../model/graph-config.model';
 import { ChartEvents } from './../../workspace/chart/chart.events';
 import { DaConfigModel, DaDataModel } from './da.model';
+import { TooltipOverride } from 'app/model/dataset-table-info.model';
 
 export class DaGraph extends AbstractVisualization
   implements ChartObjectInterface {
@@ -36,11 +37,21 @@ export class DaGraph extends AbstractVisualization
   private colors: Array<any>;
   private config: DaConfigModel;
 
+  public tooltipSnippetFromColorDecorator(id:any, tooltipOverride:TooltipOverride):string {
+    return "";
+  };
+
+  public tooltipColorFromDecorator(id:any, color:any){
+    return color;
+  };
+
   create(
-    label: HTMLElement,
+    entity: EntityTypeEnum, 
+    labels: HTMLElement,
     events: ChartEvents,
     view: VisualizationView
   ): ChartObjectInterface {
+    super.create(entity, labels, events, view);
     return this;
   }
 
@@ -84,7 +95,7 @@ export class DaGraph extends AbstractVisualization
       case ShapeEnum.CIRCLE:
         return new THREE.SphereGeometry(3);
       case ShapeEnum.SQUARE:
-        return new THREE.CubeGeometry(3, 3, 3);
+        return new THREE.BoxGeometry(3, 3, 3);
       case ShapeEnum.TRIANGLE:
         return new THREE.TetrahedronGeometry(3);
       case ShapeEnum.CONE:
@@ -102,7 +113,6 @@ export class DaGraph extends AbstractVisualization
     const sizeLength = this.sizes.length;
     const shapeLength = this.shapes.length;
     const colorLength = this.colors.length;
-
     for (let i = 0; i < layoutLength; i++) {
       const position = this.layout[i];
       const size = i < sizeLength ? this.sizes[i] : 1;

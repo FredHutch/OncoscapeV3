@@ -44,6 +44,7 @@ import { LinearDiscriminantAnalysisGraph } from './../../visualization/lineardis
 import { LinkedGeneGraph } from './../../visualization/linkedgenes/linkedgenes.graph';
 import { LocalLinearEmbeddingGraph } from './../../visualization/locallinearembedding/locallinearembedding.graph';
 import { MdsGraph } from './../../visualization/mds/mds.graph';
+import { SavedPointsGraph } from './../../visualization/savedpoints/savedpoints.graph';
 import { MiniBatchDictionaryLearningGraph } from './../../visualization/minibatchdictionarylearning/minibatchdictionarylearning';
 import { MiniBatchSparsePcaGraph } from './../../visualization/minibatchsparsepca/minibatchsparsepca';
 import { NmfGraph } from './../../visualization/nmf/nmf.graph';
@@ -57,6 +58,7 @@ import { SomGraph } from './../../visualization/som/som.graph';
 import { SpectralEmbeddingGraph } from './../../visualization/spectralembedding/spectralembedding.graph';
 import { SurvivalGraph } from './../../visualization/survival/survival.graph';
 import { TimelinesGraph } from './../../visualization/timelines/timelines.graph';
+import { SvgTimelinesGraph } from './../../visualization/timelines/svgtimelines.graph';
 import { TruncatedSvdGraph } from './../../visualization/truncatedsvd/truncatedsvd.graph';
 import { TsneGraph } from './../../visualization/tsne/tsne.graph';
 import { PlsSvdGraph } from './../../visualization/pls-svd/pls-svd.graph';
@@ -71,6 +73,7 @@ import { OneClassSVMGraph } from './../../visualization/oneclasssvm/oneclasssvm.
 import { SVRGraph } from './../../visualization/svr/svr.graph';
 import { ChartScene } from './chart.scene';
 import { ProteinGraph } from 'app/component/visualization/protein/protein.graph';
+import { GlobalGuiControls } from 'app/globalGuiControls';
 
 @Component({
   selector: 'app-workspace-chart',
@@ -113,11 +116,13 @@ export class ChartComponent implements AfterViewInit {
   @ViewChild('labelBContainer')
   private labelsBContainer: ElementRef;
 
+
   /* LIFECYCLE */
   ngAfterViewInit() {
     this.ngZone.runOutsideAngular(() => {
-      // }
+
       const chartScene: ChartScene = new ChartScene();
+
       chartScene.init(
         this.container.nativeElement,
         this.labelsA.nativeElement,
@@ -199,7 +204,11 @@ export class ChartComponent implements AfterViewInit {
   public createVisualization(visualization: VisualizationEnum): ChartObjectInterface {
     switch (visualization) {
       case VisualizationEnum.TIMELINES:
-        return new TimelinesGraph();
+        if(window["currentTimelineType"] == "v3") {
+          return new TimelinesGraph();
+        } else {
+          return new SvgTimelinesGraph();
+        }
       case VisualizationEnum.HEATMAP:
         return new HeatmapGraph();
       case VisualizationEnum.PATHWAYS:
@@ -224,6 +233,8 @@ export class ChartComponent implements AfterViewInit {
         return new PlsGraph();
       case VisualizationEnum.MDS:
         return new MdsGraph();
+      case VisualizationEnum.SAVED_POINTS:
+        return new SavedPointsGraph();
       case VisualizationEnum.FA:
         return new FaGraph();
       case VisualizationEnum.LINKED_GENE:

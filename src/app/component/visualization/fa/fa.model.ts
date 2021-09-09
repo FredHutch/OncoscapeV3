@@ -1,13 +1,14 @@
 import { DimensionEnum, EntityTypeEnum, VisualizationEnum } from 'app/model/enum.model';
 import { GraphConfig } from './../../../model/graph-config.model';
 import { GraphData } from './../../../model/graph-data.model';
+import { VisualizationAbstractScatterConfigModel } from "../visualization.abstract.scatter.model";
 
 export class FaSvdMethod {
   public static RANDOMIZED = 'randomized';
   public static LAPACK = 'lapack';
 }
 
-export class FaConfigModel extends GraphConfig {
+export class FaConfigModel extends VisualizationAbstractScatterConfigModel {
   constructor() {
     super();
     this.entity = EntityTypeEnum.SAMPLE;

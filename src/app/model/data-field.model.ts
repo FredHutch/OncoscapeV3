@@ -1,5 +1,8 @@
 import { DataField, DataTable } from './data-field.model';
-import { CollectionTypeEnum, ConnectionTypeEnum, DataTypeEnum, EntityTypeEnum } from './enum.model';
+import { CollectionTypeEnum } from './enum.model';
+import { ConnectionTypeEnum } from './enum.model';
+import { DataTypeEnum } from './enum.model';
+import { EntityTypeEnum } from './enum.model';
 
 /**
  * Represents A Field In A DataSet
@@ -12,6 +15,44 @@ export class DataFieldFactory {
     lbls = lbls.filter(v => !(v.key === 'Mean' || v.key === 'Minimum' || v.key === 'Maximum'));
     return lbls;
   }
+
+  public static dataFieldColors = [
+    0xd81b60,
+    0x3949ab,
+    0x43a047,
+    0xffb300,
+    0x6d4c41,
+    0xf44336,
+    0x9c27b0,
+    // too blue, conflicts with 1st of Category10 below. 0x2196f3,
+
+    // Those weren't enough, so these are added. They are "Category10" from https://observablehq.com/@d3/color-schemes.
+    0x1f77b4, 
+    0xff7f0e, 
+    0x2ca02c, 
+    0xd62728, 
+    0x9467bd, 
+    0x8c564b, 
+    0xe377c2, 
+    0x7f7f7f, 
+    0xbcbd22, 
+    0x17becf,
+
+    // Now add more, let's have 20?
+    0xdddddd,
+    0xbbbbbb,
+    0x888888,
+    0x666666,
+    0x444444,
+    0x222222,
+    0x00dddd,
+    0x00bbbb,
+    0x008888,
+    0x006666,
+    0x004444,
+    0x002222
+  ];
+
   public static getConnectionColorFields(
     fields: Array<DataField>,
     tables: Array<DataTable>,
@@ -57,6 +98,7 @@ export class DataFieldFactory {
     entityB: EntityTypeEnum
   ): Array<DataField> {
     const connectionType = ConnectionTypeEnum.createFromEntities(entityA, entityB);
+    let allFields;
     switch (connectionType) {
       case ConnectionTypeEnum.PATIENTS_PATIENTS:
         return [this.defaultDataField, this.getPatientId(), ...this.getCategoricalFields(fields)];
@@ -67,9 +109,11 @@ export class DataFieldFactory {
       case ConnectionTypeEnum.SAMPLES_PATIENTS:
         return [this.defaultDataField, this.getPatientId()];
       case ConnectionTypeEnum.GENES_SAMPLES:
-        return [this.defaultDataField, ...this.getMutationFields()];
+        allFields = this.getCopynumberFields().concat(this.getMutationFields());
+        return [this.defaultDataField, ...allFields];
       case ConnectionTypeEnum.GENES_PATIENTS:
-        return [this.defaultDataField, ...this.getMutationFields()];
+        allFields = this.getCopynumberFields().concat(this.getMutationFields());
+        return [this.defaultDataField, ...allFields];
     }
     return [];
   }
@@ -126,7 +170,7 @@ export class DataFieldFactory {
       ...clinicalFields.filter(v => {
         switch (v.type) {
           case DataTypeEnum.STRING:
-            return v.values.length <= 10;
+            return v.values.length <= DataFieldFactory.dataFieldColors.length;
           case DataTypeEnum.NUMBER:
             return true;
         }
@@ -180,8 +224,35 @@ export class DataFieldFactory {
     return DataFieldFactory.getSampleShapeFields(clinicalFields);
   }
 
+  private static _lastLoadedMutationFields = null;
+
+  // Store them locally, after loading non-TCGA dataset.
+  public static setMutationFields(values:Array<string>) {
+    DataFieldFactory._lastLoadedMutationFields = values;
+  }
+
+  public static getCopynumberFields():Array<DataField>{
+    let arrayOfCNVariants:Array<string> = [
+      'Amp',
+      'Gain',
+      'Loss',
+      'Deletion'
+    ];
+
+    return arrayOfCNVariants.map(v => {
+      return {
+        key: v,
+        label: v.replace(/_/gi, ''),
+        type: DataTypeEnum.STRING,
+        tbl: 'cna',
+        values: null,
+        ctype: CollectionTypeEnum.CNV
+      };
+    });
+  }
+
   public static getMutationFields(): Array<DataField> {
-    return [
+    let arrayOfMutVariants:Array<string> = [
       'Frame_Shift_Del',
       'Frame_Shift_Ins',
       'In_Frame_Del',
@@ -192,7 +263,15 @@ export class DataFieldFactory {
       'Silent',
       'Splice_Site',
       'Translation_Start_Site'
-    ].map(v => {
+    ];
+
+    if (DataFieldFactory._lastLoadedMutationFields) {
+      arrayOfMutVariants = DataFieldFactory._lastLoadedMutationFields;
+    }
+
+    // STTR-195 - Add "All Point Mutations" 
+    arrayOfMutVariants.unshift('All Point Mutations'); 
+    return arrayOfMutVariants.map(v => {
       return {
         key: v,
         label: v.replace(/_/gi, ''),

@@ -1,5 +1,5 @@
 import { MeshLine, MeshLineMaterial } from 'three.meshline';
-import { ProteinResidue, ProteinStructure, ProteinAtom } from './protein.graph';
+//import { ProteinResidue, ProteinStructure, ProteinAtom } from './protein.graph';
 import { Subscription } from 'rxjs';
 import { ProteinDataModel } from 'app/component/visualization/protein/protein.model';
 import { Legend } from './../../../model/legend.model';
@@ -18,7 +18,7 @@ import { ChartObjectInterface } from 'app/model/chart.object.interface';
 import { DataDecorator } from 'app/model/data-map.model';
 import { EntityTypeEnum, GraphEnum } from 'app/model/enum.model';
 
-import { SelectionController } from 'app/controller/selection/selection.controller';
+import { VestigialSelectionController } from 'app/controller/selection/vestigial.selection.controller';
 import { VisualizationView } from 'app/model/chart-view.model';
 import { GraphConfig } from 'app/model/graph-config.model';
 import kmeans from 'ml-kmeans';
@@ -316,9 +316,9 @@ export class ProteinGraph extends AbstractVisualization {
   private drawSideChains(chain: THREE.Group, atoms: Array<ProteinAtom>): void {
     // const atomsWithBonds = atoms.filter(atom => atom.bonds.length);
     // const numBonds = atomsWithBonds.reduce((p, c) => (p += c.bonds.length), 0);
-    // const numIndicies = numBonds * 2 - 1;
+    // const numIndices = numBonds * 2 - 1;
     // const bondArr = new Float32Array(numBonds * 6);
-    // const indexArr = new Uint16Array(numIndicies);
+    // const indexArr = new Uint16Array(numIndices);
     // let z = 0;
     // const _mat = new THREE.LineBasicMaterial({
     //   color: 0x000000
@@ -327,7 +327,7 @@ export class ProteinGraph extends AbstractVisualization {
     //   const atom = atomsWithBonds[i];
     //   for (let j = 0, jLen = atom.bonds.length; j < jLen; j++) {
     //     indexArr[z * 2] = z;
-    //     if (z * 2 + 1 < numIndicies) {
+    //     if (z * 2 + 1 < numIndices) {
     //       indexArr[z * 2 + 1] = z + 1;
     //     }
     //     const bond = atom.bonds[j];
@@ -366,7 +366,7 @@ export class ProteinGraph extends AbstractVisualization {
   // this.view.scene.add(line);
   // }
 
-  private drawSmallMolicules(chain: THREE.Group, atoms: Array<ProteinAtom>, size: number): void {
+  private drawSmallMolecules(chain: THREE.Group, atoms: Array<ProteinAtom>, size: number): void {
     atoms.forEach(v => {
       const sphereGeometry = new THREE.SphereGeometry(size, 10, 10);
       const sphereMaterial = new THREE.MeshPhongMaterial({
@@ -394,7 +394,7 @@ export class ProteinGraph extends AbstractVisualization {
       ptsArr[i * 3 + 2] = v.z;
     }, this);
     const ptsBuf = new THREE.BufferAttribute(ptsArr, 3);
-    geoBuf.addAttribute('position', ptsBuf);
+    geoBuf.setAttribute('position', ptsBuf);
     const colVec = chroma
       .scale(['#03a9f4', '#9c27b0'])
       .mode('lch')
@@ -415,17 +415,18 @@ export class ProteinGraph extends AbstractVisualization {
       colArr[i * 3 + 2] = v.z;
     }, this);
     const colBuf = new THREE.BufferAttribute(colArr, 3);
-    geoBuf.addAttribute('color', colBuf);
+    geoBuf.setAttribute('color', colBuf);
 
     const mesh = new THREE.Mesh(
       geoBuf,
       new THREE.MeshLambertMaterial({
         side: THREE.DoubleSide,
-        vertexColors: THREE.VertexColors
+        vertexColors: true
       })
     );
 
-    mesh.setDrawMode(THREE.TriangleStripDrawMode);
+    //mesh.setDrawMode(THREE.TriangleStripDrawMode);
+    console.warn('In protein.graph, no longer trying to set mesh drawmode to TriangleStripDrawMode. MJ');
 
     chain.add(mesh);
   }
@@ -441,10 +442,10 @@ export class ProteinGraph extends AbstractVisualization {
     const chain = this.chains[this.chains.length - 1];
 
     //  Bonded
-    this.drawSmallMolicules(chain, this.model.atoms.filter(v => v.hetflag).filter(v => v.resName !== 'HOH'), 1.4);
+    this.drawSmallMolecules(chain, this.model.atoms.filter(v => v.hetflag).filter(v => v.resName !== 'HOH'), 1.4);
 
     // // Non Bonded
-    this.drawSmallMolicules(chain, this.model.atoms.filter(v => v.hetflag).filter(v => v.resName === 'HOH'), 0.2);
+    this.drawSmallMolecules(chain, this.model.atoms.filter(v => v.hetflag).filter(v => v.resName === 'HOH'), 0.2);
 
     // Ribbon
     this.drawCartoon(chain, this.model.atoms.filter(v => !v.hetflag));
@@ -480,8 +481,8 @@ export class ProteinGraph extends AbstractVisualization {
   }
 
   // Private Subscriptions
-  create(labels: HTMLElement, events: ChartEvents, view: VisualizationView): ChartObjectInterface {
-    super.create(labels, events, view);
+  create(entity: EntityTypeEnum, labels: HTMLElement, events: ChartEvents, view: VisualizationView): ChartObjectInterface {
+    super.create(entity, labels, events, view);
     // const dLight = new THREE.DirectionalLight(0xffffff);
     // dLight.position.set(0, 0, 1);
     // dLight.shadow.camera.near = 1;

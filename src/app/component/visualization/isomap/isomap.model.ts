@@ -1,6 +1,7 @@
 import { DimensionEnum, EntityTypeEnum, VisualizationEnum } from 'app/model/enum.model';
 import { GraphConfig } from './../../../model/graph-config.model';
 import { GraphData } from './../../../model/graph-data.model';
+import { VisualizationAbstractScatterConfigModel } from "../visualization.abstract.scatter.model";
 
 export class IsoMapEigenSolver {
   public static AUTO = 'auto';
@@ -21,7 +22,7 @@ export class IsoMapNeighborsAlgorithm {
   // public static BALL_TREE = 'ball_tree';
 }
 
-export class IsoMapConfigModel extends GraphConfig {
+export class IsoMapConfigModel extends VisualizationAbstractScatterConfigModel {
   constructor() {
     super();
     this.entity = EntityTypeEnum.SAMPLE;

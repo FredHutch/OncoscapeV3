@@ -1,7 +1,8 @@
 import { ShapeEnum, SizeEnum } from 'app/model/enum.model';
 import * as scale from 'd3-scale';
 import * as THREE from 'three';
-import { PerspectiveCamera, Vector3, OrbitControls } from 'three';
+import { PerspectiveCamera, Vector3 } from 'three';
+import { OrbitControls } from 'three-orbitcontrols-ts';
 import { MeshLine, MeshLineMaterial } from 'three.meshline';
 import {
   DataDecorator,
@@ -12,8 +13,10 @@ import {
   SpriteMaterialEnum
 } from './../../../model/enum.model';
 import { VisualizationView } from './../../../service/chart-view.model';
+import { GlobalGuiControls } from 'app/globalGuiControls';
+import { DataFieldFactory } from 'app/model/data-field.model';
 
-export type DataDecoatorRenderer = (
+export type DataDecoratorRenderer = (
   group: THREE.Group,
   mesh: THREE.Sprite,
   decorators: Array<DataDecorator>,
@@ -40,6 +43,45 @@ export class ChartFactory {
       ].join('\n')
     }
   };
+
+  public static cleanForLocalStorage(s): string {
+    return s.replace(/\./g, '_')
+      .replace(/\!/g, '_')
+      .replace(/\,/g, '_')
+      .replace(/\ /g, '_')
+  }
+
+  public static writeCustomValueToLocalStorage(database:string, category:string, key:string, val:any):void  {
+    let db:string = this.cleanForLocalStorage(database);  // Turn periods and bangs to underscores.
+    let storagePath:string = 'oncoscape' + category + '_' + db;
+    let categoryStruct = {};
+    if (!localStorage[storagePath]) { 
+      localStorage[storagePath] = {};
+    } else {
+      categoryStruct = JSON.parse(localStorage[storagePath]);
+    }
+    categoryStruct[key] = JSON.stringify(val);
+    localStorage[storagePath] = JSON.stringify(categoryStruct);
+  }
+
+  public static readCustomValueFromLocalStorage(database:string, category:string, key:string): string {
+    let db:string = database.replace(/\./g, '_').replace(/\!/g, '_');  // Turn periods and bangs to underscores.
+    let storagePath:string = 'oncoscape' + category + '_' + db;
+    let categoryStruct = {};
+    if (!localStorage[storagePath]) { 
+      return null;
+    } else {
+      categoryStruct = JSON.parse(localStorage[storagePath]);
+    }
+    let result = categoryStruct[key];
+    if (result == null) {
+      return null;
+    } else {
+      result = result.replace(/"([^"]+(?="))"/g, '$1'); // trim quotes from start and end
+      return result;
+    }
+  }
+
   public static sizes = [SizeEnum.S, SizeEnum.M, SizeEnum.L, SizeEnum.XL];
   public static shapes = [
     ShapeEnum.CIRCLE,
@@ -47,16 +89,7 @@ export class ChartFactory {
     ShapeEnum.SQUARE,
     ShapeEnum.CONE
   ];
-  public static colors = [
-    0xd81b60,
-    0x3949ab,
-    0x43a047,
-    0xffb300,
-    0x6d4c41,
-    0xf44336,
-    0x9c27b0,
-    0x2196f3
-  ];
+
   public static colorsContinuous = [
     '#e53935',
     '#d81b60',
@@ -81,13 +114,19 @@ export class ChartFactory {
     SpriteMaterialEnum.BLOB
   ];
 
+  public static alphas = {
+    circle: new THREE.TextureLoader().load(
+      'assets/shapes/shape-circle-solid-alpha.png'
+    ),
+  };
+
   public static textures = {
     blast: new THREE.TextureLoader().load(
       'assets/shapes/shape-blast-solid.png'
     ),
     blob: new THREE.TextureLoader().load('assets/shapes/shape-blob-solid.png'),
     circle: new THREE.TextureLoader().load(
-      'assets/shapes/shape-circle-solid.png'
+      'assets/shapes/shape-circle-solid-border.png' // added border
     ),
     diamond: new THREE.TextureLoader().load(
       'assets/shapes/shape-diamond-solid.png'
@@ -115,7 +154,7 @@ export class ChartFactory {
 
   public static getScaleSizeLinear(min: number, max: number): Function {
     return scale
-      .scaleLinear()
+      .scaleLog()
       .domain([min, max])
       .range([1, 3])
       .clamp(true);
@@ -163,10 +202,11 @@ export class ChartFactory {
   }
   public static getScaleColorOrdinal(values: Array<string>): Function {
     const len = values.length;
+    console.log(`getScaleColorOrdinal for ${len} items.`);
     const cols =
       len > 4
-        ? ChartFactory.colors.slice(0, values.length)
-        : ChartFactory.colors.filter((c, i) => i % 2).slice(0, values.length);
+        ? DataFieldFactory.dataFieldColors.slice(0, values.length)
+        : DataFieldFactory.dataFieldColors.filter((c, i) => i % 2).slice(0, values.length);
     return scale
       .scaleOrdinal()
       .domain(values)
@@ -201,10 +241,11 @@ export class ChartFactory {
     group.userData.tooltip = id;
     return group;
   }
+
   public static decorateDataGroups(
     groups: Array<any>,
     decorators: Array<DataDecorator>,
-    renderer: DataDecoatorRenderer = null,
+    renderer: DataDecoratorRenderer = null,
     scaleFactor: number = 3
   ): void {
     // groups: Array<THREE.Group>,
@@ -213,6 +254,7 @@ export class ChartFactory {
     if (groups.length === 0) {
       return;
     }
+    console.log('decorateDataGroups');
 
     const idType = groups[0].userData.idType;
     const idProperty =
@@ -274,20 +316,25 @@ export class ChartFactory {
     const sizeMap = !sizeDecorator.length
       ? null
       : sizeDecorator[0].values.reduce((p, c) => {
+          console.log('find size options');
           p[c[idProperty]] = c.value;
           return p;
         }, {});
     const count = groups.length;
+    let defaultSpriteOpacity = GlobalGuiControls.instance.spriteOpacity;
     groups.forEach((item, i) => {
       while (item.children.length) {
         item.remove(item.children[0]);
       }
       const id = item.userData.id;
-      const color = colorMap
+      let color = colorMap
         ? colorMap[id]
           ? colorMap[id]
           : '#DDDDDD'
         : '#039be5';
+      if(item.userData.genesetOverlayColor) {
+        color = item.userData.genesetOverlayColor;
+      }
       const label = labelMap ? (labelMap[id] ? labelMap[id] : 'NA') : '';
       const shape = shapeMap
         ? shapeMap[id]
@@ -302,9 +349,10 @@ export class ChartFactory {
       const group = groupMap ? (groupMap[id] ? groupMap[id] : 0) : 0;
       // size = 1;
       const spriteMaterial = ChartFactory.getSpriteMaterial(shape, color);
-      spriteMaterial.opacity = 0.8;
+      spriteMaterial.opacity = defaultSpriteOpacity; // 0.8;
       const mesh: THREE.Sprite = new THREE.Sprite(spriteMaterial);
-      item.userData.tooltip = label;
+      const tooltipExistsAlready:boolean = item.userData.tooltip && item.userData.tooltip != '';
+      item.userData.tooltip = tooltipExistsAlready ? item.userData.tooltip : label;
       item.userData.color = isNaN(color)
         ? parseInt(color.replace(/^#/, ''), 16)
         : color;
@@ -372,15 +420,18 @@ export class ChartFactory {
     color: number,
     pt1: THREE.Vector2,
     pt2: THREE.Vector2,
-    pt3: THREE.Vector2
+    pt3: THREE.Vector2,
+    data?: any,
+    z?: number
   ): THREE.Line {
     const line = new THREE.Line();
     line.material = this.getLineColor(color);
     const curve = new THREE.SplineCurve([pt1, pt3, pt2]);
     const path = new THREE.Path(curve.getPoints(50));
-    const pts = path.getPoints().map(v => new Vector3(v.x, v.y, 0));
+    const pts = path.getPoints().map(v => new Vector3(v.x, v.y, z ? z : 0));
     const geometry = new THREE.BufferGeometry().setFromPoints(pts);
     line.geometry = geometry;
+    line.userData = data;
     return line;
   }
 
@@ -425,14 +476,15 @@ export class ChartFactory {
     color: number,
     pt1: THREE.Vector2,
     pt2: THREE.Vector2,
-    data?: any
+    data?: any,
+    z?: number
   ): THREE.Line {
     const line = new THREE.Line();
     line.material = this.getLineColor(color);
     line.userData = data;
     const geometry = new THREE.Geometry();
-    geometry.vertices.push(new THREE.Vector3(pt1.x, pt1.y, 0));
-    geometry.vertices.push(new THREE.Vector3(pt2.x, pt2.y, 0));
+    geometry.vertices.push(new THREE.Vector3(pt1.x, pt1.y, z ? z : 0));
+    geometry.vertices.push(new THREE.Vector3(pt2.x, pt2.y, z ? z : 0));
     line.geometry = geometry;
     return line;
   }
@@ -545,57 +597,74 @@ export class ChartFactory {
     shape: SpriteMaterialEnum,
     color: number
   ): THREE.SpriteMaterial {
+    let result:THREE.SpriteMaterial = null;
     switch (shape) {
       case SpriteMaterialEnum.BLAST:
-        return new THREE.SpriteMaterial({
+        result =  new THREE.SpriteMaterial({
           map: ChartFactory.textures.blast,
           color: color
         });
+        break;
       case SpriteMaterialEnum.BLOB:
-        return new THREE.SpriteMaterial({
+        result =  new THREE.SpriteMaterial({
           map: ChartFactory.textures.blob,
           color: color
         });
+        break;
       case SpriteMaterialEnum.CIRCLE:
-        return new THREE.SpriteMaterial({
+        result =  new THREE.SpriteMaterial({
           map: ChartFactory.textures.circle,
+          alphaMap: ChartFactory.alphas.circle,
           color: color
         });
+        result.transparent = true;
+        break;
       case SpriteMaterialEnum.DIAMOND:
-        return new THREE.SpriteMaterial({
+        result =  new THREE.SpriteMaterial({
           map: ChartFactory.textures.diamond,
           color: color
         });
+        break;
       case SpriteMaterialEnum.POLYGON:
-        return new THREE.SpriteMaterial({
+        result =  new THREE.SpriteMaterial({
           map: ChartFactory.textures.polygon,
           color: color
         });
+        break;
       case SpriteMaterialEnum.SQUARE:
-        return new THREE.SpriteMaterial({
+        result =  new THREE.SpriteMaterial({
           map: ChartFactory.textures.square,
           color: color
         });
+        break;
       case SpriteMaterialEnum.STAR:
-        return new THREE.SpriteMaterial({
+        result =  new THREE.SpriteMaterial({
           map: ChartFactory.textures.star,
           color: color
         });
+        break;
       case SpriteMaterialEnum.TRIANGLE:
-        return new THREE.SpriteMaterial({
+        result =  new THREE.SpriteMaterial({
           map: ChartFactory.textures.triangle,
           color: color
         });
+        break;
       case SpriteMaterialEnum.NA:
-        return new THREE.SpriteMaterial({
+        result =  new THREE.SpriteMaterial({
           map: ChartFactory.textures.na,
           color: color
         });
+        break;
     }
-    return new THREE.SpriteMaterial({
-      map: ChartFactory.textures.na,
-      color: color
-    });
+    if(!result) {
+      return new THREE.SpriteMaterial({
+        map: ChartFactory.textures.na,
+        color: color
+      });
+    } else {
+      result.transparent = true;
+      return result;
+    }
   }
 
   // @memoize
@@ -606,7 +675,7 @@ export class ChartFactory {
       case ShapeEnum.CIRCLE:
         return new THREE.SphereGeometry(3, 15, 15);
       case ShapeEnum.SQUARE:
-        return new THREE.CubeGeometry(3, 3, 3);
+        return new THREE.BoxGeometry(3, 3, 3); // was CubeGeometry, which is a now-deprecated alias for BoxGeometry.
       case ShapeEnum.TRIANGLE:
         return new THREE.TetrahedronGeometry(3);
       case ShapeEnum.CONE:

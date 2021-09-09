@@ -1,13 +1,14 @@
 import { EntityTypeEnum, VisualizationEnum } from 'app/model/enum.model';
 import { GraphConfig } from './../../../model/graph-config.model';
 import { GraphData } from './../../../model/graph-data.model';
+import { VisualizationAbstractScatterConfigModel } from "../visualization.abstract.scatter.model";
 
 export class MiniBatchSparsePcaMethod {
   public static LARS = 'lars';
   public static CD = 'cd';
 }
 
-export class MiniBatchSparsePcaConfigModel extends GraphConfig {
+export class MiniBatchSparsePcaConfigModel extends VisualizationAbstractScatterConfigModel {
   constructor() {
     super();
     this.entity = EntityTypeEnum.SAMPLE;

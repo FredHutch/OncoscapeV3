@@ -48,6 +48,7 @@ export class HeatmapConfigModel extends GraphConfig {
   }
 
   order = false;
+  removeWhitespace = false;
   method = HeatmapMethod.WARD.value;
   dist = HeatmapDistance.EUCLIDEAN.value;
   transpose = 0;

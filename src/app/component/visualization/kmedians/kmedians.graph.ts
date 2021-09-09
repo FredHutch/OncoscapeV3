@@ -30,6 +30,10 @@ export class KmedianGraph extends AbstractVisualization
     ids: Array<string>;
   }> = new EventEmitter<{ type: EntityTypeEnum; ids: Array<string> }>();
 
+  public tooltipColorFromDecorator(id:any, color:any){
+    return color;
+  };
+
   // Chart Elements
   private data: KmedianDataModel;
   private config: KmedianConfigModel;

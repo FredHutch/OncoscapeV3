@@ -4,7 +4,7 @@
     <div class="user-panel-intro">
       The following datasets are private. Sign in or sign up to upload or view datasets.
     </div>
-    <form [formGroup]="formGroupSignIn" (submit)="signIn()">
+    <form [formGroup]="formGroupSignIn" (submit)="signInIfNeeded()">
       <div>
         <mat-error class="user-panel-warning">{{ errorMessage }}</mat-error>
       </div>
@@ -45,7 +45,7 @@
   <div *ngIf="activeForm === 'SIGN_UP'">
     <div class="user-panel-intro">
       When signing up for an account please be aware that you are agreeing to our
-      <a class="os-link" href="https://www.fredhutch.org/en/util/terms-privacy.html">Terms ofService</a>.
+      <a class="os-link" href="/assets/terms.html">Terms and Conditions</a>.
       <div>
         Passwords must be a minimum of eight (8) characters and contain at least one (1) character from the following
         categories: uppercase and lowercase letter, digit, special character.
@@ -99,7 +99,7 @@
   <!-- Forgot Password -->
   <div *ngIf="activeForm === 'FORGOT_PASSWORD'">
     <!--
-      <div>Password reset code has been sent. If you do not receive the email, please reach out to contact-sttr@fredhutch.org for assistance.</div>
+      <div>Password reset code has been sent. If you do not receive the email, please reach out to contact contact@oncoscape.org for assistance.</div>
     -->
     <div class="user-panel-intro">
       Please enter your email address below. An account verification code will be sent via email.
@@ -165,7 +165,6 @@
 
   <!-- IS THIS BEING USED?? -->
   <!-- Sign Up Confirmation -->
-  <!--
     <div *ngIf="activeForm === 'SIGN_UP_CONFIRM'">
       <div>Please check your email and enter the code below.</div>
       <form [formGroup]="formGroupSignUpConfirm" (submit)="signUpConfirm()">
@@ -187,7 +186,7 @@
         </div>
       </form>
     </div>
-  -->
+
 
   <!-- Resend Code -->
   <div *ngIf="activeForm === 'RESEND_CODE'">
@@ -212,13 +211,20 @@
   </div>
 
   <!-- Add Data Set -->
-  <div *ngIf="activeForm === 'PROJECT_LIST'">
-    <button mat-raised-button type="submit" color="primary" (click)="addDataSet()" style="margin-bottom:20px;">
-      Add Data Set
-    </button>
-    <div *ngFor="let option of datasets" class="panel-config-row-del" (click)="loadDataset(option)">
-      <i class="material-icons md-18">info_outline</i>
-      <div>{{ option.content.name }}</div>
+  <div  id="privateDataProjectListId" *ngIf="activeForm === 'PROJECT_LIST'">
+    <div *ngFor="let option of datasets" class="panel-config-row-del-dataset-list" >
+      <i class="private-dataset-delete-icon material-icons md-18"   attr.data-tippy-content="Delete?" (click)="deleteDataset(option)">delete_forever</i>
+      <i class="private-dataset-hastip material-icons md-18" attr.data-tippy-content="{{composeDatasetTooltip(option)}}" (click)="showInfoDataset(option)">info_outline</i>
+      <div class="private-dataset-hastip private-dataset-list-item" attr.data-tippy-content="{{composeDatasetTooltip(option)}}" (click)="loadDataset(option)">{{ option.content.name }}</div>
     </div>
+    <button mat-raised-button type="submit" color="primary" (click)="addDataSet()" style="margin-bottom:20px;">
+      Add My Own Data Set
+    </button>
   </div>
+  <br /><br />
+  Once you have an account and are signed in, you can upload your own private data set. See this video for a walkthrough...<br />
+  <br /><br />
+  <video  height="300" controls>
+    <source src="/assets/videos/upload_dataset.mp4" type="video/mp4">
+  </video>
 </div>

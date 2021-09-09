@@ -1,8 +1,9 @@
 import { DimensionEnum, DistanceEnum } from 'app/model/enum.model';
 import { GraphConfig } from './../../../model/graph-config.model';
 import { GraphData } from './../../../model/graph-data.model';
+import { VisualizationAbstractScatterConfigModel } from "../visualization.abstract.scatter.model";
 
-export class SomConfigModel extends GraphConfig {
+export class SomConfigModel extends VisualizationAbstractScatterConfigModel {
 
     dimension: DimensionEnum = DimensionEnum.THREE_D;
     tau = 0.02;

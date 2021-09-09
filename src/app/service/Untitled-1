@@ -25,7 +25,7 @@ var matrix = data.filter(v => v.file.indexOf('matrix')===0).map(v => {
         var key = keyParts[2] + '-' + keyParts[3];
         if (keyParts.length !== 4) {
             console.log(keyParts)
-            console.log("!!!!!!!  SHIT");
+            console.log("!!!!!!!  DOH");
 
         }
     p[key] = c; return p; }, {});

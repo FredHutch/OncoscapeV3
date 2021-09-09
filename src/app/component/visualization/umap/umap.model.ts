@@ -5,6 +5,7 @@ import {
 } from 'app/model/enum.model';
 import { GraphConfig } from './../../../model/graph-config.model';
 import { GraphData } from './../../../model/graph-data.model';
+import { VisualizationAbstractScatterConfigModel } from "../visualization.abstract.scatter.model";
 
 export class UmapMetric {
   public static EUCLIDEAN = 'euclidean';
@@ -30,7 +31,7 @@ export class UmapMetric {
   public static YULE = 'yule';
 }
 
-export class UmapConfigModel extends GraphConfig {
+export class UmapConfigModel extends VisualizationAbstractScatterConfigModel {
   constructor() {
     super();
     this.entity = EntityTypeEnum.SAMPLE;
@@ -38,6 +39,7 @@ export class UmapConfigModel extends GraphConfig {
     this.enableSupplemental = false;
     this.label = 'UMAP';
   }
+
   learning_rate = 1.0;
   n_components = 3;
   n_neighbors = 5;
@@ -51,7 +53,7 @@ export class UmapConfigModel extends GraphConfig {
   angular_rp_forest = false;
   target_n_neighbors = -1;
   target_weight = 0.5;
-  metric = UmapMetric.CORRELATION;
+  metric = UmapMetric.COSINE;
 }
 
 export interface UmapDataModel extends GraphData {

@@ -43,8 +43,8 @@ export class PathwaysGraph extends AbstractVisualization {
   public dataGroups: Array<THREE.Group>;
 
   // Create - Initialize Mesh Arrays
-  create(labels: HTMLElement, events: ChartEvents, view: VisualizationView): ChartObjectInterface {
-    super.create(labels, events, view);
+  create(entity: EntityTypeEnum, labels: HTMLElement, events: ChartEvents, view: VisualizationView): ChartObjectInterface {
+    super.create(entity, labels, events, view);
     this.meshes = [];
     this.lines = [];
     this.dataGroups = [];

@@ -5,6 +5,7 @@ import { GraphConfig } from './../../../model/graph-config.model';
 import { GraphData } from './../../../model/graph-data.model';
 import { GraphEnum, VisualizationEnum, EntityTypeEnum } from 'app/model/enum.model';
 import { Legend } from './../../../model/legend.model';
+import { VisualizationAbstractScatterConfigModel } from "../visualization.abstract.scatter.model";
 
 export enum PlsDisplayEnum {
     WEIGHT = 1,
@@ -13,7 +14,7 @@ export enum PlsDisplayEnum {
     NONE = 0
 }
 
-export class PlsConfigModel extends GraphConfig {
+export class PlsConfigModel extends VisualizationAbstractScatterConfigModel {
     dimension: DimensionEnum = DimensionEnum.THREE_D;
     domain: Array<number> = [-500, 500];
     showVectors: Boolean = false;

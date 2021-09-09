@@ -14,7 +14,7 @@ import { ChartObjectInterface } from 'app/model/chart.object.interface';
 import { DataDecorator } from 'app/model/data-map.model';
 import { EntityTypeEnum, GraphEnum } from 'app/model/enum.model';
 
-import { SelectionController } from 'app/controller/selection/selection.controller';
+import { VestigialSelectionController as VestigialSelectionController } from 'app/controller/selection/vestigial.selection.controller';
 import { VisualizationView } from 'app/model/chart-view.model';
 import { GraphConfig } from 'app/model/graph-config.model';
 import kmeans from 'ml-kmeans';
@@ -47,7 +47,7 @@ export class ScatterGraph extends AbstractVisualization {
   private lines: Array<THREE.Line>;
   private points: Array<THREE.Object3D>;
   private pts: THREE.Points;
-  protected selectionController: SelectionController;
+  protected selectionController: VestigialSelectionController;
   private material: THREE.ShaderMaterial;
   private geometry: THREE.BufferGeometry;
   private animationFrame = 0;
@@ -55,8 +55,8 @@ export class ScatterGraph extends AbstractVisualization {
   private colors;
   private lastKey = 0;
   private legends: Array<Legend> = [
-    Legend.create('Data Points', ['Samples'], ['./assets/shapes/shape-circle-solid-legend.png'], 'SHAPE', 'DISCRETE'),
-    Legend.create('Color', [], [], 'COLOR', 'DISCRETE')
+    Legend.create( null, 'Data Points', ['Samples'], ['./assets/shapes/shape-circle-solid-legend.png'], 'SHAPE', 'DISCRETE'),
+    Legend.create(null, 'Color', [], [], 'COLOR', 'DISCRETE')
   ];
 
   private colorIndex = [
@@ -156,8 +156,8 @@ export class ScatterGraph extends AbstractVisualization {
   }
 
   // Private Subscriptions
-  create(labels: HTMLElement, events: ChartEvents, view: VisualizationView): ChartObjectInterface {
-    super.create(labels, events, view);
+  create(entity: EntityTypeEnum, labels: HTMLElement, events: ChartEvents, view: VisualizationView): ChartObjectInterface {
+    super.create(entity, labels, events, view);
     this.meshes = [];
     this.points = [];
     this.lines = [];
@@ -204,7 +204,7 @@ export class ScatterGraph extends AbstractVisualization {
     //   this.colors[i * 3 + 2] = colorValues[2];
     // }
     // // const cd = ScatterGraph.colorData;
-    this.geometry.addAttribute('customColor', new THREE.BufferAttribute(this.colors, 3));
+    this.geometry.setAttribute('customColor', new THREE.BufferAttribute(this.colors, 3));
     ChartScene.instance.render();
   }
 
@@ -216,7 +216,7 @@ export class ScatterGraph extends AbstractVisualization {
   }
   onSetColor(colors: THREE.BufferAttribute): void {}
   onSetColorHighlight(tempColors: THREE.BufferAttribute): void {
-    this.geometry.addAttribute('customColor', tempColors);
+    this.geometry.setAttribute('customColor', tempColors);
     if (this.config.graph === GraphEnum.GRAPH_A) {
       setTimeout(v => {
         ChartScene.instance.render();
@@ -263,8 +263,12 @@ export class ScatterGraph extends AbstractVisualization {
     }
   }
   onMouseUp(e: ChartEvent): void {
-    this.geometry.addAttribute('customColor', new THREE.BufferAttribute(this.colors, 3));
+    this.geometry.setAttribute('customColor', new THREE.BufferAttribute(this.colors, 3));
     ChartScene.instance.render();
+    window.setTimeout(this.recordShmoo, 1200);
+  }
+  recordShmoo(){
+    console.log('shmoo');
   }
   onMouseDown(e: ChartEvent): void {
     this.raycaster.setFromCamera(e.mouse, this.view.camera);
@@ -295,7 +299,7 @@ export class ScatterGraph extends AbstractVisualization {
       }
 
       ScatterGraph.setColorHighlight.emit(new THREE.BufferAttribute(tempColors, 3));
-      // this.geometry.addAttribute(
+      // this.geometry.setAttribute(
       //   'customColor',
       //   new THREE.BufferAttribute(tempColors, 3)
       // );
@@ -324,11 +328,11 @@ export class ScatterGraph extends AbstractVisualization {
   addObjects(type: EntityTypeEnum) {
     const propertyId = this._config.entity === EntityTypeEnum.GENE ? 'mid' : 'sid';
     const objectIds = this._data[propertyId];
-
     const inheritColorPosition = this.geometry;
 
     const data = this._data.resultScaled;
     const dataLength = data.length;
+    console.log(`At ${Date.now()},  addObjects adding ${dataLength} objects in scatter.graph.ts`);
 
     const positions = new Float32Array(dataLength * 3);
     let datum;
@@ -343,12 +347,14 @@ export class ScatterGraph extends AbstractVisualization {
     } else {
       this.colors = new Float32Array(dataLength * 3);
     }
+    let numNoInheritColorPosition = 0;
     for (let i = 0; i < dataLength; i++) {
       datum = data[i];
       positions[i * 3] = datum[0];
       positions[i * 3 + 1] = datum[1];
       positions[i * 3 + 2] = datum[2];
       if (!inheritColorPosition) {
+        numNoInheritColorPosition++;
         positionsFrom[i * 3] = getRandomInt(0, 900) - 450;
         positionsFrom[i * 3 + 1] = getRandomInt(0, 900) - 450;
         positionsFrom[i * 3 + 2] = getRandomInt(0, 900) - 450;
@@ -358,13 +364,16 @@ export class ScatterGraph extends AbstractVisualization {
       }
       sizes[i] = 10.0;
     }
+    if (numNoInheritColorPosition > 0) {
+      console.log(`MJ not inheritColorPosition ${numNoInheritColorPosition} times, so random. Why? ${Date.now}`);
+    }
 
     this.geometry = new THREE.BufferGeometry();
-    this.geometry.addAttribute('positionFrom', new THREE.BufferAttribute(positionsFrom, 3));
+    this.geometry.setAttribute('positionFrom', new THREE.BufferAttribute(positionsFrom, 3));
 
-    this.geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
-    this.geometry.addAttribute('customColor', new THREE.BufferAttribute(this.colors, 3));
-    this.geometry.addAttribute('size', new THREE.BufferAttribute(sizes, 1));
+    this.geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    this.geometry.setAttribute('customColor', new THREE.BufferAttribute(this.colors, 3));
+    this.geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
     this.material = new THREE.ShaderMaterial({
       uniforms: {

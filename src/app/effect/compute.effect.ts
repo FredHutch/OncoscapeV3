@@ -5,10 +5,12 @@ import { GeneSet } from './../model/gene-set.model';
 import { Cohort } from './../model/cohort.model';
 import { DataAddCohortAction, DataUpdateCohortsAction, DataUpdateGenesetsAction } from './../action/data.action';
 import { Injectable } from '@angular/core';
+import { WorkspaceComponent } from 'app/component/workspace/workspace.component';
 
 import * as compute from 'app/action/compute.action';
 import * as graph from 'app/action/graph.action';
 import { EntityTypeEnum } from 'app/model/enum.model';
+import { OncoData, LoadedTable } from 'app/oncoData';
 
 import { Observable } from 'rxjs/Rx';
 // tslint:disable-next-line:max-line-length
@@ -31,6 +33,8 @@ import {
   LinkedGeneCompleteAction,
   LocalLinearEmbeddingCompleteAction,
   MdsCompleteAction,
+  SavedPointsCompleteAction,
+  TableLoaderCompleteAction,
   MiniBatchDictionaryLearningCompleteAction,
   MiniBatchSparsePcaCompleteAction,
   NmfCompleteAction,
@@ -238,6 +242,57 @@ export class ComputeEffect {
                   data: result.data
                 }),
             new LoaderHideAction()
+          ];
+        })
+      );
+    })
+  );
+
+  @Effect()
+  loadSavedPoints: Observable<any> = this.actions$.pipe(ofType(compute.COMPUTE_SAVED_POINTS)).pipe(
+    map((action: UnsafeAction) => action.payload),
+    switchMap(payload => {
+      return this.computeService.savedPoints(payload['config']).pipe(
+        mergeMap(result => {
+          return [
+            result === null
+              ? new NullDataAction()
+              : new SavedPointsCompleteAction({
+                  config: result.config,
+                  data: result.data
+                }),
+            new LoaderHideAction()
+          ];
+        })
+      );
+    })
+  );
+
+  @Effect()
+  loadTableLoader: Observable<any> = this.actions$.pipe(ofType(compute.COMPUTE_TABLE_LOADER)).pipe(
+    map((action: UnsafeAction) => action.payload),
+    switchMap(payload => {
+      return this.computeService.tableLoader(payload['config']).pipe(
+        mergeMap(result => {
+          console.warn("*** loadTableLoader @Effect hit.");
+
+          let storedMapData = result.config.mapData;
+          let tableData = result.data.matrix;
+          let tableName = result.config.tableName;
+    
+          let thisLoadedTable:LoadedTable = {
+            map: storedMapData,
+            data: tableData
+          }
+          WorkspaceComponent.instance.setLoadedTable(tableName, thisLoadedTable);
+
+          return [
+            result === null
+              ? new NullDataAction()
+              : new TableLoaderCompleteAction({
+                  config: result.config,
+                  data: '<<BLOB>>' //result.data
+                })
           ];
         })
       );
@@ -1131,7 +1186,7 @@ export class ComputeEffect {
   @Effect()
   addDataDecorator: Observable<any> = this.actions$.pipe(ofType(graph.DATA_DECORATOR_CREATE)).pipe(
     map((action: DataDecoratorCreateAction) => action.payload),
-    switchMap(payload => {
+    switchMap(payload => { 
       return this.dataService.createDataDecorator(payload.config, payload.decorator).pipe(
         mergeMap(result => {
           return [

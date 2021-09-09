@@ -17,9 +17,9 @@ import { StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { FileUploadModule } from 'ng2-file-upload';
 import { AppRoutingModule } from './app-routing.module';
-
 // Components
 import { AppComponent } from './app.component';
+import { ContentDialog } from './component/content-dialog/content-dialog';
 import { ApplicationBarComponent } from './component/application-bar/application-bar.component';
 import { BoxWhiskersFormComponent } from './component/visualization/boxwhiskers/boxwhiskers.form.component';
 import { ChromosomeFormComponent } from './component/visualization/chromosome/chromosome.form.component';
@@ -46,6 +46,7 @@ import { LinearDiscriminantAnalysisFormComponent } from './component/visualizati
 import { LinkedGeneFormComponent } from './component/visualization/linkedgenes/linkedgenes.form.component';
 import { LocalLinearEmbeddingFormComponent } from './component/visualization/locallinearembedding/locallinearembedding.form.component';
 import { MdsFormComponent } from './component/visualization/mds/mds.form.component';
+import { SavedPointsFormComponent } from './component/visualization/savedpoints/savedpoints.form.component';
 // tslint:disable-next-line:max-line-length
 import { MiniBatchDictionaryLearningFormComponent } from './component/visualization/minibatchdictionarylearning/minibatchdictionarylearning.form.component';
 import { MiniBatchSparsePcaFormComponent } from './component/visualization/minibatchsparsepca/minibatchsparsepca.form.component';
@@ -82,6 +83,11 @@ import { ChartFactory } from './component/workspace/chart/chart.factory';
 import { CitationsPanelComponent } from './component/workspace/citations-panel/citations-panel.component';
 import { ClusteringAlgorithmPanelComponent } from './component/workspace/clustering-algorithm-panel/clustering-algorithm-panel.component';
 import { CohortPanelComponent } from './component/workspace/cohort-panel/cohort-panel.component';
+import { CommonSidePanelComponent } from './component/workspace/common-side-panel/common-side-panel.component';
+import { WidgetComponent } from './component/workspace/common-side-panel/widget.component';
+import { SurvivalWidgetComponent } from './component/workspace/common-side-panel/survival-widget.component';
+import { CopynumberWidgetComponent } from './component/workspace/common-side-panel/copynumber-widget.component';
+import { DiffexpWidgetComponent } from './component/workspace/common-side-panel/diffexp-widget.component';
 import { PreprocessingPanelComponent } from './component/workspace/preprocessing-panel/preprocessing-panel.component';
 import { ColorPanelComponent } from './component/workspace/color-panel/color-panel.component';
 import { DashboardPanelComponent } from './component/workspace/dashboard-panel/dashboard-panel.component';
@@ -107,6 +113,7 @@ import { SettingsPanelComponent } from './component/workspace/settings-panel/set
 import { StatPanelComponent } from './component/workspace/stat-panel/stat-panel.component';
 import { ToolBarComponent } from './component/workspace/tool-bar/tool-bar.component';
 import { UploadPanelComponent } from './component/workspace/upload-panel/upload-panel.component';
+import { UploadFeedbackPanelComponent } from './component/workspace/upload-feedback-panel/upload-feedback-panel.component';
 import { UserPanelComponent } from './component/workspace/user-panel/user-panel.component';
 import { WorkspaceComponent } from './component/workspace/workspace.component';
 // Effects
@@ -126,12 +133,22 @@ import { ModalService } from './service/modal-service';
 import { ErrorService } from './service/error.service';
 import { InfoPanelComponent } from './component/workspace/info-panel/info-panel.component';
 
+import { ModalModule, BsModalRef } from 'ngx-bootstrap';
+import { COMPUTE_TABLE_LOADER_COMPLETE} from './../app/action/compute.action';
+import { MatDialogModule } from '@angular/material';
+
 @NgModule({
   declarations: [
     AppComponent,
+    ContentDialog,
     WorkspaceComponent,
     ApplicationBarComponent,
     BehaviorPanelComponent,
+    CommonSidePanelComponent,
+    WidgetComponent,
+    SurvivalWidgetComponent,
+    CopynumberWidgetComponent,
+    DiffexpWidgetComponent,
     FilePanelComponent,
     EdgePanelComponent,
     LegendPanelComponent,
@@ -140,6 +157,7 @@ import { InfoPanelComponent } from './component/workspace/info-panel/info-panel.
     StatPanelComponent,
     DataPanelComponent,
     UploadPanelComponent,
+    UploadFeedbackPanelComponent,
     CohortPanelComponent,
     ChartComponent,
     DictionaryLearningFormComponent,
@@ -170,6 +188,7 @@ import { InfoPanelComponent } from './component/workspace/info-panel/info-panel.
     KmedoidFormComponent,
     ProteinFormComponent,
     MdsFormComponent,
+    SavedPointsFormComponent,
     QuadradicDiscriminantAnalysisFormComponent,
     LinearDiscriminantAnalysisFormComponent,
     MiniBatchDictionaryLearningFormComponent,
@@ -224,19 +243,21 @@ import { InfoPanelComponent } from './component/workspace/info-panel/info-panel.
 
   imports: [
     HotTableModule.forRoot(),
+    ModalModule.forRoot(),
     BrowserModule,
     BrowserAnimationsModule,
     FlexLayoutModule,
     MaterialModule,
     FileUploadModule,
     FormsModule,
+    MatDialogModule,
     HttpModule,
     AppRoutingModule,
     ReactiveFormsModule,
     EffectsModule.forRoot([DataEffect, ComputeEffect, SelectEffect]),
     StoreModule.forRoot(reducers),
     StoreDevtoolsModule.instrument({
-      maxAge: 10 //  Retains last 25 states
+      maxAge: 10 //  Retains last 25 states 
     })
   ],
   providers: [
@@ -254,6 +275,7 @@ import { InfoPanelComponent } from './component/workspace/info-panel/info-panel.
       useClass: ErrorService
     }
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [ContentDialog]
 })
 export class AppModule {}

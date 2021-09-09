@@ -1,6 +1,7 @@
 import { DedicatedWorkerGlobalScope } from 'app/service/dedicated-worker-global-scope';
 import { EntityTypeEnum } from './../../../model/enum.model';
 import { EdgeConfigModel } from './edges.model';
+import Dexie from 'dexie';
 
 export const edgesCompute = (config: EdgeConfigModel, worker: DedicatedWorkerGlobalScope): void => {
   if (config.field.type === 'UNDEFINED') {
@@ -12,6 +13,7 @@ export const edgesCompute = (config: EdgeConfigModel, worker: DedicatedWorkerGlo
     return;
   }
 
+  console.log(`TEMPNOTE: edgesCompute with entities ${config.entityA}, ${config.entityB}.`);
   const edges = {
     getEventsEvents(cfg: EdgeConfigModel): Promise<any> {
       return new Promise((resolve, reject) => {
@@ -67,6 +69,7 @@ export const edgesCompute = (config: EdgeConfigModel, worker: DedicatedWorkerGlo
       });
     },
     getGenesPatients(cfg: EdgeConfigModel): Promise<any> {
+      console.log(`TEMPNOTE: edgesCompute with genes-patients, skip, with cfg.field.key=[${cfg.field.key}]`);
       return new Promise((resolve, reject) => {
         if (this.edgeOptions === 'None') {
           resolve([]);
@@ -81,21 +84,10 @@ export const edgesCompute = (config: EdgeConfigModel, worker: DedicatedWorkerGlo
           resolve([]);
           return;
         }
-        worker.util.openDatabaseData(cfg.database).then(db => {
-          db.table('mut')
-            .where('t')
-            .anyOfIgnoreCase(cfg.field.key)
-            .toArray()
-            .then(result => {
-              const data = result.map(v => ({
-                a: cfg.entityA === EntityTypeEnum.GENE ? v.m : v.s,
-                b: cfg.entityB === EntityTypeEnum.GENE ? v.m : v.s,
-                c: 0x81d4fa,
-                i: null
-              }));
-              resolve(data);
-            });
-        });
+        console.log(`TEMPNOTE: edgesCompute with cfg.field.key=[${cfg.field.key}]`);
+        console.log(`TEMPNOTE: edgesCompute work shifted to edges.graph.`);
+        resolve([ 'getLocally' ]);
+        return;
       });
     },
 

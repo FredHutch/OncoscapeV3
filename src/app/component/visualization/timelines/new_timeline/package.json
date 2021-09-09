@@ -1,0 +1,14 @@
+{
+  "name": "f415b5965cdbc08d",
+  "main": "f415b5965cdbc08d@5890.js",
+  "version": "5890.0.0",
+  "homepage": "https://observablehq.com/d/f415b5965cdbc08d",
+  "author": {
+    "name": "Matt Jensen",
+    "url": "https://observablehq.com/@mattjensen"
+  },
+  "type": "module",
+  "peerDependencies": {
+    "@observablehq/runtime": "4"
+  }
+}

@@ -2,7 +2,8 @@
 import {distinctUntilChanged, debounceTime} from 'rxjs/operators';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { CollectionTypeEnum, DirtyEnum } from 'app/model/enum.model';
+import { CollectionTypeEnum } from 'app/model/enum.model';
+import { DirtyEnum } from 'app/model/enum.model';
 import { DataField, DataTable } from './../../../model/data-field.model';
 import { GraphConfig } from './../../../model/graph-config.model';
 import { HeatmapConfigModel, HeatmapDistance, HeatmapMethod } from './heatmap.model';
@@ -34,6 +35,7 @@ import { HeatmapConfigModel, HeatmapDistance, HeatmapMethod } from './heatmap.mo
       </mat-select>
     </mat-form-field>
     <mat-slide-toggle formControlName='order'>Sort Dendo</mat-slide-toggle>
+    <mat-slide-toggle formControlName='removeWhitespace'>Remove Whitespace</mat-slide-toggle>
   </form>
   `
 })
@@ -118,7 +120,8 @@ export class HeatmapFormComponent {
       method: [],
       dist: [],
       transpose: [],
-      order: []
+      order: [],
+      removeWhitespace: []
     });
 
     // Update When Form Changes

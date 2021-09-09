@@ -5,7 +5,7 @@ import { PcaDataModel } from './../component/visualization/pca/pca.model';
 import { TruncatedSvdDataModel } from './../component/visualization/truncatedsvd/truncatedsvd.model';
 import { StatKeyValues, StatOneD, StatTwoD } from './../model/stat.model';
 import { PcaIncrementalDataModel } from './../component/visualization/pcaincremental/pcaincremental.model';
-import { VisualizationEnum } from 'app/model/enum.model';
+import { VisualizationEnum, ChartTypeEnum } from 'app/model/enum.model';
 import { GraphConfig } from 'app/model/graph-config.model';
 import { Stat } from '../model/stat.model';
 
@@ -83,9 +83,16 @@ export class StatFactory {
     return new Promise((resolve, reject) => {});
   }
   public getPatientStats(pids: Array<string>, config: GraphConfig): Promise<Array<Stat>> {
+    let self = this;
     return new Promise((resolve, reject) => {
-      this.dataService.getPatientStats(config.database, pids).then(results => {
+      console.log(`In getpatientstats`);
+      Promise.all([
+        this.dataService.getPatientStats(config.database, pids),
+        this.dataService.getPatientMutationStats(config.database, pids)
+      ]).then(allResults => {
+        let results = allResults[0].concat(allResults[1]);
         const stats = results.map(result => {
+
           const stat = new StatOneD(
             result.name,
             result.stat.map(w => ({
@@ -93,9 +100,8 @@ export class StatFactory {
               myvalue: w.value
             }))
           );
-          if (result.type === 'number' || (result.type === 'category' && result.stat.length >= 7)) {
-            stat.charts.reverse();
-          }
+
+          stat.charts = [ChartTypeEnum.HISTOGRAM]; // Do not default to donuts. A patient can be in >1 groups.
           return stat;
         });
         resolve(stats);
@@ -144,6 +150,12 @@ export class StatFactory {
           break;
         case VisualizationEnum.MDS:
           resolve(this.createMds(data));
+          break;
+        case VisualizationEnum.SAVED_POINTS:
+          resolve(this.createSavedPoints(data));
+          break;
+        case VisualizationEnum.TABLE_LOADER:
+          resolve(this.createTableLoader(data));
           break;
         case VisualizationEnum.FAST_ICA:
           resolve(this.createFastIca(data));
@@ -224,6 +236,14 @@ export class StatFactory {
   }
   private createMds(data: any): Array<Stat> {
     const stats = [new StatKeyValues('', [{ mylabel: 'Stress:', myvalue: data.stress.toFixed(2) }])];
+    return stats;
+  }
+  private createSavedPoints(data: any): Array<Stat> {
+    const stats = [];
+    return stats;
+  }
+  private createTableLoader(data: any): Array<Stat> {
+    const stats = [];
     return stats;
   }
   private createTSNE(data: any): Array<Stat> {

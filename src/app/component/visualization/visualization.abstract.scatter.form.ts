@@ -3,7 +3,8 @@ import { DimensionEnum } from './../../model/enum.model';
 import { FormGroup } from '@angular/forms';
 import { GraphConfig } from './../../model/graph-config.model';
 import { Input, Output, EventEmitter } from '@angular/core';
-import { CollectionTypeEnum, EntityTypeEnum } from 'app/model/enum.model';
+import { CollectionTypeEnum } from 'app/model/enum.model';
+import { EntityTypeEnum } from 'app/model/enum.model';
 import { DataField, DataTable } from './../../model/data-field.model';
 export class AbstractScatterForm {
   PcOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];

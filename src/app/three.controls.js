@@ -690,7 +690,7 @@ THREE.TransformControls = function ( camera, domElement ) {
   var camRotation = new THREE.Euler();
 
   domElement.addEventListener( "mousedown", onPointerDown, false );
-  domElement.addEventListener( "touchstart", onPointerDown, false );
+  domElement.addEventListener( "touchstart", onPointerDown, {passive: true} );
 
   domElement.addEventListener( "mousemove", onPointerHover, false );
   domElement.addEventListener( "touchmove", onPointerHover, false );

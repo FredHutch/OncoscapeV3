@@ -1,6 +1,8 @@
 import { VisualizationEnum, EntityTypeEnum, DimensionEnum } from 'app/model/enum.model';
 import { GraphData } from './../../../model/graph-data.model';
 import { GraphConfig } from './../../../model/graph-config.model';
+import { VisualizationAbstractScatterConfigModel } from "../visualization.abstract.scatter.model";
+
 export class TsneMetric {
     public static EUCLIDEAN = 'euclidean';
     public static MANHATTAN = 'manhattan';
@@ -28,7 +30,7 @@ export class TsneMethod {
 
 }
 
-export class TsneConfigModel extends GraphConfig {
+export class TsneConfigModel extends VisualizationAbstractScatterConfigModel {
 
     constructor() {
         super();

@@ -2,6 +2,7 @@ import {
   AfterViewInit, ChangeDetectionStrategy,
   Component, EventEmitter, Output, ViewEncapsulation
 } from '@angular/core';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-workspace-landing-panel',
@@ -15,6 +16,7 @@ export class LandingPanelComponent implements AfterViewInit {
   @Output() onGetStarted: EventEmitter<any> = new EventEmitter();
 
   ngAfterViewInit(): void {
+    console.log(`MJ - Environment = [${ environment.envName}]`);
 
     ((d, s, id) => {
       let js: any;

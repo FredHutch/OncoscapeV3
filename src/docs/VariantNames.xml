@@ -1,0 +1,1034 @@
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
+  <Author>Jensen, Matt</Author>
+  <LastAuthor>Jensen, Matt</LastAuthor>
+  <Created>2020-01-14T00:04:50Z</Created>
+  <LastSaved>2020-01-16T00:10:30Z</LastSaved>
+  <Version>16.00</Version>
+ </DocumentProperties>
+ <OfficeDocumentSettings xmlns="urn:schemas-microsoft-com:office:office">
+  <AllowPNG/>
+ </OfficeDocumentSettings>
+ <ExcelWorkbook xmlns="urn:schemas-microsoft-com:office:excel">
+  <WindowHeight>11865</WindowHeight>
+  <WindowWidth>28800</WindowWidth>
+  <WindowTopX>32767</WindowTopX>
+  <WindowTopY>32767</WindowTopY>
+  <ProtectStructure>False</ProtectStructure>
+  <ProtectWindows>False</ProtectWindows>
+ </ExcelWorkbook>
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Bottom"/>
+   <Borders/>
+   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#000000"/>
+   <Interior/>
+   <NumberFormat/>
+   <Protection/>
+  </Style>
+  <Style ss:ID="s71" ss:Name="Hyperlink">
+   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#0563C1"
+    ss:Underline="Single"/>
+  </Style>
+  <Style ss:ID="s62">
+   <Interior ss:Color="#F2F2F2" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s63">
+   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#000000"
+    ss:Bold="1"/>
+  </Style>
+  <Style ss:ID="s64">
+   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#000000"
+    ss:Bold="1"/>
+   <Interior ss:Color="#F2F2F2" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s65">
+   <Alignment ss:Vertical="Center" ss:WrapText="1"/>
+  </Style>
+  <Style ss:ID="s66">
+   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#000000"/>
+  </Style>
+  <Style ss:ID="s67">
+   <Font ss:FontName="Segoe UI" x:Family="Swiss" ss:Color="#333333"/>
+   <Interior ss:Color="#F2F2F2" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s70">
+   <Alignment ss:Horizontal="Left" ss:Vertical="Top" ss:WrapText="1"/>
+   <Borders>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2"
+     ss:Color="#DDDDDD"/>
+   </Borders>
+   <Font ss:FontName="Arial" x:Family="Swiss" ss:Size="11" ss:Color="#0088CC"/>
+   <Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s72" ss:Parent="s71">
+   <Alignment ss:Horizontal="Left" ss:Vertical="Top" ss:WrapText="1"/>
+   <Borders>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2"
+     ss:Color="#DDDDDD"/>
+   </Borders>
+   <Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s73">
+   <Alignment ss:Horizontal="Left" ss:Vertical="Top" ss:WrapText="1"/>
+   <Borders>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2"
+     ss:Color="#DDDDDD"/>
+   </Borders>
+   <Font ss:FontName="Arial" x:Family="Swiss" ss:Size="11" ss:Color="#333333"/>
+   <Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s75">
+   <Alignment ss:Horizontal="Left" ss:Vertical="Top" ss:WrapText="1"/>
+   <Borders>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2"
+     ss:Color="#DDDDDD"/>
+   </Borders>
+   <Font ss:FontName="Arial" x:Family="Swiss" ss:Size="11" ss:Color="#0088CC"/>
+   <Interior ss:Color="#F9F9F9" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s76" ss:Parent="s71">
+   <Alignment ss:Horizontal="Left" ss:Vertical="Top" ss:WrapText="1"/>
+   <Borders>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2"
+     ss:Color="#DDDDDD"/>
+   </Borders>
+   <Interior ss:Color="#F9F9F9" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s77">
+   <Alignment ss:Horizontal="Left" ss:Vertical="Top" ss:WrapText="1"/>
+   <Borders>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2"
+     ss:Color="#DDDDDD"/>
+   </Borders>
+   <Font ss:FontName="Arial" x:Family="Swiss" ss:Size="11" ss:Color="#333333"/>
+   <Interior ss:Color="#F9F9F9" ss:Pattern="Solid"/>
+  </Style>
+ </Styles>
+ <Worksheet ss:Name="ensemblVEP">
+  <Table ss:ExpandedColumnCount="15" ss:ExpandedRowCount="67" x:FullColumns="1"
+   x:FullRows="1" ss:DefaultRowHeight="15">
+   <Column ss:AutoFitWidth="0" ss:Width="113.25"/>
+   <Column ss:AutoFitWidth="0" ss:Width="42.75"/>
+   <Column ss:AutoFitWidth="0" ss:Width="51.75"/>
+   <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="20.25"/>
+   <Column ss:AutoFitWidth="0" ss:Width="101.25"/>
+   <Column ss:AutoFitWidth="0" ss:Width="31.5" ss:Span="2"/>
+   <Column ss:Index="9" ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="31.5"/>
+   <Column ss:AutoFitWidth="0" ss:Width="33.75"/>
+   <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="33.75"/>
+   <Column ss:AutoFitWidth="0" ss:Width="13.5"/>
+   <Column ss:AutoFitWidth="0" ss:Width="180.75"/>
+   <Column ss:AutoFitWidth="0" ss:Width="215.25"/>
+   <Column ss:AutoFitWidth="0" ss:Width="339"/>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Oncoscape</Data></Cell>
+    <Cell><Data ss:Type="String">Value</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">TCGA MAF</Data></Cell>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">TCGA MAF Comment</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Ensembl</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">2nd Ensembl</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">3rd Ensembl</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">4th Ensembl</Data></Cell>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">Ensembl Comment</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">g3viz (CRAN)</Data></Cell>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">g3viz Comment</Data></Cell>
+    <Cell ss:Index="14" ss:StyleID="s63"><Data ss:Type="String">SnpEff CLASSIC</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">SnpEff's Description</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">missense</Data></Cell>
+    <Cell><Data ss:Type="String">: 1</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">coding_sequence_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">CDS</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">The variant hits a CDS.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">missense_mutation</Data></Cell>
+    <Cell><Data ss:Type="String">: 1</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">chromosome</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">CHROMOSOME_LARGE DELETION</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">A large part (over 1% or 1,000,000 bases) of the chromosome was deleted.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">silent</Data></Cell>
+    <Cell><Data ss:Type="String">: 2</Data></Cell>
+    <Cell ss:Index="5" ss:StyleID="s66"><Data ss:Type="String">synonymous</Data></Cell>
+    <Cell ss:StyleID="s66"/>
+    <Cell ss:StyleID="s66"/>
+    <Cell ss:StyleID="s66"/>
+    <Cell ss:Index="13"><Data ss:Type="String">duplication</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">CHROMOSOME_LARGE_DUPLICATION</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Duplication of a large chromoome segment (over 1% or 1,000,000 bases).</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">frame_shift_del</Data></Cell>
+    <Cell><Data ss:Type="String">: 4</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">inversion</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">CHROMOSOME_LARGE_INVERSION</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Inversion of a large chromoome segment (over 1% or 1,000,000 bases).</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">splice_site</Data></Cell>
+    <Cell><Data ss:Type="String">: 8</Data></Cell>
+    <Cell ss:Index="5"><Data ss:Type="String">splice_acceptor</Data></Cell>
+    <Cell><Data ss:Type="String">splice_donor</Data></Cell>
+    <Cell><Data ss:Type="String">transcript_ablation</Data></Cell>
+    <Cell><Data ss:Type="String">exon_loss</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">coding_sequence_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">CODON_CHANGE</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">One or many codons are changed</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">nonsense_mutation</Data></Cell>
+    <Cell><Data ss:Type="String">: 16</Data></Cell>
+    <Cell ss:Index="5"><Data ss:Type="String">stop_gained</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">inframe_insertion</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">CODON_INSERTION</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">One or many codons are inserted</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">frame_shift_ins</Data></Cell>
+    <Cell><Data ss:Type="String">: 32</Data></Cell>
+    <Cell ss:Index="5"><Data ss:Type="String">frameshift</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">disruptive_inframe_insertion</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">CODON_CHANGE_PLUS CODON_INSERTION</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">One codon is changed and one or many codons are inserted</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">rna</Data></Cell>
+    <Cell><Data ss:Type="String">: 64</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">inframe_deletion</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">CODON_DELETION</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">One or many codons are deleted</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">in_frame_del</Data></Cell>
+    <Cell><Data ss:Type="String">: 128</Data></Cell>
+    <Cell ss:Index="5"><Data ss:Type="String">inframe_deletion</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">disruptive_inframe_deletion</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">CODON_CHANGE_PLUS CODON_DELETION</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">One codon is changed and one or more codons are deleted</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">in_frame_ins</Data></Cell>
+    <Cell><Data ss:Type="String">: 256</Data></Cell>
+    <Cell ss:Index="5"><Data ss:Type="String">inframe_insertion</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">downstream_gene_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">DOWNSTREAM</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Downstream of a gene (default length: 5K bases)</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">nonstop_mutation</Data></Cell>
+    <Cell><Data ss:Type="String">: 512</Data></Cell>
+    <Cell ss:Index="5"><Data ss:Type="String">stop_lost</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">exon_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">EXON</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">The variant hits an exon (from a non-coding transcript) or a retained intron.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">translation_start_site</Data></Cell>
+    <Cell><Data ss:Type="String">: 1024</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">exon_loss_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">EXON_DELETED</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">A deletion removes the whole exon.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">de_novo_start_outofframe</Data></Cell>
+    <Cell><Data ss:Type="String">: 2048</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">exon_loss_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">EXON_DELETED_PARTIAL</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Deletion affecting part of an exon.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">de_novo_start_inframe</Data></Cell>
+    <Cell><Data ss:Type="String">: 4096</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">duplication</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">EXON_DUPLICATION</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Duplication of an exon.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">intron</Data></Cell>
+    <Cell><Data ss:Type="String">: 8192</Data></Cell>
+    <Cell ss:Index="5"><Data ss:Type="String">intron</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">duplication</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">EXON_DUPLICATION_PARTIAL</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Duplication affecting part of an exon.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">3'utr</Data></Cell>
+    <Cell><Data ss:Type="String">: 16384</Data></Cell>
+    <Cell ss:Index="5"><Data ss:Type="String">3_prime_UTR</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">inversion</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">EXON_INVERSION</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Inversion of an exon.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">igr</Data></Cell>
+    <Cell><Data ss:Type="String">: 32768</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">inversion</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">EXON_INVERSION_PARTIAL</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Inversion affecting part of an exon.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">5'utr</Data></Cell>
+    <Cell><Data ss:Type="String">: 65536</Data></Cell>
+    <Cell ss:Index="5"><Data ss:Type="String">5_prime_UTR</Data></Cell>
+    <Cell><Data ss:Type="String">5_prime_UTR_premature_start_codon_gain</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">frameshift_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">FRAME_SHIFT</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Insertion or deletion causes a frame shift</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">targeted_region</Data></Cell>
+    <Cell><Data ss:Type="String">: 131072</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">gene_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">GENE</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">The variant hits a gene.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">'read-through'</Data></Cell>
+    <Cell><Data ss:Type="String">: 262144</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">feature_ablation</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">GENE_DELETED</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Deletion of a gene.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">5'flank</Data></Cell>
+    <Cell><Data ss:Type="String">: 524288</Data></Cell>
+    <Cell ss:Index="5"><Data ss:Type="String">upstream_gene</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">duplication</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">GENE_DUPLICATION</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Duplication of a gene.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">3'flank</Data></Cell>
+    <Cell><Data ss:Type="String">: 1048576</Data></Cell>
+    <Cell ss:Index="5"><Data ss:Type="String">downstream_gene</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">gene_fusion</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">GENE_FUSION</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Fusion of two genes.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">splice_site_snp</Data></Cell>
+    <Cell><Data ss:Type="String">: 2097152</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">gene_fusion</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">GENE_FUSION_HALF</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Fusion of one gene and an intergenic region.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">splice_site_del</Data></Cell>
+    <Cell><Data ss:Type="String">: 4194304</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">bidirectional_gene_fusion</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">GENE_FUSION_REVERESE</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Fusion of two genes in opposite directions.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">splice_site_ins</Data></Cell>
+    <Cell><Data ss:Type="String">: 8388608</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">rearranged_at_DNA_level</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">GENE_REARRANGEMENT</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Rearrengment affecting one or more genes.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">indel</Data></Cell>
+    <Cell><Data ss:Type="String">: 16777216</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">intergenic_region</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">INTERGENIC</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">The variant is in an intergenic region</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">other</Data></Cell>
+    <Cell><Data ss:Type="String">: 33554432</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">conserved_intergenic_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">INTERGENIC_CONSERVED</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">The variant is in a highly conserved intergenic region</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">splice_region</Data></Cell>
+    <Cell><Data ss:Type="String">: 67108864</Data></Cell>
+    <Cell ss:Index="5"><Data ss:Type="String">splice_region</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">intragenic_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">INTRAGENIC</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">The variant hits a gene, but no transcripts within the gene</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"/>
+    <Cell><Data ss:Type="String">: 134217728</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">intron_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">INTRON</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Variant hits and intron. Technically, hits no exon in the transcript.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"/>
+    <Cell><Data ss:Type="String">: 268435456</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">conserved_intron_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">INTRON_CONSERVED</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">The variant is in a highly conserved intronic region</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"/>
+    <Cell><Data ss:Type="String">: 536870912</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">miRNA</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">MICRO_RNA</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Variant affects an miRNA</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"/>
+    <Cell><Data ss:Type="String">: 1073741824</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">missense_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">NON_SYNONYMOUS_CODING</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Variant causes a codon that produces a different amino acid</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_31</Data></Cell>
+    <Cell><Data ss:Type="String">: 2147483648</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">initiator_codon_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">NON_SYNONYMOUS_START</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Variant causes start codon to be mutated into another start codon (the new codon produces a different AA).</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_32</Data></Cell>
+    <Cell><Data ss:Type="String">: 4294967296</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">stop_retained_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">NON_SYNONYMOUS_STOP</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Variant causes stop codon to be mutated into another stop codon (the new codon produces a different AA).</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_33</Data></Cell>
+    <Cell><Data ss:Type="String">: 8589934592</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">protein_protein_contact</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">PROTEIN_PROTEIN_INTERACTION_LOCUS</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Protein-Protein interacion loci.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_34</Data></Cell>
+    <Cell><Data ss:Type="String">: 17179869184</Data></Cell>
+    <Cell ss:Index="5"><Data ss:Type="String">intergenic</Data></Cell>
+    <Cell ss:Index="9" ss:StyleID="s67"><Data ss:Type="String">The SNP does not any known gene or up/downstream region.</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">structural_interaction_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">PROTEIN_STRUCTURAL_INTERACTION_LOCUS</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Within protein interacion loci (e.g. two AA that are in contact within the same protein, prossibly helping structural conformation).</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_35</Data></Cell>
+    <Cell><Data ss:Type="String">: 34359738368</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">rare_amino_acid_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">RARE_AMINO_ACID</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">The variant hits a rare amino acid thus is likely to produce protein loss of function</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_36</Data></Cell>
+    <Cell><Data ss:Type="String">: 68719476736</Data></Cell>
+    <Cell ss:Index="5"><Data ss:Type="String">protein_altering</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">splice_acceptor_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">SPLICE_SITE_ACCEPTOR</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">The variant hits a splice acceptor site (defined as two bases before exon start, except for the first exon).</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_37</Data></Cell>
+    <Cell><Data ss:Type="String">: 137438953472</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">splice_donor_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">SPLICE_SITE_DONOR</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">The variant hits a Splice donor site (defined as two bases after coding exon end, except for the last exon).</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_38</Data></Cell>
+    <Cell><Data ss:Type="String">: 274877906944</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">splice_region_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">SPLICE_SITE_REGION</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">A sequence variant in which a change has occurred within the region of the splice site, either within 1-3 bases of the exon or 3-8 bases of the intron.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_39</Data></Cell>
+    <Cell><Data ss:Type="String">: 549755813888</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">splice_region_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">SPLICE_SITE_BRANCH</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">A varaint affective putative (Lariat) branch point, located in the intron.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_40</Data></Cell>
+    <Cell><Data ss:Type="String">: 1099511627776</Data></Cell>
+    <Cell ss:Index="5"><Data ss:Type="String">start_lost</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">splice_region_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">SPLICE_SITE_BRANCH_U12</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">A varaint affective putative (Lariat) branch point from U12 splicing machinery, located in the intron.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_41</Data></Cell>
+    <Cell><Data ss:Type="String">: 2199023255552</Data></Cell>
+    <Cell ss:Index="5"><Data ss:Type="String">start_retained</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">stop_lost</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">STOP_LOST</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Variant causes stop codon to be mutated into a non-stop codon</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_42</Data></Cell>
+    <Cell><Data ss:Type="String">: 4398046511104</Data></Cell>
+    <Cell ss:Index="5"><Data ss:Type="String">coding_sequence</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">5_prime_UTR_premature start_codon_gain_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">START_GAINED</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">A variant in 5'UTR region produces a three base sequence that can be a START codon.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_43</Data></Cell>
+    <Cell><Data ss:Type="String">: 8796093022208</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">start_lost</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">START_LOST</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Variant causes start codon to be mutated into a non-start codon.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_44</Data></Cell>
+    <Cell><Data ss:Type="String">: 17592186044416</Data></Cell>
+    <Cell ss:Index="5"><Data ss:Type="String">stop_retained</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">stop_gained</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">STOP_GAINED</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Variant causes a STOP codon</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_45</Data></Cell>
+    <Cell><Data ss:Type="String">: 35184372088832</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">synonymous_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">SYNONYMOUS_CODING</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Variant causes a codon that produces the same amino acid</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_46</Data></Cell>
+    <Cell><Data ss:Type="String">: 70368744177664</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">start_retained</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">SYNONYMOUS_START</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Variant causes start codon to be mutated into another start codon.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_47</Data></Cell>
+    <Cell><Data ss:Type="String">: 140737488355328</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">stop_retained_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">SYNONYMOUS_STOP</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Variant causes stop codon to be mutated into another stop codon.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_48</Data></Cell>
+    <Cell><Data ss:Type="String">: 281474976710656</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">transcript_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">TRANSCRIPT</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">The variant hits a transcript.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_49</Data></Cell>
+    <Cell><Data ss:Type="String">: 562949953421312</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">feature_ablation</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">TRANSCRIPT_DELETED</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Deletion of a transcript.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_50</Data></Cell>
+    <Cell><Data ss:Type="String">: 1125899906842624</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">regulatory_region_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">REGULATION</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">The variant hits a known regulatory feature (non-coding).</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_51</Data></Cell>
+    <Cell><Data ss:Type="String">: 2251799813685248</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">upstream_gene_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">UPSTREAM</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Upstream of a gene (default length: 5K bases)</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">reserved_by_oncoscape_52</Data></Cell>
+    <Cell><Data ss:Type="String">: 4503599627370496</Data></Cell>
+    <Cell ss:Index="13"><Data ss:Type="String">3_prime_UTR_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">UTR_3_PRIME</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Variant hits 3'UTR region</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:Index="13"><Data ss:Type="String">3_prime_UTR_truncation&#160;+&#160;exon_loss</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">UTR_3_DELETED</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">The variant deletes an exon which is in the 3'UTR of the transcript</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:Index="13"><Data ss:Type="String">5_prime_UTR_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">UTR_5_PRIME</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Variant hits 5'UTR region</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:Index="13"><Data ss:Type="String">5_prime_UTR_truncation&#160;+&#160;exon_loss_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">UTR_5_DELETED</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">The variant deletes an exon which is in the 5'UTR of the transcript</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:Index="13"><Data ss:Type="String">sequence_feature&#160;+&#160;exon_loss_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">NEXT_PROT</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">A 'NextProt' based annotation. Details are provided in the 'feature type' sub-field (ANN), or in the effect details (EFF).</Data></Cell>
+   </Row>
+   <Row ss:Index="67" ss:AutoFitHeight="0">
+    <Cell ss:Index="14"><Data ss:Type="String">codon_change_plus_codon_insertion</Data></Cell>
+   </Row>
+  </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <PageSetup>
+    <Header x:Margin="0.3"/>
+    <Footer x:Margin="0.3"/>
+    <PageMargins x:Bottom="0.75" x:Left="0.7" x:Right="0.7" x:Top="0.75"/>
+   </PageSetup>
+   <Unsynced/>
+   <Print>
+    <ValidPrinterInfo/>
+    <HorizontalResolution>-1</HorizontalResolution>
+    <VerticalResolution>-1</VerticalResolution>
+   </Print>
+   <Selected/>
+   <LeftColumnVisible>11</LeftColumnVisible>
+   <Panes>
+    <Pane>
+     <Number>3</Number>
+     <ActiveRow>66</ActiveRow>
+     <ActiveCol>13</ActiveCol>
+    </Pane>
+   </Panes>
+   <ProtectObjects>False</ProtectObjects>
+   <ProtectScenarios>False</ProtectScenarios>
+  </WorksheetOptions>
+ </Worksheet>
+ <Worksheet ss:Name="Sheet2">
+  <Table ss:ExpandedColumnCount="4" ss:ExpandedRowCount="58" x:FullColumns="1"
+   x:FullRows="1" ss:DefaultRowHeight="18">
+   <Column ss:AutoFitWidth="0" ss:Width="159.75"/>
+   <Column ss:AutoFitWidth="0" ss:Width="252.75"/>
+   <Column ss:AutoFitWidth="0" ss:Width="294.75"/>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001580"><Data
+      ss:Type="String">coding_sequence_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">CDS</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">The variant hits a CDS.</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">MODIFIER</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001580"><Data
+      ss:Type="String">chromosome</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">CHROMOSOME_LARGE DELETION</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">A large part (over 1% or 1,000,000 bases) of the chromosome was deleted.</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:1000035"><Data
+      ss:Type="String">duplication</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">CHROMOSOME_LARGE_DUPLICATION</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Duplication of a large chromoome segment (over 1% or 1,000,000 bases).</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:1000036"><Data
+      ss:Type="String">inversion</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">CHROMOSOME_LARGE_INVERSION</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Inversion of a large chromoome segment (over 1% or 1,000,000 bases).</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001580"><Data
+      ss:Type="String">coding_sequence_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">CODON_CHANGE</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">One or many codons are changed</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">LOW</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001821"><Data
+      ss:Type="String">inframe_insertion</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">CODON_INSERTION</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">One or many codons are inserted</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">MODERATE</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001824"><Data
+      ss:Type="String">disruptive_inframe_insertion</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">CODON_CHANGE_PLUS CODON_INSERTION</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">One codon is changed and one or many codons are inserted</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">MODERATE</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001822"><Data
+      ss:Type="String">inframe_deletion</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">CODON_DELETION</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">One or many codons are deleted</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">MODERATE</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001826"><Data
+      ss:Type="String">disruptive_inframe_deletion</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">CODON_CHANGE_PLUS CODON_DELETION</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">One codon is changed and one or more codons are deleted</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">MODERATE</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001632"><Data
+      ss:Type="String">downstream_gene_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">DOWNSTREAM</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Downstream of a gene (default length: 5K bases)</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">MODIFIER</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001791"><Data
+      ss:Type="String">exon_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">EXON</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">The variant hits an exon (from a non-coding transcript) or a retained intron.</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">MODIFIER</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001572"><Data
+      ss:Type="String">exon_loss_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">EXON_DELETED</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">A deletion removes the whole exon.</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001572"><Data
+      ss:Type="String">exon_loss_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">EXON_DELETED_PARTIAL</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Deletion affecting part of an exon.</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:1000035"><Data
+      ss:Type="String">duplication</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">EXON_DUPLICATION</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Duplication of an exon.</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:1000035"><Data
+      ss:Type="String">duplication</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">EXON_DUPLICATION_PARTIAL</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Duplication affecting part of an exon.</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:1000036"><Data
+      ss:Type="String">inversion</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">EXON_INVERSION</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Inversion of an exon.</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:1000036"><Data
+      ss:Type="String">inversion</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">EXON_INVERSION_PARTIAL</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Inversion affecting part of an exon.</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001589"><Data
+      ss:Type="String">frameshift_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">FRAME_SHIFT</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Insertion or deletion causes a frame shift</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001564"><Data
+      ss:Type="String">gene_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">GENE</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">The variant hits a gene.</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">MODIFIER</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001879"><Data
+      ss:Type="String">feature_ablation</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">GENE_DELETED</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Deletion of a gene.</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:1000035"><Data
+      ss:Type="String">duplication</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">GENE_DUPLICATION</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Duplication of a gene.</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">MODERATE</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001565"><Data
+      ss:Type="String">gene_fusion</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">GENE_FUSION</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Fusion of two genes.</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001565"><Data
+      ss:Type="String">gene_fusion</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">GENE_FUSION_HALF</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Fusion of one gene and an intergenic region.</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0002086"><Data
+      ss:Type="String">bidirectional_gene_fusion</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">GENE_FUSION_REVERESE</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Fusion of two genes in opposite directions.</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0000904"><Data
+      ss:Type="String">rearranged_at_DNA_level</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">GENE_REARRANGEMENT</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Rearrengment affecting one or more genes.</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0000605"><Data
+      ss:Type="String">intergenic_region</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">INTERGENIC</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">The variant is in an intergenic region</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">MODIFIER</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0002017"><Data
+      ss:Type="String">conserved_intergenic_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">INTERGENIC_CONSERVED</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">The variant is in a highly conserved intergenic region</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">MODIFIER</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0002011"><Data
+      ss:Type="String">intragenic_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">INTRAGENIC</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">The variant hits a gene, but no transcripts within the gene</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">MODIFIER</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001627"><Data
+      ss:Type="String">intron_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">INTRON</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Variant hits and intron. Technically, hits no exon in the transcript.</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">MODIFIER</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0002018"><Data
+      ss:Type="String">conserved_intron_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">INTRON_CONSERVED</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">The variant is in a highly conserved intronic region</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">MODIFIER</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0000276"><Data
+      ss:Type="String">miRNA</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">MICRO_RNA</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Variant affects an miRNA</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">MODIFIER</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001583"><Data
+      ss:Type="String">missense_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">NON_SYNONYMOUS_CODING</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Variant causes a codon that produces a different amino acid</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">MODERATE</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001582"><Data
+      ss:Type="String">initiator_codon_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">NON_SYNONYMOUS_START</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Variant causes start codon to be mutated into another start codon (the new codon produces a different AA).</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">LOW</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001567"><Data
+      ss:Type="String">stop_retained_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">NON_SYNONYMOUS_STOP</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Variant causes stop codon to be mutated into another stop codon (the new codon produces a different AA).</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">LOW</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001093"><Data
+      ss:Type="String">protein_protein_contact</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">PROTEIN_PROTEIN_INTERACTION_LOCUS</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Protein-Protein interacion loci.</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0002093"><Data
+      ss:Type="String">structural_interaction_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">PROTEIN_STRUCTURAL_INTERACTION_LOCUS</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Within protein interacion loci (e.g. two AA that are in contact within the same protein, prossibly helping structural conformation).</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0002008"><Data
+      ss:Type="String">rare_amino_acid_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">RARE_AMINO_ACID</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">The variant hits a rare amino acid thus is likely to produce protein loss of function</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001574"><Data
+      ss:Type="String">splice_acceptor_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">SPLICE_SITE_ACCEPTOR</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">The variant hits a splice acceptor site (defined as two bases before exon start, except for the first exon).</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001575"><Data
+      ss:Type="String">splice_donor_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">SPLICE_SITE_DONOR</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">The variant hits a Splice donor site (defined as two bases after coding exon end, except for the last exon).</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001630"><Data
+      ss:Type="String">splice_region_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">SPLICE_SITE_REGION</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">A sequence variant in which a change has occurred within the region of the splice site, either within 1-3 bases of the exon or 3-8 bases of the intron.</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">LOW</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001630"><Data
+      ss:Type="String">splice_region_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">SPLICE_SITE_BRANCH</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">A varaint affective putative (Lariat) branch point, located in the intron.</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">LOW</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001630"><Data
+      ss:Type="String">splice_region_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">SPLICE_SITE_BRANCH_U12</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">A varaint affective putative (Lariat) branch point from U12 splicing machinery, located in the intron.</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">MODERATE</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001578"><Data
+      ss:Type="String">stop_lost</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">STOP_LOST</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Variant causes stop codon to be mutated into a non-stop codon</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001988"><Data
+      ss:Type="String">5_prime_UTR_premature start_codon_gain_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">START_GAINED</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">A variant in 5'UTR region produces a three base sequence that can be a START codon.</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">LOW</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0002012"><Data
+      ss:Type="String">start_lost</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">START_LOST</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Variant causes start codon to be mutated into a non-start codon.</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001587"><Data
+      ss:Type="String">stop_gained</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">STOP_GAINED</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Variant causes a STOP codon</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001819"><Data
+      ss:Type="String">synonymous_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">SYNONYMOUS_CODING</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Variant causes a codon that produces the same amino acid</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">LOW</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://snpeff.sourceforge.net/SnpEff_manual.html"><Data
+      ss:Type="String">start_retained</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">SYNONYMOUS_START</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Variant causes start codon to be mutated into another start codon.</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">LOW</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001567"><Data
+      ss:Type="String">stop_retained_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">SYNONYMOUS_STOP</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Variant causes stop codon to be mutated into another stop codon.</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">LOW</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001576"><Data
+      ss:Type="String">transcript_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">TRANSCRIPT</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">The variant hits a transcript.</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">MODIFIER</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001879"><Data
+      ss:Type="String">feature_ablation</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">TRANSCRIPT_DELETED</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Deletion of a transcript.</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">HIGH</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001566"><Data
+      ss:Type="String">regulatory_region_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">REGULATION</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">The variant hits a known regulatory feature (non-coding).</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">MODIFIER</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s72" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001631"><Data
+      ss:Type="String">upstream_gene_variant</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">UPSTREAM</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Upstream of a gene (default length: 5K bases)</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">MODIFIER</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001624"><Data
+      ss:Type="String">3_prime_UTR_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">UTR_3_PRIME</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Variant hits 3'UTR region</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">MODIFIER</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s70"><ss:Data ss:Type="String"
+      xmlns="http://www.w3.org/TR/REC-html40"><Font html:Color="#0088CC">3_prime_UTR_truncation</Font><Font
+       html:Color="#333333">&#160;+&#160;</Font><Font html:Color="#0088CC">exon_loss</Font></ss:Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">UTR_3_DELETED</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">The variant deletes an exon which is in the 3'UTR of the transcript</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">MODERATE</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s76" ss:HRef="http://www.sequenceontology.org/browser/current_svn/term/SO:0001623"><Data
+      ss:Type="String">5_prime_UTR_variant</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">UTR_5_PRIME</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">Variant hits 5'UTR region</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">MODIFIER</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s70"><ss:Data ss:Type="String"
+      xmlns="http://www.w3.org/TR/REC-html40"><Font html:Color="#0088CC">5_prime_UTR_truncation</Font><Font
+       html:Color="#333333">&#160;+&#160;</Font><Font html:Color="#0088CC">exon_loss_variant</Font></ss:Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">UTR_5_DELETED</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">The variant deletes an exon which is in the 5'UTR of the transcript</Data></Cell>
+    <Cell ss:StyleID="s73"><Data ss:Type="String">MODERATE</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s75"><ss:Data ss:Type="String"
+      xmlns="http://www.w3.org/TR/REC-html40"><Font html:Color="#0088CC">sequence_feature&#160;</Font><Font
+       html:Color="#333333">+&#160;</Font><Font html:Color="#0088CC">exon_loss_variant</Font></ss:Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">NEXT_PROT</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">A 'NextProt' based annotation. Details are provided in the 'feature type' sub-field (ANN), or in the effect details (EFF).</Data></Cell>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">MODIFIER</Data></Cell>
+   </Row>
+  </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <PageSetup>
+    <Header x:Margin="0.3"/>
+    <Footer x:Margin="0.3"/>
+    <PageMargins x:Bottom="0.75" x:Left="0.7" x:Right="0.7" x:Top="0.75"/>
+   </PageSetup>
+   <Unsynced/>
+   <Panes>
+    <Pane>
+     <Number>3</Number>
+     <ActiveRow>57</ActiveRow>
+     <ActiveCol>2</ActiveCol>
+     <RangeSelection>R1C1:R58C3</RangeSelection>
+    </Pane>
+   </Panes>
+   <ProtectObjects>False</ProtectObjects>
+   <ProtectScenarios>False</ProtectScenarios>
+  </WorksheetOptions>
+ </Worksheet>
+</Workbook>

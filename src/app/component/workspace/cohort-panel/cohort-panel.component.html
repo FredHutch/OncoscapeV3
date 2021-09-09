@@ -59,6 +59,55 @@
         </span>
       </div>
       <button class='button' (click)='saveClick()' mat-raised-button>Save</button>
+ 
+
+      <div id='compareCohorts'>
+        &nbsp;<br >
+        <hr><hr>
+        <h2 class='panel-column-title' style='margin-bottom:10px;'>Compare Two Cohorts</h2>
+        Cohort A: <mat-form-field>
+          <mat-select placeholder='Cohort A' [(ngModel)]='cohortA'>
+            <mat-option *ngFor="let option of cohorts" [value]="option">
+              {{option.n}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        Cohort B: <mat-form-field>
+          <mat-select placeholder='Cohort B' [(ngModel)]='cohortB'>
+            <mat-option *ngFor="let option of cohorts" [value]="option">
+              {{option.n}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        Use Table:<mat-form-field>
+          <mat-select placeholder='choose a table' [(ngModel)]='selectedCompareTable'>
+            <mat-option *ngFor="let option of tables" [value]="option">
+              {{option.tbl}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <section class="compare-progress-section" *ngIf="progressValue > 0 || progressMode == 'buffer' ">
+          <b>Progress: </b>
+          <mat-progress-bar
+              id="compareProgressBar"
+              [mode]="progressMode"
+              [value]="progressValue"
+              [bufferValue]="bufferValue">
+          </mat-progress-bar>
+        </section>        
+        <hr>
+        <h3 class='panel-column-title' style='margin-bottom:10px;'>Naive Differential Expression</h3>
+        <div>This naive differential expression analysis does not provide tests of statistical signficance. It merely lists the genes that have the highest difference in median expression between two cohorts.</div>
+        <div>&nbsp;<br>&nbsp;<br></div>
+        <button class='button' (click)='naiveDiffExpClick()' mat-raised-button>Run Naive Comparison</button>
+        
+        <hr>
+      </div>
+
+
     </div>
+
+
   </div>
 </div>

@@ -37,8 +37,8 @@ export class HazardGraph extends AbstractVisualization {
   public grid: Array<THREE.Object3D>;
 
   // Create - Initialize Mesh Arrays
-  create(labels: HTMLElement, events: ChartEvents, view: VisualizationView): ChartObjectInterface {
-    super.create(labels, events, view);
+  create(entity: EntityTypeEnum, labels: HTMLElement, events: ChartEvents, view: VisualizationView): ChartObjectInterface {
+    super.create(entity, labels, events, view);
     this.confidences = [];
     this.meshes = [];
     this.lines = [];

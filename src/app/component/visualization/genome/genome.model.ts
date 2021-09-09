@@ -16,6 +16,7 @@ export class GenomeConfigModel extends GraphConfig {
     this.enableCohorts = false;
     this.enableSize = true;
     this.enableSupplemental = false;
+    this.enableGenesetOverlay = true;
   }
 
   displayType: DimensionEnum = DimensionEnum.THREE_D;

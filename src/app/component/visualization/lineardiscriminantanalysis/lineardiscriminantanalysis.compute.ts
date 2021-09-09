@@ -8,6 +8,12 @@ export const linearDiscriminantAnalysisCompute = (
   config: LinearDiscriminantAnalysisConfigModel,
   worker: DedicatedWorkerGlobalScope
 ): void => {
+  if(config.reuseLastComputation) {
+    worker.postMessage({config: config, data: {cmd:'reuse'}});
+    return;
+  }
+  
+
   const classifier = new Set(config.sampleFilter);
   config.sampleFilter = [];
   worker.util.getDataMatrix(config).then(matrix => {
@@ -29,21 +35,40 @@ export const linearDiscriminantAnalysisCompute = (
         classes: classes
       })
       .then(result => {
-        result.resultScaled = worker.util.scale3d(result.result, config.pcx - 1, config.pcy - 1, config.pcz - 1);
-        result.sid = matrix.sid;
-        result.mid = matrix.mid;
-        result.pid = matrix.pid;
-        result.legends = [
-          Legend.create(
-            'Data Points',
-            config.entity === EntityTypeEnum.GENE ? ['Genes'] : ['Samples'],
-            [SpriteMaterialEnum.CIRCLE],
-            'SHAPE',
-            'DISCRETE'
-          )
-        ];
-        worker.postMessage({ config: config, data: result });
+        if (result && result['message'] && result['stack']) { // duck typecheck for error
+          return worker.util.postCpuError(result, worker);
+        }
+        // See if we have an error, instead of an array of results.
+        if(result.result == null && result.length == 1 && (typeof result[0] == 'string')) {
+          console.log(`TEMPNOTE: LDA compute error... ${result[0]}.`);
+          //throw new Error(result[0]);
+          return worker.util.postCpuErrorManual(result[0], worker, 'manifold_sk_lineardiscriminantanalysis');
+        } else {
+          result.resultScaled = worker.util.scale3d(result.result, config.pcx - 1, config.pcy - 1, config.pcz - 1);
+          result.sid = matrix.sid;
+          result.mid = matrix.mid;
+          result.pid = matrix.pid;
+          result.legends = [
+            Legend.create( result,
+              'Data Points',
+              config.entity === EntityTypeEnum.GENE ? ['Genes'] : ['Samples'],
+              [SpriteMaterialEnum.CIRCLE],
+              'SHAPE',
+              'DISCRETE'
+            )
+          ];
+          worker.postMessage({ config: config, data: result });
+          worker.postMessage('TERMINATE');
+        }
+      })
+      .catch(err => {
+        console.log(`TEMPNOTE: CAUGHT LDA compute error... ${err}.`);
+        worker.postMessage({
+          config: config,
+          error: err
+        });
         worker.postMessage('TERMINATE');
       });
+
   });
 };

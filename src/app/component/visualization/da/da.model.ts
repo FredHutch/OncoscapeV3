@@ -1,8 +1,9 @@
 import { DimensionEnum } from './../../../model/enum.model';
 import { GraphConfig } from './../../../model/graph-config.model';
 import { GraphData } from './../../../model/graph-data.model';
+import { VisualizationAbstractScatterConfigModel } from "../visualization.abstract.scatter.model";
 
-export class DaConfigModel extends GraphConfig {
+export class DaConfigModel extends VisualizationAbstractScatterConfigModel {
   dimension: DimensionEnum = DimensionEnum.THREE_D;
   domain: Array<number> = [-500, 500];
 }

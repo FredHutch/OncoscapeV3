@@ -2,7 +2,12 @@ import { DedicatedWorkerGlobalScope } from 'app/service/dedicated-worker-global-
 import { SomConfigModel } from './som.model';
 
 export const somCompute = (config: SomConfigModel, worker: DedicatedWorkerGlobalScope): void => {
-
+    // if(config.reuseLastComputation) {
+    //     worker.postMessage({config: config, data: {cmd:'reuse'}});
+    //     return;
+    //   }
+      
+    
     //     worker.util.loadData(config.dataKey).then((data) => {
 
     //         const legendItems: Array<Legend> = [];

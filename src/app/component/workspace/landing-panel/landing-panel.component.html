@@ -24,9 +24,11 @@
   <div fxLayout='row' fxLayout.sm='column' fxLayout.xs='column' fxLayoutAlign="space-between start"
     style='padding-bottom: 30px;'>
     <div>
+
       <button mat-raised-button color='primary' style='line-height: 40px;' (click)="getStartedClick()"
         class='button landing-button'>Get Started
       </button>
+    
     </div>
     <div>
       <span ngClass.xs="xs-button" ngClass.sm="xs-button " fxFlexOffset.gt-sm='40px' class='landing-span'>Maximize
@@ -34,7 +36,7 @@
         analysis, reference data
         sets and domain-specific visualizations. To request training or a custom solution contact
         us at
-        <a style='color: #1e88e5; text-decoration: none;' href='mailto:contact-sttr@fredhutch.org '>contact-sttr@fredhutch.org.</a>
+        <a style='color: #1e88e5; text-decoration: none;' href='mailto:contact@oncoscape.org'>contact@oncoscape.org</a>.
       </span>
     </div>
   </div>
@@ -87,7 +89,7 @@
     <div fxFlex.sm='1 1 50% ' fxFlex.md='1 1 50% ' fxFlex.lg='1 1 50% ' fxFlex.xl='1 1 50% ' class='landing-copy '>
       <div class='tool tool-pathway-commons '></div>
       <span class='landing-copy-title '>Pathways</span>
-      <span class='landing-copy-desc '>Select from thousands of top level pathways from Reactome,
+      <span class='landing-copy-desc '>Select from thousands of top-level pathways from Reactome,
         PathwayCommons, and more. </span>
     </div>
   </section>
@@ -128,7 +130,7 @@
       <span class='landing-copy-desc '>Like Matrix Decomposition, Manifold Learning seeks to unveil
         the spatial structure of high dimensional datasets. Unlike
         Matrix Decomposition the dimension reduction process is non-linear. Available methods
-        include T-SNE, MDS, IsoMap,
+        include T-SNE, MDS, UMAP, IsoMap,
         Local Linear and Spectral Embedding.</span>
     </div>
   </section>
@@ -232,8 +234,10 @@
       <iframe style='border: 1px solid #9e9e9e; ' id="ytplayer " type="text/html " width="720 "
         height="405 " src="https://www.youtube.com/embed/VfKFbri7XfQ?loop=1&modestbranding=1&playsinline=1&rel=0&showinfo=0&color=white "
         frameborder="0 " allowfullscreen></iframe>
+      
+
     </div>
-    <div fxFlex.sm='1 1 100% ' fxFlex.md='1 1 100% ' fxFlex.lg='1 1 100% ' fxFlex.xl='1 1 50% '
+<!--    <div fxFlex.sm='1 1 100% ' fxFlex.md='1 1 100% ' fxFlex.lg='1 1 100% ' fxFlex.xl='1 1 50% '
       class='landing-copy
         ' class='landing-copy '>
       <div class='landing-section-title '>News</div>
@@ -241,7 +245,7 @@
         <a class="twitter-timeline " data-theme="light " data-link-color="#1e88e5 " href="https://twitter.com/oncoscape?ref_src=twsrc%5Etfw ">Tweets
           by oncoscape</a>
       </div>
-    </div>
+    </div> -->
   </section>
 
 
@@ -251,8 +255,7 @@
         Fred Hutch 1100 Fairview Ave. N.
         <br /> P.O. Box 19024, Seattle, WA 98109
         <br />
-        <a style='color:#fff; text-decoration: none; ' href="http://www.fredhutch.org/en/util/terms-privacy.html ">Terms
-          of Use &amp; Privacy Policy</a>
+        <a style='color:#fff; text-decoration: none;' href="/assets/terms.html">Terms and Conditions</a>
       </div>
       <div>
         <div class='section-footer '>
@@ -266,7 +269,7 @@
             <a href="https://www.facebook.com/STTRCancer/ " target="_blank ">
               <i class="fa fa-facebook-square fa-3x social "></i>
             </a>
-            <a href="mailto:contact-sttr@fredhutch.org " target="_blank ">
+            <a href="mailto:contact@oncoscape.org" target="_blank ">
               <i class="fa fa-envelope-square fa-3x social "></i>
             </a>
           </span>

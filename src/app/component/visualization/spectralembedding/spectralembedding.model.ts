@@ -1,6 +1,7 @@
 import { DimensionEnum, EntityTypeEnum, VisualizationEnum } from 'app/model/enum.model';
 import { GraphConfig } from './../../../model/graph-config.model';
 import { GraphData } from './../../../model/graph-data.model';
+import { VisualizationAbstractScatterConfigModel } from "../visualization.abstract.scatter.model";
 
 export class SpectralEmbeddingEigenSolver {
     public static NONE = 'None';
@@ -16,7 +17,7 @@ export class SpectralEmbeddingAffinity {
     // public static CALLABLE = 'callable';
 }
 
-export class SpectralEmbeddingConfigModel extends GraphConfig {
+export class SpectralEmbeddingConfigModel extends VisualizationAbstractScatterConfigModel {
 
     constructor() {
         super();

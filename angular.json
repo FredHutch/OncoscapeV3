@@ -45,8 +45,7 @@
               "node_modules/three/build/three.min.js",
               "node_modules/vega/build/vega.min.js",
               "node_modules/vega-tooltip/build/vega-tooltip.min.js",
-              "node_modules/three/examples/js/TypedArrayUtils.js",
-              "node_modules/three/examples/js/QuickHull.js"
+              "node_modules/three/examples/js/utils/TypedArrayUtils.js"
             ]
           },
           "configurations": {
@@ -66,7 +65,25 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ]
+            },
+            "test": {
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": true,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.test.ts"
+                }
+              ]
             }
+
           }
         },
         "serve": {
@@ -78,6 +95,9 @@
           "configurations": {
             "production": {
               "browserTarget": "notitia:build:production"
+            },
+            "test": {
+              "browserTarget": "notitia:build:test"
             }
           }
         },

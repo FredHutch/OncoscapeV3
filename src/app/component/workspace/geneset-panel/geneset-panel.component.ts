@@ -10,7 +10,7 @@ import {
   Output,
   ViewEncapsulation
 } from '@angular/core';
-import { MatSelectChange } from '@angular/material';
+import { MatSelectChange, MatButtonToggle } from '@angular/material';
 import { ModalService } from 'app/service/modal-service';
 import { Subject } from 'rxjs';
 import { GeneSet } from './../../../model/gene-set.model';
@@ -29,6 +29,7 @@ export class GenesetPanelComponent implements AfterViewInit, OnDestroy {
   @Input() genesets: Array<GeneSet> = [];
   @Output() addGeneset: EventEmitter<{ database: string; geneset: GeneSet }> = new EventEmitter();
   @Output() delGeneset: EventEmitter<{ database: string; geneset: GeneSet }> = new EventEmitter();
+  @Output() updateGeneset: EventEmitter<{ database: string; geneset: GeneSet }> = new EventEmitter();
   $genesetFilter: Subject<any>;
   buildType: 'CURATED' | 'CUSTOM' | 'CONDITIONAL' = 'CURATED';
   genesetFilter = '';
@@ -59,6 +60,27 @@ export class GenesetPanelComponent implements AfterViewInit, OnDestroy {
     // this.cd.detectChanges();
   }
 
+  createCustomGeneSet(e: any): void {
+    console.log('in createCustomGeneSet.');
+    let genesetCreationNameElement = document.getElementsByClassName('geneset-creation-name')[0];
+    let genesetCreationTextElement = document.getElementsByClassName('geneset-creation-text')[0];
+
+    let rawGenesetText = genesetCreationTextElement['value'];
+    this.customGenes = rawGenesetText.trim()
+      .toUpperCase()
+      .replace(/[, \n\t]+/g, ",");
+    let genes:Array<string> = this.customGenes.split(',').map(v => v.trim().toUpperCase());
+    this.customName = genesetCreationNameElement['value'];
+    console.log('Saving genes as: ' + this.customName);
+    console.log('Saving genes: ' + this.customGenes);
+    this.addGeneset.emit({ database: this.config.database, geneset: { n: this.customName, g: genes } });
+
+    // Now empty the fields.
+    genesetCreationNameElement['value'] = '';
+    genesetCreationTextElement['value'] = '';
+    //window.setTimeout(function(){alert(`Saved gene set ${name}!`);}, 300);
+  }
+
   genesetCategoryChange(e: MatSelectChange): void {
     const genesetCode = e.value.c;
     this.genesetOptions = [];
@@ -75,23 +97,20 @@ export class GenesetPanelComponent implements AfterViewInit, OnDestroy {
       });
   }
 
-  onCustomSave(): void {
-    const name = this.customName.toLowerCase();
-    const genes = this.customGenes.split(',').map(v => v.trim().toUpperCase());
-    if (name.length === 0 || genes.length === 0) {
-      alert('name or genes empty.. better validation coming.');
-      return;
-    }
-    this.addGeneset.emit({ database: this.config.database, geneset: { n: name, g: genes } });
-  }
-
   onGenesetFilterChange(criteria: string): void {
+    // If term has "." at end, it means treat it as a complete gene.
+    // For example, "ICAM" matches "ICAM", "ICAM1", "ICAM2",
+    // but "ICAM." matches only "ICAM".
+    // Implement this by turning a "." into a ",", which matches against hugo concat string.
     const terms = criteria
+      .replace(/[, \n\t]+/g, " ").trim() // TUrn any sequence of commas/spaces into a single space.
       .split(' ')
-      .map(v => v.toUpperCase().trim())
+      .map(v => {
+         return v.toUpperCase().replace('.', ',').trim()
+      })
       .filter(v => v.length > 1);
     this.genesetOptionsFilter = this.genesetOptions.filter(v => {
-      const haystack = (v.name + ' ' + v.summary + ' ' + v.hugo).toUpperCase();
+      const haystack = (v.name + ' ' + v.desc + ' ' + v.summary + ' ' + v.hugo +', ').toUpperCase();
       for (let i = 0; i < terms.length; i++) {
         if (haystack.indexOf(terms[i]) === -1) {
           return false;
@@ -101,12 +120,15 @@ export class GenesetPanelComponent implements AfterViewInit, OnDestroy {
     });
     this.cd.detectChanges();
   }
+
   geneSetDel(v: any): void {
     if (this.genesets.length === 1) {
       alert('Please keep at least one geneset in your list of options.');
       return;
     }
-    this.delGeneset.emit({ database: this.config.database, geneset: v });
+    if (window.confirm('Are you sure you want to delete that gene set?')) {
+      this.delGeneset.emit({ database: this.config.database, geneset: v });
+    }
   }
 
   geneSetAdd(v: any): void {
@@ -122,6 +144,26 @@ export class GenesetPanelComponent implements AfterViewInit, OnDestroy {
     this.addGeneset.emit({
       database: this.config.database,
       geneset: { n: name, g: v.genes.map(w => w.toUpperCase()) }
+    });
+  }
+
+  geneSetEdit(v: GeneSet): void {
+
+    let genes = v.g.join(' ');
+    let newGenes = prompt(`Genes for "${v.n}":`, genes);
+    if (newGenes == null) { return; }  // User chose "Cancel"
+
+    // TBD: Trim up newGenes, ensuring only one space between each item,
+    // then turn into array of names.
+    alert(`Saving edits: ${newGenes}`);
+    let newGeneSet = {
+       n: v.n, 
+       g: newGenes.toUpperCase().split(' ').filter(x => x != '')
+    };
+
+    this.updateGeneset.emit({
+      database: this.config.database,
+      geneset: newGeneSet
     });
   }
 

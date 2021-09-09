@@ -45,7 +45,7 @@ export class GeneSignaturePanelComponent implements AfterViewInit {
 
 
   byName(p1: any, p2: any) {
-    if (p2 === null) { return false; }
+    if (p2 == null) { return false; }
     return p1.name === p2.name;
   }
 

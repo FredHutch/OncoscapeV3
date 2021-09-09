@@ -27,8 +27,8 @@ export class HicGraph extends AbstractVisualization {
     return this._config as HicConfigModel;
   }
 
-  create(labels: HTMLElement, events: ChartEvents, view: VisualizationView): ChartObjectInterface {
-    super.create(labels, events, view);
+  create(entity: EntityTypeEnum, labels: HTMLElement, events: ChartEvents, view: VisualizationView): ChartObjectInterface {
+    super.create(entity, labels, events, view);
     this.meshes = [];
     this.lines = [];
     return this;
@@ -91,8 +91,9 @@ export class HicGraph extends AbstractVisualization {
       path.add(curve);
       const chromosomeLine = new MeshLine();
 
-      // chromosomeLine.setGeometry(new THREE.Geometry().setFromPoints(path.getPoints() as Array<THREE.Vector3>));
-      chromosomeLine.setGeometry(path.createPointsGeometry(1000));
+      chromosomeLine.setGeometry(new THREE.Geometry().setFromPoints(path.getPoints() as Array<THREE.Vector3>));
+      // ERROR: three.module.js:45643 THREE.CurvePath: .createPointsGeometry() has been removed. Use new THREE.Geometry().setFromPoints( points ) instead
+      //   chromosomeLine.setGeometry(path.createPointsGeometry(1000));
 
       const chromosomeMesh = new THREE.Mesh(
         chromosomeLine.geometry,

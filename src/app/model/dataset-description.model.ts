@@ -6,4 +6,6 @@ export class DatasetDescription {
   public hasMutations = false;
   public hasSurvival = false;
   public hasPrecomputed = false;
+  public hasCopyNumber = false;
+  public mutationVariantNames = [];
 }

@@ -5,6 +5,11 @@ import { DedicatedWorkerGlobalScope } from 'app/service/dedicated-worker-global-
 import * as parsePdb from 'parse-pdb';
 
 export const ProteinCompute = (config: ProteinConfigModel, worker: DedicatedWorkerGlobalScope): void => {
+  if(config.reuseLastComputation) {
+    worker.postMessage({config: config, data: {cmd:'reuse'}});
+    return;
+  }
+  
   // const headers = {
   //   // Accept: 'application/json',
   //   // 'Content-Type': 'application/json',
@@ -15,7 +20,12 @@ export const ProteinCompute = (config: ProteinConfigModel, worker: DedicatedWork
     .then(result => result.text())
     .then(result => {
       const pdb = parsePdb(result);
-      const legends = [Legend.create('Data Points', ['Samples'], [SpriteMaterialEnum.CIRCLE], 'SHAPE', 'DISCRETE')];
+      const legends = [Legend.create(result,
+        'Data Points', 
+        ['Samples'], 
+        [SpriteMaterialEnum.CIRCLE], 
+        'SHAPE', 
+        'DISCRETE')];
       worker.postMessage({ config: config, data: { legends: legends, result: { raw: result, parsed: pdb } } });
       worker.postMessage('TERMINATE');
       //   .then(result => {

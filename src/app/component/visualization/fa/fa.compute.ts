@@ -5,6 +5,11 @@ import { FaConfigModel } from './fa.model';
 declare var ML: any;
 
 export const faCompute = (config: FaConfigModel, worker: DedicatedWorkerGlobalScope): void => {
+  if(config.reuseLastComputation) {
+    worker.postMessage({config: config, data: {cmd:'reuse'}});
+    return;
+  }
+  
   worker.util.getDataMatrix(config).then(matrix => {
     worker.util
       .fetchResult({
@@ -16,6 +21,9 @@ export const faCompute = (config: FaConfigModel, worker: DedicatedWorkerGlobalSc
         svd_method: config.svd_method
       })
       .then(result => {
+        if (result && result['message'] && result['stack']) { // duck typecheck for error
+          return worker.util.postCpuError(result, worker);
+        }
         result.resultScaled = worker.util.scale3d(
           result.result,
           config.pcx - 1,
@@ -26,7 +34,7 @@ export const faCompute = (config: FaConfigModel, worker: DedicatedWorkerGlobalSc
         result.mid = matrix.mid;
         result.pid = matrix.pid;
         result.legends = [
-          Legend.create(
+          Legend.create( result,
             'Data Points',
             config.entity === EntityTypeEnum.GENE ? ['Genes'] : ['Samples'],
             [SpriteMaterialEnum.CIRCLE],

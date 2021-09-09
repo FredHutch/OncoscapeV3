@@ -101,7 +101,7 @@ export class StatPanelComponent implements AfterViewInit, OnDestroy {
     this.$dataChange.next();
   }
   byName(p1: any, p2: any) {
-    if (p2 === null) {
+    if (p2 == null) {
       return false;
     }
     return p1.name === p2.name;
@@ -133,6 +133,7 @@ export class StatPanelComponent implements AfterViewInit, OnDestroy {
     this.options.type = value.charts[0] === 'Histogram' ? 'BAR' : 'PIE';
     // TODO: Allow for Label Type
     this.statComponent.options = this.options;
+    this.statComponent.statPanelComponent = this; // MJ - points back to parent, so we can get graphConfig etc.
     this.cd.markForCheck();
   }
 
@@ -179,6 +180,7 @@ export class StatPanelComponent implements AfterViewInit, OnDestroy {
       .subscribe(this.update);
     this.update();
   }
+
   showNextMetric(): void {
     let nextMetricIndex = this.metrics.indexOf(this.metricSelected) + 1;
     if (nextMetricIndex >= this.metrics.length) {

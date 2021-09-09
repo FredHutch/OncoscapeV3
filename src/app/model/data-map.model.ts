@@ -30,4 +30,12 @@ export interface DataDecorator {
   values: Array<DataDecoratorValue>;
   field: DataField;
   legend: Legend;
+  pidsByLabel?: Array<{label:string, pids:Array<string>}>;
+}
+
+export interface VariantCheckbox {
+  name: string;
+  completed: boolean;
+  color: string;
+  subtasks?: VariantCheckbox[];
 }

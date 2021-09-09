@@ -1,10 +1,13 @@
+import { DatasetService } from './../../service/dataset.service';
+import Dexie from 'dexie';
+import { GraphEnum } from 'app/model/enum.model';
 import { Preprocessing } from './../../model/preprocessing.model';
 import { SelectionToolConfig } from './../../model/selection-config.model';
 import { ScatterConfigModel } from './../visualization/scatter/scatter.model';
 import { getTipVisible, getTipEnabled } from './../../reducer/index.reducer';
 import { DataService } from 'app/service/data.service';
 import { SelectSaveSamplesAction, SelectSaveMarkersAction } from './../../action/compute.action';
-import { ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as compute from 'app/action/compute.action';
 import * as data from 'app/action/data.action';
@@ -28,6 +31,7 @@ import { Observable } from 'rxjs/Rx';
 import {
   DataAddCohortAction,
   DataAddGenesetAction,
+  DataUpdateGenesetAction,
   DataAddPreprocessingAction,
   DataAddPathwayAction,
   DataDelCohortAction,
@@ -40,7 +44,8 @@ import {
   DataDecoratorDelAction,
   DataDecoratorDelAllAction,
   WorkspaceConfigAction,
-  SelectionToolChangeAction
+  SelectionToolChangeAction,
+  ThreeDRenderOptionAction
 } from './../../action/graph.action';
 import { HelpSetConfigAction } from './../../action/help.action';
 import { GraphPanelToggleAction, LoaderShowAction, ModalPanelAction } from './../../action/layout.action';
@@ -70,6 +75,7 @@ import { LdaConfigModel } from './../visualization/lda/lda.model';
 import { LinkedGeneConfigModel } from './../visualization/linkedgenes/linkedgenes.model';
 import { LocalLinearEmbeddingConfigModel } from './../visualization/locallinearembedding/locallinearembedding.model';
 import { MdsConfigModel } from './../visualization/mds/mds.model';
+import { SavedPointsConfigModel } from './../visualization/savedpoints/savedpoints.model';
 import { NmfConfigModel } from './../visualization/nmf/nmf.model';
 import { ParallelCoordsConfigModel } from './../visualization/parallelcoords/parallelcoords.model';
 import { PcaConfigModel } from './../visualization/pca/pca.model';
@@ -93,6 +99,11 @@ import { TipSetVisualizationAction, TipSetEnabledAction, TipSetVisibleAction } f
 import { UmapConfigModel } from '../visualization/umap/umap.model';
 import { DatasetDescription } from 'app/model/dataset-description.model';
 import { ProteinConfigModel } from '../visualization/protein/protein.model';
+import { stringToKeyValue } from '@angular/flex-layout/extended/typings/style/style-transforms';
+import { OncoData, LoadedTable } from 'app/oncoData';
+import { TableLoaderConfigModel } from '../visualization/tableLoader/tableLoader';
+import { DatasetUpdates } from 'app/model/dataset-updates.model';
+
 
 @Component({
   selector: 'app-workspace',
@@ -100,7 +111,7 @@ import { ProteinConfigModel } from '../visualization/protein/protein.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./workspace.component.scss']
 })
-export class WorkspaceComponent {
+export class WorkspaceComponent implements OnInit {
   private static _instance: WorkspaceComponent;
   public static get instance(): WorkspaceComponent {
     return this._instance;
@@ -109,6 +120,12 @@ export class WorkspaceComponent {
   // Components
   @ViewChild('panelContainer')
   public panelContainer: ElementRef;
+  
+  // Version last saved in local database.
+  updateVersion: number = 0;
+
+  // If non-null, the new changes we want to save in local database.
+  updatesIncomingData: DatasetUpdates = null;
 
   overrideShowPanel = true;
 
@@ -164,8 +181,11 @@ export class WorkspaceComponent {
     this._instance.graphPanelAddDecorator({ config: config, decorator: decorator });
   }
 
+  projectName: string;
+
   constructor(private store: Store<fromRoot.State>, public ds: DataService) {
     WorkspaceComponent._instance = this;
+    window['reachableWorkspaceComponent'] = this;
     this.pathways = store.select(fromRoot.getPathways);
     this.genesets = store.select(fromRoot.getGenesets);
     this.cohorts = store.select(fromRoot.getCohorts);
@@ -205,6 +225,59 @@ export class WorkspaceComponent {
     this.tipVisualization = store.select(fromRoot.getTipVisualization);
   }
 
+  selectedId: string;
+  ngOnInit() {
+    console.log('ngOnInit of WorkspaceComponent');
+    if (window.document.URL.includes("#")){
+      let url = new URL(window.document.URL);
+      var project = url.hash.substring(1+8); // remove '#project-'
+      if (project != "" && project != null) {
+        console.log('ngOnInit project = ' + project);
+        this.projectName = project;
+      }
+    }
+  }
+
+  ngAfterViewInit(): void {
+    console.log('ngAfterViewInit of WorkspaceComponent');
+    if (this.projectName != "" && this.projectName != null){
+      console.log('NOW OPEN ' + this.projectName)
+      this.fileLoadPublicShared(this.projectName);
+      window.document.location.href="#"
+    }
+  }
+
+  private loadedTables:Map<string, LoadedTable> = new Map<string, LoadedTable>(); 
+
+  public getLoadedTable(key:string){
+    return this.loadedTables.get(key);
+  }
+
+  public hasLoadedTable(key:string){
+    return this.loadedTables.has(key);
+  }
+
+  public setLoadedTable(key:string, value:LoadedTable){
+    this.loadedTables.set(key, value);
+  }
+
+  public clearLoadedTables(){
+    this.loadedTables.clear();
+    this.tableRetrievalInProgress=false;
+  }
+
+  private tableRetrievalInProgress = false;
+
+  
+  public requestLoadedTable(key:string){
+    if(this.hasLoadedTable(key) ==false){
+      if(this.tableRetrievalInProgress==false){
+        this.tableRetrievalInProgress = true;
+        this.loadTableAndMap(key);
+      }
+    }
+  }
+
   select(selection: ChartSelection): void {
     switch (selection.type) {
       case EntityTypeEnum.SAMPLE:
@@ -228,353 +301,427 @@ export class WorkspaceComponent {
     this.store.dispatch(new compute.EdgesAction({ config: value }));
   }
 
-  graphPanelSetConfig(value: GraphConfig): void {
-    this.store.dispatch(new LoaderShowAction());
-    this.store.dispatch(new TipSetVisualizationAction(value.visualization));
-    switch (value.visualization) {
-      case enums.VisualizationEnum.NONE:
+  loadTableAndMap(tableName:string):void {
+    console.log(`loadTableAndMap ${Date.now()}.`);
+    // TBD !!!!!! first do map
+    let config:TableLoaderConfigModel = new TableLoaderConfigModel();
+    config.tableName = tableName;
+    config.graph = GraphEnum.GRAPH_A;
+    config.database = OncoData.instance.dataLoadedAction.dataset
+    config.datasetName =OncoData.instance.dataLoadedAction.datasetName;
+    config.table= OncoData.instance.dataLoadedAction.tables.find(v=>v.tbl == tableName);
+
+    this.ds.getTable(config.database, tableName+'Map' ).then(mapResult => {
+      console.log(`Got map for loadTableAndMap of${tableName}.`);
+      mapResult.toArray().then(mapData => {
+        config.mapData = mapData;
         this.store.dispatch(
-          new compute.NoneAction({
-            config: value as GraphConfig
-          })
+          new compute.TableLoaderAction({config})
         );
-        break;
-      case enums.VisualizationEnum.EDGES:
-        this.store.dispatch(
-          new compute.EdgesAction({
-            config: value as EdgeConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.PCA:
-        this.store.dispatch(
-          new compute.PcaAction({
-            config: value as PcaConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.PATHWAYS:
-        this.store.dispatch(
-          new compute.PathwaysAction({
-            config: value as PathwaysConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.PROTEINS:
-        this.store.dispatch(
-          new compute.ProteinAction({
-            config: value as ProteinConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.CHROMOSOME:
-        this.store.dispatch(
-          new compute.ChromosomeAction({
-            config: value as ChromosomeConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.GENOME:
-        this.store.dispatch(
-          new compute.GenomeAction({
-            config: value as GenomeConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.TSNE:
-        this.store.dispatch(
-          new compute.TsneAction({
-            config: value as TsneConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.UMAP:
-        this.store.dispatch(
-          new compute.UmapAction({
-            config: value as UmapConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.SCATTER:
-        this.store.dispatch(
-          new compute.ScatterAction({
-            config: value as ScatterConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.TIMELINES:
-        this.store.dispatch(
-          new compute.TimelinesAction({
-            config: value as TimelinesConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.HEATMAP:
-        this.store.dispatch(
-          new compute.HeatmapAction({
-            config: value as HeatmapConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.DENDOGRAM:
-        this.store.dispatch(
-          new compute.DendogramAction({
-            config: value as DendogramConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.PARALLEL_COORDS:
-        this.store.dispatch(
-          new compute.ParallelCoordsAction({
-            config: value as ParallelCoordsConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.BOX_WHISKERS:
-        this.store.dispatch(
-          new compute.BoxWhiskersAction({
-            config: value as BoxWhiskersConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.LINKED_GENE:
-        this.store.dispatch(
-          new compute.LinkedGeneAction({
-            config: value as LinkedGeneConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.HIC:
-        this.store.dispatch(
-          new compute.HicAction({
-            config: value as HicConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.SOM:
-        this.store.dispatch(
-          new compute.SomAction({
-            config: value as SomConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.MDS:
-        this.store.dispatch(
-          new compute.MdsAction({
-            config: value as MdsConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.FA:
-        this.store.dispatch(
-          new compute.FaAction({
-            config: value as FaConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.LDA:
-        this.store.dispatch(
-          new compute.LdaAction({
-            config: value as LdaConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.FAST_ICA:
-        this.store.dispatch(
-          new compute.FastIcaAction({
-            config: value as FastIcaConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.DICTIONARY_LEARNING:
-        this.store.dispatch(
-          new compute.DictionaryLearningAction({
-            config: value as DictionaryLearningConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.NMF:
-        this.store.dispatch(
-          new compute.NmfAction({
-            config: value as NmfConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.TRUNCATED_SVD:
-        this.store.dispatch(
-          new compute.TruncatedSvdAction({
-            config: value as TruncatedSvdConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.ISOMAP:
-        this.store.dispatch(
-          new compute.IsoMapAction({
-            config: value as IsoMapConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.LOCALLY_LINEAR_EMBEDDING:
-        this.store.dispatch(
-          new compute.LocalLinearEmbeddingAction({
-            config: value as LocalLinearEmbeddingConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.SPECTRAL_EMBEDDING:
-        this.store.dispatch(
-          new compute.SpectralEmbeddingAction({
-            config: value as SpectralEmbeddingConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.INCREMENTAL_PCA:
-        this.store.dispatch(
-          new compute.PcaIncrementalAction({
-            config: value as PcaIncrementalConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.KERNAL_PCA:
-        this.store.dispatch(
-          new compute.PcaKernalAction({
-            config: value as PcaKernalConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.SPARSE_PCA:
-        this.store.dispatch(
-          new compute.PcaSparseAction({
-            config: value as PcaSparseConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.MINI_BATCH_DICTIONARY_LEARNING:
-        this.store.dispatch(
-          new compute.MiniBatchDictionaryLearningAction({
-            config: value as MiniBatchDictionaryLearningConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.MINI_BATCH_SPARSE_PCA:
-        this.store.dispatch(
-          new compute.MiniBatchSparsePcaAction({
-            config: value as MiniBatchSparsePcaConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.LINEAR_DISCRIMINANT_ANALYSIS:
-        this.store.dispatch(
-          new compute.LinearDiscriminantAnalysisAction({
-            config: value as LinearDiscriminantAnalysisConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.SURVIVAL:
-        this.store.dispatch(
-          new compute.SurvivalAction({
-            config: value as SurvivalConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.HAZARD:
-        this.store.dispatch(
-          new compute.HazardAction({
-            config: value as HazardConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.HISTOGRAM:
-        this.store.dispatch(
-          new compute.HistogramAction({
-            config: value as HistogramConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.PLSSVD:
-        this.store.dispatch(
-          new compute.PlsSvdAction({
-            config: value as PlsSvdConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.PLSREGRESSION:
-        this.store.dispatch(
-          new compute.PlsRegressionAction({
-            config: value as PlsRegressionConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.PLSCANONICAL:
-        this.store.dispatch(
-          new compute.PlsCanonicalAction({
-            config: value as PlsCanonicalConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.QUADRATIC_DISCRIMINANT_ANALYSIS:
-        this.store.dispatch(
-          new compute.QuadraticDiscriminantAnalysisAction({
-            config: value as QuadradicDiscriminantAnalysisConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.CCA:
-        this.store.dispatch(
-          new compute.CCAAction({
-            config: value as CCAConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.LINEAR_SVC:
-        this.store.dispatch(
-          new compute.LinearSVCAction({
-            config: value as LinearSVCConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.LINEAR_SVR:
-        this.store.dispatch(
-          new compute.LinearSVRAction({
-            config: value as LinearSVRConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.NU_SVR:
-        this.store.dispatch(
-          new compute.NuSVRAction({
-            config: value as NuSVRConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.NU_SVC:
-        this.store.dispatch(
-          new compute.NuSVCAction({
-            config: value as NuSVCConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.ONE_CLASS_SVM:
-        this.store.dispatch(
-          new compute.OneClassSVMAction({
-            config: value as OneClassSVMConfigModel
-          })
-        );
-        break;
-      case enums.VisualizationEnum.SVR:
-        this.store.dispatch(
-          new compute.SVRAction({
-            config: value as SVRConfigModel
-          })
-        );
-        break;
+    
+      });
+    });
+
+
+  }
+
+  graphPanelSetConfig(graphConfigValue: GraphConfig): void {
+    // TEMPNOTE: Here is our chance to override default config settings
+    // with values generated for the specific dataset, such as
+    // Timeline's config bars. As we start to store user prefs for a 
+    // visualization, we can apply them too.
+    // These values come from the visSettings Dexie table.
+
+    // Now find setting overrides in visSettings Dexie table.
+    // Note that we might only override one or two settings values.
+    // When we process them, loop through each settings key value,
+    // and write it into the gc.
+    try {
+      console.log(`TEMPNOTE: ==== Entering graphPanelSetConfig ...`);
+//      DatasetService.db.table('visSettings').get({visEnum: graphConfigValue.visualization}).then(v => {
+
+
+        if(graphConfigValue.hasAppliedMetafileOverrides == false) {
+          let v:any = OncoData.instance.visSettings.find(v=> v.visEnum == graphConfigValue.visualization);
+          if(v) {
+            let settings = JSON.parse(v.settings);
+            if (settings) {
+              console.log(`TEMPNOTE: Found settings for visEnum=${graphConfigValue.visualization}...`);
+              console.log(`TEMPNOTE: settings = ${v.settings}!`);
+              let overrideKeys = Object.keys(settings);
+              overrideKeys.map(ok => {
+                console.log(`TEMPNOTE: override "${ok}" with "${JSON.stringify(settings[ok])}"!`);
+                graphConfigValue[ok] = settings[ok];
+              });
+              // console.log('MJ settings overridden.');
+              graphConfigValue.hasAppliedMetafileOverrides = true;
+              console.log(`TEMPNOTE: New config = ${JSON.stringify(graphConfigValue)}!`);
+            }
+          }
+          // console.log('MJ Now continue on with dispatching the vis.');
+        }
+        // console.log('MJ No more override: Has already applied meta overrides to this GraphConfig.');
+
+        this.store.dispatch(new LoaderShowAction());
+        // MJ Hide tooltips for visualizations. 2020-03-19. this.store.dispatch(new TipSetVisualizationAction(graphConfigValue.visualization));
+        switch (graphConfigValue.visualization) {
+          case enums.VisualizationEnum.NONE:
+            this.store.dispatch(
+              new compute.NoneAction({
+                config: graphConfigValue as GraphConfig
+              })
+            );
+            break;
+          case enums.VisualizationEnum.EDGES:
+            this.store.dispatch(
+              new compute.EdgesAction({
+                config: graphConfigValue as EdgeConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.PCA:
+            this.store.dispatch(
+              new compute.PcaAction({
+                config: graphConfigValue as PcaConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.PATHWAYS:
+            this.store.dispatch(
+              new compute.PathwaysAction({
+                config: graphConfigValue as PathwaysConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.PROTEINS:
+            this.store.dispatch(
+              new compute.ProteinAction({
+                config: graphConfigValue as ProteinConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.CHROMOSOME:
+            this.store.dispatch(
+              new compute.ChromosomeAction({
+                config: graphConfigValue as ChromosomeConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.GENOME:
+            this.store.dispatch(
+              new compute.GenomeAction({
+                config: graphConfigValue as GenomeConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.TSNE:
+            this.store.dispatch(
+              new compute.TsneAction({
+                config: graphConfigValue as TsneConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.UMAP:
+            this.store.dispatch(
+              new compute.UmapAction({
+                config: graphConfigValue as UmapConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.SCATTER:
+            this.store.dispatch(
+              new compute.ScatterAction({
+                config: graphConfigValue as ScatterConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.TIMELINES:
+            this.store.dispatch(
+              new compute.TimelinesAction({
+                config: graphConfigValue as TimelinesConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.HEATMAP:
+            this.store.dispatch(
+              new compute.HeatmapAction({
+                config: graphConfigValue as HeatmapConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.DENDOGRAM:
+            this.store.dispatch(
+              new compute.DendogramAction({
+                config: graphConfigValue as DendogramConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.PARALLEL_COORDS:
+            this.store.dispatch(
+              new compute.ParallelCoordsAction({
+                config: graphConfigValue as ParallelCoordsConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.BOX_WHISKERS:
+            this.store.dispatch(
+              new compute.BoxWhiskersAction({
+                config: graphConfigValue as BoxWhiskersConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.LINKED_GENE:
+            this.store.dispatch(
+              new compute.LinkedGeneAction({
+                config: graphConfigValue as LinkedGeneConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.HIC:
+            this.store.dispatch(
+              new compute.HicAction({
+                config: graphConfigValue as HicConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.SOM:
+            this.store.dispatch(
+              new compute.SomAction({
+                config: graphConfigValue as SomConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.MDS:
+            this.store.dispatch(
+              new compute.MdsAction({
+                config: graphConfigValue as MdsConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.SAVED_POINTS:
+            this.store.dispatch(
+              new compute.SavedPointsAction({
+                config: graphConfigValue as SavedPointsConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.FA:
+            this.store.dispatch(
+              new compute.FaAction({
+                config: graphConfigValue as FaConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.LDA:
+            this.store.dispatch(
+              new compute.LdaAction({
+                config: graphConfigValue as LdaConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.FAST_ICA:
+            this.store.dispatch(
+              new compute.FastIcaAction({
+                config: graphConfigValue as FastIcaConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.DICTIONARY_LEARNING:
+            this.store.dispatch(
+              new compute.DictionaryLearningAction({
+                config: graphConfigValue as DictionaryLearningConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.NMF:
+            this.store.dispatch(
+              new compute.NmfAction({
+                config: graphConfigValue as NmfConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.TRUNCATED_SVD:
+            this.store.dispatch(
+              new compute.TruncatedSvdAction({
+                config: graphConfigValue as TruncatedSvdConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.ISOMAP:
+            this.store.dispatch(
+              new compute.IsoMapAction({
+                config: graphConfigValue as IsoMapConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.LOCALLY_LINEAR_EMBEDDING:
+            this.store.dispatch(
+              new compute.LocalLinearEmbeddingAction({
+                config: graphConfigValue as LocalLinearEmbeddingConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.SPECTRAL_EMBEDDING:
+            this.store.dispatch(
+              new compute.SpectralEmbeddingAction({
+                config: graphConfigValue as SpectralEmbeddingConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.INCREMENTAL_PCA:
+            this.store.dispatch(
+              new compute.PcaIncrementalAction({
+                config: graphConfigValue as PcaIncrementalConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.KERNAL_PCA:
+            this.store.dispatch(
+              new compute.PcaKernalAction({
+                config: graphConfigValue as PcaKernalConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.SPARSE_PCA:
+            this.store.dispatch(
+              new compute.PcaSparseAction({
+                config: graphConfigValue as PcaSparseConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.MINI_BATCH_DICTIONARY_LEARNING:
+            this.store.dispatch(
+              new compute.MiniBatchDictionaryLearningAction({
+                config: graphConfigValue as MiniBatchDictionaryLearningConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.MINI_BATCH_SPARSE_PCA:
+            this.store.dispatch(
+              new compute.MiniBatchSparsePcaAction({
+                config: graphConfigValue as MiniBatchSparsePcaConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.LINEAR_DISCRIMINANT_ANALYSIS:
+            this.store.dispatch(
+              new compute.LinearDiscriminantAnalysisAction({
+                config: graphConfigValue as LinearDiscriminantAnalysisConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.SURVIVAL:
+            this.store.dispatch(
+              new compute.SurvivalAction({
+                config: graphConfigValue as SurvivalConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.HAZARD:
+            this.store.dispatch(
+              new compute.HazardAction({
+                config: graphConfigValue as HazardConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.HISTOGRAM:
+            this.store.dispatch(
+              new compute.HistogramAction({
+                config: graphConfigValue as HistogramConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.PLSSVD:
+            this.store.dispatch(
+              new compute.PlsSvdAction({
+                config: graphConfigValue as PlsSvdConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.PLSREGRESSION:
+            this.store.dispatch(
+              new compute.PlsRegressionAction({
+                config: graphConfigValue as PlsRegressionConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.PLSCANONICAL:
+            this.store.dispatch(
+              new compute.PlsCanonicalAction({
+                config: graphConfigValue as PlsCanonicalConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.QUADRATIC_DISCRIMINANT_ANALYSIS:
+            this.store.dispatch(
+              new compute.QuadraticDiscriminantAnalysisAction({
+                config: graphConfigValue as QuadradicDiscriminantAnalysisConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.CCA:
+            this.store.dispatch(
+              new compute.CCAAction({
+                config: graphConfigValue as CCAConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.LINEAR_SVC:
+            this.store.dispatch(
+              new compute.LinearSVCAction({
+                config: graphConfigValue as LinearSVCConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.LINEAR_SVR:
+            this.store.dispatch(
+              new compute.LinearSVRAction({
+                config: graphConfigValue as LinearSVRConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.NU_SVR:
+            this.store.dispatch(
+              new compute.NuSVRAction({
+                config: graphConfigValue as NuSVRConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.NU_SVC:
+            this.store.dispatch(
+              new compute.NuSVCAction({
+                config: graphConfigValue as NuSVCConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.ONE_CLASS_SVM:
+            this.store.dispatch(
+              new compute.OneClassSVMAction({
+                config: graphConfigValue as OneClassSVMConfigModel
+              })
+            );
+            break;
+          case enums.VisualizationEnum.SVR:
+            this.store.dispatch(
+              new compute.SVRAction({
+                config: graphConfigValue as SVRConfigModel
+              })
+            );
+            break;
+        }
+    
+    } catch (eee) {
+      console.log(`TEMPNOTE: Caught failure to look at visSettings. ${JSON.stringify(eee)}.`);
     }
+
   }
 
   tipHide(): void {
     this.store.dispatch(new TipSetVisibleAction(false));
   }
   graphPanelSetSelectionToolConfig(e: { config: GraphConfig; selectionTool: SelectionToolConfig }): void {
+    console.warn('==== graphPanelSetSelectionToolConfig...');
+    console.dir(e.selectionTool);
     this.store.dispatch(
       new SelectionToolChangeAction({
         config: e.config,
@@ -582,6 +729,20 @@ export class WorkspaceComponent {
       })
     );
   }
+  
+ 
+  //ThreeDRenderOptionAction
+  setThreeDOptions(e: { config: GraphConfig; option: string; value: any }): void {
+    this.store.dispatch(
+      new ThreeDRenderOptionAction({
+        config: e.config,
+        option: e.option,
+        value: e.value
+      })
+    );
+  }
+  
+
   edgeAddDecorator(e: { config: EdgeConfigModel; decorator: DataDecorator }): void {
     this.store.dispatch(
       new DataDecoratorCreateAction({
@@ -619,6 +780,9 @@ export class WorkspaceComponent {
   delGeneset(value: { database: string; geneset: GeneSet }): void {
     this.store.dispatch(new DataDelGenesetAction(value));
   }
+  updateGeneset(value: { database: string; geneset: GeneSet }): void {
+    this.store.dispatch(new DataUpdateGenesetAction(value));
+  }
   addPreprocessing(value: { database: string; preprocessing: Preprocessing }): void {
     this.store.dispatch(new DataAddPreprocessingAction(value));
   }
@@ -652,26 +816,53 @@ export class WorkspaceComponent {
     this.store.dispatch(new WorkspaceConfigAction(value));
   }
 
-  fileLoadPrivate(value: { bucket: string; token: string }) {
+  fileLoadPrivate(value: { bucket: string; env: string }) {
+    console.log(`fileLoadPrivate, input is ${JSON.stringify(value)}`);
     this.overrideShowPanel = false;
-    value.token = '';
+    //value.token = '';
     this.store.dispatch(new data.DataLoadFromPrivate(value));
     this.store.dispatch(new ModalPanelAction(enums.PanelEnum.NONE));
     this.store.dispatch(new LoaderShowAction());
   }
+
+  // For loading a publicly-shared private-upload set, like site.com?project=myproject
+  fileLoadPublicShared(publicName: string) {
+    console.log('Starting fileLoadPublicShared');
+    let value = {
+      img: "DSbreast",
+      name: "Breast",
+      prefix: "tcga_brca_",
+      src: "tcga",
+      uid: "tcga_brca"      
+    }
+
+    value.src = "public"
+    value.img = publicName
+    value.name = publicName
+    value.prefix = ""
+    value.uid = publicName
+
+    this.fileLoadPublic(value);
+    console.log('Completed fileLoadPublicShared')
+  }
+
   fileLoadPublic(value: any) {
+
     this.ds.resolveGeneSymbols();
     if (value.hasOwnProperty('content')) {
-      const v = {
-        bucket: 'zbd' + value.project.split('|')[0],
-        token: '',
-        name: value.content.name
-      };
-      this.overrideShowPanel = false;
-      this.store.dispatch(new data.DataLoadFromPrivate(v));
-      this.store.dispatch(new ModalPanelAction(enums.PanelEnum.NONE));
-      this.store.dispatch(new LoaderShowAction());
+      // console.log('MJ == Should not be trying zbd ==');
+      alert('These semi-private datasets are not currently supported. Contact Matt Jensen with questions (mnjensen@fredhutch.org).'); // MJ
+      // const v = {
+      //   bucket: 'zbd' + value.project.split('|')[0],
+      //   token: '',
+      //   name: value.content.name
+      // };
+      // this.overrideShowPanel = false;
+      // this.store.dispatch(new data.DataLoadFromPrivate(v));
+      // this.store.dispatch(new ModalPanelAction(enums.PanelEnum.NONE));
+      // this.store.dispatch(new LoaderShowAction());
     } else {
+      console.log('MJ == In fileLoadPublic, no "content" property.');
       this.overrideShowPanel = false;
       this.store.dispatch(new data.DataLoadFromPublic(value));
       this.store.dispatch(new ModalPanelAction(enums.PanelEnum.NONE));

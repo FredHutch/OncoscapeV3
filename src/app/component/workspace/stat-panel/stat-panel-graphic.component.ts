@@ -18,7 +18,10 @@ import {
   ScaleLinear
 } from 'd3';
 import * as chroma from 'chroma-js';
+import { ChartFactory } from './../../workspace/chart/chart.factory';
+
 import { debug } from 'util';
+import { StatPanelComponent } from './stat-panel.component';
 export class StatPanelGraphicOptions {
   public type: 'BAR' | 'PIE' = 'BAR';
   public data: Array<{ name: string; value: number; color?: string }> = [];
@@ -170,6 +173,7 @@ export class StatPanelPieComponent {
   }
 
   public create(value: StatPanelGraphicOptions): void {
+    console.log('pie create');
     this._options = value;
     this._g = this._container
       .append('g')
@@ -404,6 +408,7 @@ export class StatPanelBarComponent {
   }
 }
 export class StatPanelGraphicComponent {
+  public statPanelComponent: StatPanelComponent;
   private _options: StatPanelGraphicOptions = null;
   private _type = 'NONE';
   private _svg: any;
@@ -437,6 +442,20 @@ export class StatPanelGraphicComponent {
     this._options.data = this._options.data.map((v, i) => {
       return Object.assign(v, { len: len, color: s(i).hex() });
     });
+    let self = this;
+    if(false) {  // MJ TODO: fix.....   if(this._type == 'PIE') {
+      this._options.data.map(function(d) {
+        console.log('finding color...')
+        let  cleanLabel = d.name.toLowerCase();
+        let c = ChartFactory.readCustomValueFromLocalStorage(
+          self.statPanelComponent._config.database, 'legendColors', 
+          "Sample "+ self.statPanelComponent.metricSelected.name + '!' + cleanLabel);
+        if (c != null) {
+          console.log(`color found = ${c}.`);
+          d.color = c;
+        }
+      });
+    }
     this._options.data = this._options.data.sort((a, b) => (a.value < b.value ? 1 : -1));
     this.drawPieChart(pieAction);
     this.drawBarChart(barAction);
@@ -450,7 +469,7 @@ export class StatPanelGraphicComponent {
         this.pie.create(this.options);
         break;
       case 'UPDATE':
-        this.pie.update(this.options);
+        this.pie.update(this.options);  
         break;
       case 'REMOVE':
         this.pie.remove(this.options);

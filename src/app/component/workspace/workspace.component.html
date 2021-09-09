@@ -1,15 +1,42 @@
 <app-workspace-chart (onSelect)="select($event)" (configChange)="graphPanelSetConfig($event)"></app-workspace-chart>
 
-<div #panelContainer style="pointer-events: none;">
-  <!-- <app-workspace-tool-bar *ngIf='graphPanelATab | async'></app-workspace-tool-bar> -->
 
+<div #panelContainer ><!--style="pointer-events: none;" -->
+  <!-- <app-workspace-tool-bar *ngIf='graphPanelATab | async'></app-workspace-tool-bar>  -->
+
+  <ul id="custom-menu" class='custom-menu'>
+    <li class="custom-menu-subgroup">This Item
+      <ul  >
+        <li style="color: #444" class="custom-menu-item" data-action="copyids">Copy ID To Clipboard</li>
+        <li class="custom-menu-item" data-action="deselect">Deselect</li>
+        <!--<li class="custom-menu-item" data-action="itemreturntoorigin">Return To Origin</li>-->
+      </ul>
+    </li>
+    <li class="custom-menu-subgroup">Selected Items
+      <ul  >
+        <li style="color: #444" class="custom-menu-item" data-action="copyids">Copy IDs To Clipboard</li>
+        <li style="color: #444" class="custom-menu-item" data-action="invertselection">Invert Selection</li>
+        <!--<li style="color: #444" class="custom-menu-item" data-action="selectionreturntoorigin">Return To Origin</li>-->
+        <li style="color: #444" class="custom-menu-item" data-action="deselectunlinked">Deselect Unlinked Items</li>
+        <!--<li style="color: #444" class="custom-menu-item" data-action="createset">Create Set</li>-->
+      </ul>
+    </li>
+    <!--
+    <li class="custom-menu-subgroup">All Items
+      <ul style="color: #444" >
+        <li style="color: #444" class="custom-menu-item" data-action="allreturntoorigin">Return To Origin</li>
+      </ul>
+    </li>
+  -->
+  </ul>
+  
   <app-workspace-info-panel
     [workspaceConfig]="workspaceConfig | async"
     [graphAConfig]="graphAConfig | async"
-    [graphBConfig]="graphAConfig | async"
+    [graphBConfig]="graphBConfig | async" 
   ></app-workspace-info-panel>
   <app-workspace-graph-panel
-    style="position:absolute;top:30px;left:0px;bottom:0px;"
+    style="pointer-events: none;position:absolute;top:30px;left:0px;bottom:0px;"
     *ngIf="(graphPanelATab | async)"
     [title]="'Graph A'"
     [events]="events | async"
@@ -32,11 +59,12 @@
     (help)="helpPanelToggle($event)"
     (configChange)="graphPanelSetConfig($event)"
     (showPanel)="setPanel($event)"
+    (threeDOption)="setThreeDOptions($event)"
   >
   </app-workspace-graph-panel>
 
   <app-workspace-graph-panel
-    style="position:absolute;top:30px;right:0px;bottom:0px;"
+    style="pointer-events: none;position:absolute;top:30px;right:0px;bottom:0px;"
     *ngIf="(graphPanelBTab | async)"
     [title]="'Graph B'"
     [events]="events | async"
@@ -59,6 +87,7 @@
     (help)="helpPanelToggle($event)"
     (configChange)="graphPanelSetConfig($event)"
     (showPanel)="setPanel($event)"
+    (threeDOption)="setThreeDOptions($event)"
     [edgeDecorators]="edgeDecorators | async"
   >
     <app-workspace-edge-panel
@@ -119,6 +148,7 @@
   (hide)="setPanel(1)"
   (addGeneset)="addGeneset($event)"
   (delGeneset)="delGeneset($event)"
+  (updateGeneset)="updateGeneset($event)"
   [genesets]="genesets | async"
   [config]="graphAConfig | async"
   class="modal-panel"

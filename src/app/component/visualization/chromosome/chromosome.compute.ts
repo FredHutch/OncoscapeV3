@@ -31,10 +31,35 @@ import { Legend } from './../../../model/legend.model';
 // ];
 
 export const chromosomeCompute = (config: ChromosomeConfigModel, worker: DedicatedWorkerGlobalScope): void => {
-  const legends = [Legend.create('Data Points', ['Samples'], [SpriteMaterialEnum.CIRCLE], 'SHAPE', 'DISCRETE')];
-  worker.util.fetchUri('https://oncoscape.v3.sttrcancer.org/data/genomes/grch38.json.gz').then(result => {
-    worker.postMessage({ config: config, data: { legends: legends, result: result } });
-  });
+  try {
+    if(config.reuseLastComputation) {
+      worker.postMessage({config: config, data: {cmd:'reuse'}});
+      return;
+    }
+    
+    worker.util.fetchUri('https://oncoscape.v3.sttrcancer.org/data/genomes/grch38.json.gz').then(result => {
+    let resultStr:string = result.toString();  
+    const legends = [Legend.create(result, 'Data Points', ['Samples'], [SpriteMaterialEnum.CIRCLE], 'SHAPE', 'DISCRETE')];
+    if (resultStr.startsWith('<')) {
+        // We see HTML < because we've redirected to mouse genome or some such page. Should be seeing "{" for JSON.
+        let err = new Error('Could not access the genome file grch38.json.gz.');
+        worker.postMessage({
+          config: config,
+          error: err
+        });
+        worker.postMessage('TERMINATE');      
+      } else {
+        worker.postMessage({ config: config, data: { legends: legends, result: result } });
+      }
+    });
+  } catch (err) {
+    console.log(`TEMPNOTE: CAUGHT chromosome compute error... ${err}.`);
+    worker.postMessage({
+      config: config,
+      error: err
+    });
+    worker.postMessage('TERMINATE');
+  }
 
   // const sendResult = (result, chromo, chords) => {
   //   worker.postMessage({

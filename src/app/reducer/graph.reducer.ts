@@ -1,5 +1,7 @@
 import * as graph from 'app/action/graph.action';
 import * as e from 'app/model/enum.model';
+import { OncoData,LoadedTable } from 'app/oncoData';
+
 // tslint:disable-next-line:max-line-length
 import {
   COMPUTE_BOX_WHISKERS_COMPLETE,
@@ -19,6 +21,8 @@ import {
   COMPUTE_LINKED_GENE_COMPLETE,
   COMPUTE_LOCAL_LINEAR_EMBEDDING_COMPLETE,
   COMPUTE_MDS_COMPLETE,
+  COMPUTE_SAVED_POINTS_COMPLETE,
+  COMPUTE_TABLE_LOADER_COMPLETE,
   COMPUTE_NMF_COMPLETE,
   COMPUTE_NONE_COMPLETE,
   COMPUTE_PARALLEL_COORDS_COMPLETE,
@@ -56,6 +60,8 @@ import { DataDecorator } from './../model/data-map.model';
 import { DataSet } from './../model/data-set.model';
 import { GraphConfig } from './../model/graph-config.model';
 import { SelectionToolConfig } from 'app/model/selection-config.model';
+import { ChartScene } from 'app/component/workspace/chart/chart.scene';
+import { WorkspaceComponent } from 'app/component/workspace/workspace.component';
 
 // Visibility / DataFields / Depth / Visualization / Config
 export interface State {
@@ -68,6 +74,7 @@ export interface State {
   depth: e.DepthEnum;
   visibility: e.VisibilityEnum;
   data: any;
+  threeDOptions: any; // dict of option/value pairs. TBD MJ
 }
 
 const initialState: State = {
@@ -79,10 +86,36 @@ const initialState: State = {
   visibility: e.VisibilityEnum.HIDE,
   config: null,
   decorators: [],
-  data: null
+  data: null,
+  threeDOptions: {}
 };
 
+function theRoughSizeOfObject( dataObject ) {
+
+  if (dataObject == null) {
+    return 0;
+  }
+  if(Array.isArray(dataObject)) {
+    if (dataObject.length ==0) {
+      return 0;
+    } else {
+      if(Array.isArray(dataObject[0])) {
+        return 8 * dataObject[0].length * dataObject.length;
+      }
+    }    
+  }
+
+  return 0
+}
+
 function processAction(action: UnsafeAction, state: State): State {
+  let dataToUse = action.payload.data;
+  let dataSizeEstimate:number= theRoughSizeOfObject(dataToUse);
+  console.log(`processAction [${action.type}], dataSizeEstimate = ${dataSizeEstimate}.`);
+  if (dataSizeEstimate > 1000000) {
+    console.log(`NOte: Large data size in processAction, at ${dataSizeEstimate}.`);
+  }
+
   switch (action.type) {
     case COMPUTE_NONE_COMPLETE:
     case COMPUTE_PATHWAYS_COMPLETE:
@@ -100,6 +133,7 @@ function processAction(action: UnsafeAction, state: State): State {
     case COMPUTE_PLSR_COMPLETE:
     case COMPUTE_SOM_COMPLETE:
     case COMPUTE_MDS_COMPLETE:
+    case COMPUTE_SAVED_POINTS_COMPLETE:
     case COMPUTE_TSNE_COMPLETE:
     case COMPUTE_UMAP_COMPLETE:
     case COMPUTE_SCATTER_COMPLETE:
@@ -136,10 +170,28 @@ function processAction(action: UnsafeAction, state: State): State {
     case COMPUTE_ONE_CLASS_SVM_COMPLETE:
     case COMPUTE_SVR_COMPLETE:
     case COMPUTE_QUADRATIC_DISCRIMINANT_ANALYSIS_COMPLETE:
+      let savedDecorators = OncoData.instance.dataLoadedAction.datasetTableInfo.decorators;
+      if (savedDecorators && savedDecorators.length >0){
+          savedDecorators.map(dec => {
+            let decAndConfig = {
+              config: action.payload.config,
+              decorator: dec
+            }
+            console.log('sending out decorator');
+            setTimeout(function(){ 
+              WorkspaceComponent.instance.graphPanelAddDecorator(
+                decAndConfig
+              );
+            }, 10);
+          })
+      }
       return Object.assign({}, state, {
         data: action.payload.data,
         config: action.payload.config
-      });
+      });    
+    case COMPUTE_TABLE_LOADER_COMPLETE: {
+      console.warn(`Tableloaded, completion event seen in graph reducer.`);
+    }
     // case COMPUTE_DECORATOR_UPDATE:
     //     return Object.assign({}, state, { decorators: (action as compute.DecoratorUpdateAction).payload.decorators });
     case graph.SELECTION_TOOL_CHANGE:
@@ -155,6 +207,9 @@ function processAction(action: UnsafeAction, state: State): State {
     case graph.VISUALIZATION_COMPLETE:
       return Object.assign({}, state, { chartObject: action.payload.data });
     case graph.DATA_DECORATOR_ADD:
+      console.log('==GraphReducer adding decorator. ');
+      console.dir(action.payload.decorator);
+
       const decorator = action.payload.decorator;
       const decorators = state.decorators.filter(v => v.type !== decorator.type);
       decorators.push(decorator);
@@ -165,21 +220,30 @@ function processAction(action: UnsafeAction, state: State): State {
       });
     case graph.DATA_DECORATOR_DEL_ALL:
       return Object.assign({}, state, { decorators: [] });
+    case graph.THREED_RENDER_OPTION:
+      const currentThreeDOptions = state.threeDOptions;
+      currentThreeDOptions[action.payload.option] = action.payload.value;
+      ChartScene.instance.applyThreeDOption(state.config, action.payload.option, action.payload.value);
+      return Object.assign({}, state, { threeDOptions: currentThreeDOptions });
+
     default:
       return state;
   }
 }
+
+
 export function graphReducerA(state = initialState, action: UnsafeAction): State {
+  let stateToReturn:any = state;
   if (action.payload === undefined) {
-    return state;
+    return stateToReturn;
   }
   if (action.payload.config === undefined) {
-    return state;
+    return stateToReturn;
   }
   if (action.payload.config.graph !== e.GraphEnum.GRAPH_A) {
-    return state;
+    return stateToReturn;
   }
-  return processAction(action, state);
+  return processAction(action, stateToReturn);
 }
 
 export function graphReducerB(state = initialState, action: UnsafeAction): State {

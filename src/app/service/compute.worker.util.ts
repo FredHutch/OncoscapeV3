@@ -15,6 +15,58 @@ export class ComputeWorkerUtil {
   dbData: Dexie = null;
   dbLookup: Dexie = null;
 
+  public TryLogging(msg:string, worker: DedicatedWorkerGlobalScope) {
+    const fullMessage:any = {
+      cmd: 'log',
+      msg: msg
+    };
+    // const fullMessage:string = JSON.stringify({
+    //   cmd: 'log',
+    //   msg: msg
+    // });
+    worker.postMessage(fullMessage);
+  }
+
+  // Treat result as "any", not "Error", so we don't strip non-standard members from it.
+  public postCpuError  (result: any, worker: DedicatedWorkerGlobalScope) {
+    const fullMessage:any = {
+      cmd: 'cpuError',
+      details: {
+        errorMessage: result.message,
+        errorStack: result.stack,
+        cpuMethod: result.cpuMethod
+      }
+    };
+    worker.postMessage(fullMessage);
+  }
+
+  // Fake our own error.
+  public postCpuErrorManual (errMessage: string, worker: DedicatedWorkerGlobalScope, cpuMethod: string) {
+    this.postCpuError ({
+      message: errMessage,
+      stack: '--',
+      cpuMethod: cpuMethod},
+      worker);  
+  }
+      
+  // processedErrStringAsArray
+  // Techinically we save some time here and send the worker config *label*
+  // and pretend it is the cpuMethod.
+  public processedErrStringAsArray (result: any, worker: DedicatedWorkerGlobalScope, config: GraphConfig) {
+    if (Array.isArray(result) && result.length ==1 && (typeof result[0] == 'string')) {
+      let errMessage:string = result[0];
+      this.postCpuError ({
+          message: errMessage,
+          stack: '--',
+          cpuMethod: config.label
+        },
+        worker);  
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   private sizes = [1, 2, 3, 4];
   // private shapes = [ShapeEnum.CIRCLE, ShapeEnum.SQUARE, ShapeEnum.TRIANGLE, ShapeEnum.CONE];
   private sprites = [
@@ -105,6 +157,7 @@ export class ComputeWorkerUtil {
     'Accept-Encoding': 'gzip',
     'Access-Control-Allow-Origin': '*'
   };
+
   minifyPreprocessingSteps(steps: any): any {
     return steps.map(v => ({
       method: v.method,
@@ -121,6 +174,7 @@ export class ComputeWorkerUtil {
       }, {})
     }));
   }
+
   colorToHex(n): string {
     n = parseInt(n, 10);
     if (isNaN(n)) {
@@ -162,6 +216,9 @@ export class ComputeWorkerUtil {
   // Returns Data Matrix That Matches Filters + Sorted By Entity Type
   fetchDataMatrix(connection: Dexie, config: GraphConfig): Promise<any> {
     return new Promise((resolve, reject) => {
+      if (config.table == null) {
+        reject('Error, fetchDataMatrix could not find table.');
+      }
       const map = config.table.map.replace(/ /gi, '');
       const tbl = config.table.tbl.replace(/ /gi, '');
       Promise.all([
@@ -206,18 +263,29 @@ export class ComputeWorkerUtil {
       });
     });
   }
+
   getDataMatrix(config: GraphConfig): Promise<any> {
     return new Promise((resolve, reject) => {
       this.openDatabaseData(config.database).then(connection => {
         if (config.table) {
           this.fetchDataMatrix(connection, config).then(v => {
-            resolve(v);
-          });
+            if(v.data && v.data.length > 0){
+              resolve(v);
+            } else {
+              console.log('getDataMatrix failed, empty data. ' + config.table.tbl)
+              reject('REJECTED... getDataMatrix failed, empty data. Table = ' + config.table.tbl);
+              }
+          }).catch(err => {
+            console.log('getDataMatrix failed. err = ' + JSON.stringify(err))
+            reject('REJECTED... getDataMatrix failed. err = ' + JSON.stringify(err));
+          })
         } else {
+          console.log('start getDataMatrix else...');
           connection
             .table('dataset')
             .get(config.database)
             .then(v => {
+              console.log('... end getDataMatrix else.');
               this.fetchDataMatrix(connection, config).then(w => {
                 resolve(w);
               });
@@ -452,15 +520,17 @@ export class ComputeWorkerUtil {
     });
   }
   getCytobands(alignment: string): Promise<any> {
-    return fetch('https://oncoscape.v3.sttrcancer.org/data/reference/hg-' + alignment + '-cytoband.json.gz', {
+    return fetch('https://oncoscape-data-2019.s3-us-west-2.amazonaws.com/data/reference/hg-' + alignment + '-cytoband.json.gz', {
       method: 'GET',
+      mode: 'cors',
       headers: this.headersJson
     }).then(res => res.json());
   }
 
   getGenes(alignment: string): Promise<any> {
-    return fetch('https://oncoscape.v3.sttrcancer.org/data/reference/hg-' + alignment + '-genes.json.gz', {
+    return fetch('https://oncoscape-data-2019.s3-us-west-2.amazonaws.com/data/reference/hg-' + alignment + '-genes.json.gz', {
       method: 'GET',
+      mode: 'cors',
       headers: this.headersJson
     }).then(res => res.json());
   }
@@ -501,9 +571,10 @@ export class ComputeWorkerUtil {
     });
   }
   openDatabaseData(db): Promise<Dexie> {
+    let newDbName = 'notitia-' + db;
     return new Promise((resolve, reject) => {
-      if (this.dbData === null) {
-        this.dbData = new Dexie('notitia-' + db);
+      if (this.dbData === null || newDbName != this.dbData.name) {
+        this.dbData = new Dexie(newDbName);
         this.dbData.open().then(resolve);
       } else {
         if (this.dbData.isOpen()) {
@@ -571,7 +642,7 @@ export class ComputeWorkerUtil {
 
   getTads(): Promise<any> {
     return new Promise((resolve, reject) => {
-      fetch('https://oncoscape.v3.sttrcancer.org/data/reference/tads.json.gz', {
+      fetch('https://oncoscape-data-2019.s3-us-west-2.amazonaws.com/data/reference/tads.json.gz', {
         method: 'GET',
         headers: this.headersJson
       }).then(res => {
@@ -630,6 +701,17 @@ export class ComputeWorkerUtil {
           .then(result => {
             resolve(result);
           });
+      });
+    });
+  }
+
+  getPlainTable(db: string, tbl:string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.openDatabaseData(db).then(v => {
+        const query = this.dbData.table(tbl);
+        query.toArray().then(_tableData => {
+          resolve(_tableData);
+        });
       });
     });
   }
@@ -1059,6 +1141,7 @@ export class ComputeWorkerUtil {
         if (entity === EntityTypeEnum.SAMPLE) {
           if (field.ctype & CollectionTypeEnum.MOLECULAR) {
             // Extract Name of The Map Table For Molecular Table
+            console.log('Before "Extract Name of The Map Table For Molecular Table"');
             this.dbData
               .table('dataset')
               .where('name')
@@ -1286,7 +1369,18 @@ export class ComputeWorkerUtil {
       headers: headers,
       method: 'POST',
       body: JSON.stringify(config)
-    }).then(res => res.json());
+    }).then(res => res.json())
+    .catch(err => {
+      console.error('MJ cpu err is...');
+      console.dir(err);
+      console.dir(JSON.stringify(err));
+      let newErr = new Error(err.message);
+      newErr['cpuMethod'] = config.method;
+      console.error(`ONCOSCAPE COMPUTE ERROR: ${config.method}.`);
+      console.dir(newErr);
+      // console.log('MJ cpu try to return error now.');
+      return newErr;
+    });
   }
   fetchUri(uri: string, cache: boolean = false): Promise<any> {
     const headers = {

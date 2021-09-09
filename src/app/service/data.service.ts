@@ -1,3 +1,9 @@
+import { environment } from "../../environments/environment";
+import {
+  iStudyDetails,
+  UserDataSet,
+  iDataSet
+} from "../dataInterfacesAndEnums";
 import { zip as observableZip, from as observableFrom } from 'rxjs';
 /// <reference types="aws-sdk" />
 import { Injectable } from '@angular/core';
@@ -19,15 +25,28 @@ import { Legend } from '../model/legend.model';
 import { Pathway } from '../model/pathway.model';
 import { ChartFactory } from './../component/workspace/chart/chart.factory';
 import { Cohort } from './../model/cohort.model';
-import { DataField } from './../model/data-field.model';
+import { DataField, DataTable } from './../model/data-field.model';
 import { DataDecorator, DataDecoratorTypeEnum } from './../model/data-map.model';
 import { GeneSet } from './../model/gene-set.model';
 import { Preprocessing, PreprocessingStep } from './../model/preprocessing.model';
+import { SavedPointsWrapper } from './../component/visualization/savedpoints/savedpoints.model';
+import { StatOneD } from "app/model/stat.model";
+import { OncoData } from 'app/oncoData';
 
 @Injectable()
 export class DataService {
   public static db: Dexie;
   public static instance: DataService;
+ 
+  public static cognitoSessionTimeLeft(): number {
+    if (window['storedAuthBits'] ) {
+      let nowSeconds:number = Math.floor((new Date().getTime() / 1000));
+      let secondsLeft:number = window['storedAuthBits'].accessToken.getExpiration()  - nowSeconds;
+      return secondsLeft;
+    } else {
+      return 0; // We haven't authorized yet, so no auth time is left.
+    }
+  }
 
   // tslint:disable-next-line:max-line-length
   public static biotypeMap = {
@@ -86,6 +105,7 @@ export class DataService {
 
   private _privateData = {
     database: '',
+    tbl: '',
     patientMap: {},
     sampleMap: {},
     data: []
@@ -123,14 +143,32 @@ export class DataService {
     return fetch('./assets/tips/' + jsonFile, requestInit).then(res => res.json());
   }
 
+  getMutationData(database, tbl): Promise<Array<any>> {
+    return new Promise(resolve => {
+      // if (this._privateData.database === database && this._privateData.tbl === tbl) {
+      //   resolve(this._privateData);
+      // } else {
+        new Dexie(database).open().then(db => {
+          db.table(tbl)
+          .toArray()
+          .then(results => {
+            resolve(results);
+            return;
+          })
+        });
+      //}
+    });
+  }
+
   getPatientData(database, tbl): Promise<any> {
     return new Promise(resolve => {
-      if (this._privateData.database === database) {
+      if (this._privateData.database === database && this._privateData.tbl === tbl) {
         resolve(this._privateData);
       } else {
         new Dexie(database).open().then(db => {
           Promise.all([db.table(tbl).toArray(), db.table('patientSampleMap').toArray()]).then(results => {
             this._privateData.database = database;
+            this._privateData.tbl = tbl;
             this._privateData.data = results[0];
             this._privateData.sampleMap = results[1].reduce((p, c) => {
               p[c.s] = c.p;
@@ -169,6 +207,30 @@ export class DataService {
     }
     return ChartFactory.getScaleGroupOrdinal(field.values);
   }
+
+  private getSizeScale(items: Array<any>, field: DataField): Function {
+    if (field.type !== 'STRING') {
+      // // Determine IQR
+      console.log('configure getSizeScale for ' + field);
+      const data = items.map(v => v[field.key]);
+      const upperLimit = Math.max.apply(Math, data);
+      const lowerLimit = Math.min.apply(Math, data);
+      // const bins = d3.thresholdFreedmanDiaconis(data, lowerLimit, upperLimit);
+      // const bins = d3.thresholdScott(data, lowerLimit, upperLimit);
+      let bins = 0;
+      if (upperLimit - lowerLimit < 8) {
+        bins = Math.ceil(upperLimit - lowerLimit) + 1;
+      } else {
+        bins = d3.thresholdSturges(data);
+        if (bins > 8) {
+          bins = 8;
+        }
+      }
+      return ChartFactory.getScaleGroupLinear(lowerLimit, upperLimit, bins);
+    }
+    return ChartFactory.getScaleGroupOrdinal(field.values);
+  }
+
   private getShapeScale(items: Array<any>, field: DataField): Function {
     if (field.type !== 'STRING') {
       // // Determine IQR
@@ -196,8 +258,6 @@ export class DataService {
     return ChartFactory.getScaleShapeOrdinal(field.values);
   }
   private getColorScale(items: Array<any>, field: DataField): Function {
-    // let scale;
-
     if (field.type !== 'STRING') {
       // // Determine IQR
       const data = items.map(v => v[field.key]);
@@ -301,6 +361,7 @@ export class DataService {
                 if (decorator.type === DataDecoratorTypeEnum.COLOR) {
                   decorator.legend.values = decorator.legend.values.map(v => '#' + v.toString(16));
                 }
+
                 // db.close();
                 resolve(decorator);
               });
@@ -345,6 +406,7 @@ export class DataService {
                     decorator.legend.labels.concat(['NA']);
                   }
                   decorator.legend.values = scale['range']().concat(['#DDDDDD']);
+             
                   break;
 
                 case DataDecoratorTypeEnum.SHAPE:
@@ -416,7 +478,8 @@ export class DataService {
 
     return observableFrom(
       new Promise(resolve => {
-        this.getPatientData('notitia-' + config.database, decorator.field.tbl).then(result => {
+        this.getPatientData('notitia-' + config.database, decorator.field.tbl)
+        .then(result => {
           const items = result.data;
           const psMap = result.patientMap;
           let scale: Function;
@@ -444,7 +507,7 @@ export class DataService {
                     value: sid
                   };
                 });
-              } else {
+              } else { 
                 if (decorator.field.tbl === 'sample') {
                   const data = items.reduce((p, c) => {
                     p[c.s] = c;
@@ -501,26 +564,52 @@ export class DataService {
               resolve(decorator);
               break;
 
-            case DataDecoratorTypeEnum.GROUP:
-              scale = this.getGroupScale(items, decorator.field);
-              decorator.values = items.map(v => ({
-                pid: v.p,
-                sid: psMap[v.p],
-                mid: null,
-                key: EntityTypeEnum.PATIENT,
-                label: formatLabel(decorator.field, v[decorator.field.key]),
-                value: scale(formatValue(decorator.field, v[decorator.field.key]))
-              }));
-              resolve(decorator);
-              break;
+              case DataDecoratorTypeEnum.GROUP:
+                scale = this.getGroupScale(items, decorator.field);
+                decorator.values = items.map(v => ({
+                  pid: v.p,
+                  sid: psMap[v.p],
+                  mid: null,
+                  key: EntityTypeEnum.PATIENT,
+                  label: formatLabel(decorator.field, v[decorator.field.key]),
+                  value: scale(formatValue(decorator.field, v[decorator.field.key]))
+                }));
+                resolve(decorator);
+                break;
 
+              case DataDecoratorTypeEnum.SIZE:
+                scale = this.getSizeScale(items, decorator.field);
+                console.log('SIZE scale done.');
+                decorator.values = items.map(function(v) {
+                  let newV = {
+                    pid: v.p,
+                    sid: psMap[v.p],
+                    mid: null,
+                    key: EntityTypeEnum.PATIENT,
+                    label: formatLabel(decorator.field, v[decorator.field.key]),
+                    value: scale(formatValue(decorator.field, v[decorator.field.key]))
+                  };
+                  return newV;
+                });
+
+                resolve(decorator);
+                break;
+      
             case DataDecoratorTypeEnum.COLOR:
+              let data = {};
               scale = this.getColorScale(items, decorator.field);
               if (decorator.field.tbl === 'sample') {
-                const data = items.reduce((p, c) => {
-                  p[c.s] = c;
-                  return p;
+                console.log(`MJ In setting color, decorator.field = ${JSON.stringify(decorator.field)}.`);
+
+                data = items.reduce((accum, currentSample) => {
+                  accum[currentSample.s] = currentSample;
+                  return accum;
                 }, {});
+                console.log(`data should be completed.`);
+                console.log(`data length = ${ data ? Object.keys(data).length : 'ERROR'}.`);
+                let d = items.reduce((a,c)=>{ a[c.s]=c ; return a ;},{})
+                console.log(`d length = ${ d ? Object.keys(d).length : 'ERROR'}.`);
+
                 decorator.values = Object.keys(result.sampleMap).map(sid => {
                   if (!data.hasOwnProperty(sid)) {
                     return {
@@ -542,7 +631,7 @@ export class DataService {
                   };
                 });
               } else {
-                const data = items.reduce((p, c) => {
+                data = items.reduce((p, c) => {
                   p[c.p] = c;
                   return p;
                 }, {});
@@ -568,6 +657,8 @@ export class DataService {
                 });
               }
               decorator.legend = new Legend();
+              decorator.legend.decorator = decorator;
+              decorator.legend.result = null; // MJ TODO result;
               decorator.legend.type = 'COLOR';
               decorator.legend.display = 'DISCRETE';
               decorator.legend.name =
@@ -576,6 +667,8 @@ export class DataService {
                   : config.entity === EntityTypeEnum.GENE
                   ? 'Gene ' + decorator.field.label
                   : 'Patient ' + decorator.field.label;
+
+              console.log('data is good here?');
               if (decorator.field.type === 'STRING') {
                 decorator.legend.labels = scale['domain']().filter(v => v);
                 if (!decorator.legend.labels.find(v => v === 'NA')) {
@@ -597,7 +690,36 @@ export class DataService {
                   }
                 });
                 decorator.legend.values = scale['range']().concat([0xdddddd]);
+
               }
+
+              // Total up the counts for each label.
+              let valueCounts = {};
+              let valuePids = {}; // Each label will have an array of patient IDs
+              decorator.values.forEach(v => {
+                if(valueCounts[v.label] == null) {
+                  valueCounts[v.label] = 0;
+                  valuePids[v.label] = []; 
+                }
+                valueCounts[v.label]++;
+                valuePids[v.label].push(v.pid);
+              });
+              let valueCountsArray: Array<number> = [];
+              decorator.legend.values.forEach( value => {
+                valueCountsArray.push(valueCounts[value]);
+              });
+              decorator.legend.counts = valueCountsArray;
+
+              //   pidsByLabel: Array<[string, Array<string>]>;
+              decorator.pidsByLabel = [];//valuePids;
+              decorator.legend.items.map(item => {
+                let row = {label: item.value, pids: valuePids[item.value]};
+                decorator.pidsByLabel.push(row);
+              });
+              // Object.keys(valuePids).map(key => {
+              //   let row = {label: key, pids: valuePids[key]};
+              //   decorator.pidsByLabel.push(row);
+              // });
               resolve(decorator);
               break;
 
@@ -687,6 +809,7 @@ export class DataService {
       })
     );
   }
+
   createDataDecorator(config: GraphConfig, decorator: DataDecorator): Observable<any> {
     if (decorator.type === DataDecoratorTypeEnum.SELECT) {
        return observableFrom(
@@ -710,26 +833,21 @@ export class DataService {
   getChromosomeBandCoords(): Observable<any> {
     return observableFrom(DataService.db.table('bandcoords').toArray());
   }
-  getGeneSetByCategory(categoryCode: string): Observable<any> {
-    return observableFrom(
-      fetch('https://oncoscape.v3.sttrcancer.org/data/genesets/' + categoryCode + '.json.gz', {
-        method: 'GET',
-        headers: DataService.headersJson
-      }).then(res => res.json())
-    );
-  }
-  
-  getGeneSetCategories(): Observable<any> {
-    return observableFrom(
-      fetch('https://oncoscape.v3.sttrcancer.org/data/genesets/categories.json.gz', {
-        method: 'GET',
-        headers: DataService.headersJson
-      }).then(res => res.json())
-    );
-  }
 
-  getDatasetInfo(): Promise<any> {
-    return DataService.db.table('dataset').toArray();
+  getDatasetTables(database:string): Promise<Array<DataTable>> {
+    return new Promise(resolve => {
+      console.log('start getDatasetTables...');
+      const db = new Dexie('notitia-' + database);
+      db.open().then(v => {
+        v.table('dataset')
+          .toArray()
+          .then(result => {
+            console.log('... end getDatasetTables.');
+            // db.close();
+            resolve(result[0].tables);
+          });
+      });
+    });
   }
 
   getTipFileFromVisualization(v: VisualizationEnum): string {
@@ -767,6 +885,7 @@ export class DataService {
       case VisualizationEnum.KMEDOIDS:
       case VisualizationEnum.SOM:
       case VisualizationEnum.MDS:
+      case VisualizationEnum.SAVED_POINTS:
       case VisualizationEnum.DA:
       case VisualizationEnum.DE:
       case VisualizationEnum.FA:
@@ -841,6 +960,8 @@ export class DataService {
       ? 'locally_linear_embedding.json'
       : v === VisualizationEnum.MDS
       ? 'mds.json'
+      : v === VisualizationEnum.SAVED_POINTS
+      ? 'saved_points.json'
       : v === VisualizationEnum.MINI_BATCH_DICTIONARY_LEARNING
       ? 'mini_batch_dictionary_learning.json'
       : v === VisualizationEnum.MINI_BATCH_SPARSE_PCA
@@ -882,6 +1003,7 @@ export class DataService {
       ? 'cca.json'
       : '';
   }
+  
   getHelpInfo(config: GraphConfig): Promise<any> {
     const v = config.visualization;
     const method = this.getJsonFileFromVisualization(v);
@@ -925,44 +1047,67 @@ export class DataService {
     });
   }
 
-  getQueryBuilderConfig(database: string): Promise<any> {
-    return new Promise(resolve => {
-      const db = new Dexie('notitia-' + database);
-      db.open().then(v => {
-        console.log('need to ensure it has the table');
-        v.table('patientMeta')
-          .toArray()
-          .then(result => {
-            const config = result.reduce((fields, field) => {
-              switch (field.type) {
-                case 'NUMBER':
-                  fields[field.key] = {
-                    name: field.label,
-                    type: field.type.toLowerCase()
-                  };
-                  return fields;
-                case 'STRING':
-                  // if (field.values.length <= 10) {
-                  fields[field.key] = {
-                    name: field.label,
-                    type: 'category',
-                    options: field.values.map(val => ({
-                      name: val,
-                      value: val
-                    }))
-                  };
-                  // } else {
-                  //   fields[field.key] = { name: field.label, type: 'string' };
-                  // }
-                  return fields;
-              }
-            }, {});
-            // db.close();
-            resolve({ fields: config });
-          });
-      });
-    });
+  composeQueryConfig = function(patientMetaFields:Array<any>, eventsMetaFields:Array<any>){
+    const config = patientMetaFields.reduce((fields, field) => {
+      switch (field.type) {
+        case 'NUMBER':
+          fields[field.key] = {
+            name: field.label,
+            type: field.type.toLowerCase()
+          };
+          return fields;
+        case 'STRING':
+          // if (field.values.length <= 10) {
+          fields[field.key] = {
+            name: field.label,
+            type: 'category',
+            options: field.values.map(val => ({
+              name: val,
+              value: val
+            }))
+          };
+          // } else {
+          //   fields[field.key] = { name: field.label, type: 'string' };
+          // }
+          return fields;
+      }
+    }, {});
+    // eventsMetaFields is of form:   type: "Treatment", subtype: "DrugABC".
+    // Want to transform them into an outline, so we can choose a specific
+    // subtype, or a type, (or maybe any event at all).
+
+    if(eventsMetaFields && eventsMetaFields.length > 0) {
+      console.log(`Events Meta Fields: ${JSON.stringify(eventsMetaFields)}`);
+      let emfSet = new Set();
+      eventsMetaFields.map(e => emfSet.add(e.type));
+      // Set(4) {"gvhd", "response", "treatment", "isp"}
+      
+      let topLevelTypes:any = {};
+      Array.from(emfSet).map( (e:string) => {topLevelTypes[e] = []});
+      eventsMetaFields.map((emf) => topLevelTypes[emf.type].push(emf.subtype));
+
+      // Okay, add to existing config. ... TBD
+    }
+
+    return config;
+
   }
+
+  async getQueryBuilderConfig(database: string): Promise<any> {
+      const db = new Dexie('notitia-' + database);
+
+      let v = await db.open();
+      
+      let patientMetaFields = await v.table('patientMeta').toArray();
+      let eventsMetaFields = await v.table('eventsMeta').toArray();
+      let finalFields = this.composeQueryConfig(patientMetaFields, eventsMetaFields);
+
+      // db.close();
+      return new Promise(resolve => {
+        resolve({ fields: finalFields });
+      });
+  }
+
   getPatientIdsWithSampleIds(database: string, sampleIds: Array<string>): Promise<Array<string>> {
     return new Promise(resolve => {
       const db = new Dexie('notitia-' + database);
@@ -992,6 +1137,39 @@ export class DataService {
           .then(result => {
             // db.close();
             resolve(Array.from(new Set(result.map(v => v.s))));
+          });
+      });
+    });
+  }
+
+  getSavedPointsList(database: string): Promise<any> {
+    return new Promise(resolve => {
+      const db = new Dexie('notitia-' + database);
+      db.open().then(connection => {
+        connection
+          .table('savedPoints')
+          .toArray()
+          .then(result => {
+            resolve(result);
+            // db.close();
+            
+          });
+      });
+    });
+  }
+
+  putSavedPointsWrapper(database:string, wrapper:SavedPointsWrapper):Promise<any> {
+    return new Promise(resolve => {
+      const db = new Dexie('notitia-' + database);
+      db.open().then(connection => {
+        connection
+          .table('savedPoints')
+          .put(wrapper)
+          .then(result => {
+            console.log(`Wrapper [${wrapper.name}] put into savedPoints table.`);
+            resolve(result);
+            // db.close();
+            
           });
       });
     });
@@ -1050,6 +1228,7 @@ export class DataService {
       resolve(text);
     });
   }
+  
   getPatientStatsText(database: string, pids: Array<string>, sids: Array<string>): Promise<any> {
     if (pids === undefined || pids === null) {
       pids = [];
@@ -1093,6 +1272,7 @@ export class DataService {
       });
     });
   }
+
   getPatientStats(database: string, pids: Array<string>): Promise<any> {
     if (pids === undefined || pids === null) {
       pids = [];
@@ -1135,7 +1315,16 @@ export class DataService {
                   label: v,
                   value: stat[v]
                 }));
-                return Object.assign(f, { stat: stats });
+                let orderedStats = f.options.map((opt) => {
+                  let statEntry = stats.find(v => v.label == opt.name);
+                  return {label:opt.name, value: (statEntry ? statEntry.value : 0)}
+                });
+
+
+                // stats.sort(function(a, b) {
+                //   return a.label < b.label ? -1 : (a.label > b.label ? 1 : 0);
+                // })
+                return Object.assign(f, { stat: orderedStats });
               });
 
             const num = fields
@@ -1168,6 +1357,100 @@ export class DataService {
     });
   }
 
+  // If we have already loaded mutationRecords, calculate stats on them.
+  // For example, how many patients (in the given cohort) have each type
+  // of variant (intron, gain, loss, etc).
+  getPatientMutationStats(database: string, pids: Array<string>): Promise<any> {
+    if (pids === undefined || pids === null) {
+      pids = []; // Treat empty pids as equal to "all patients"
+    }
+
+    if ( OncoData.instance && OncoData.instance.mutationRecords) {
+      return new Promise(resolve => {
+        let useAllPids:boolean = pids.length == 0;
+        let mapOfCountsPerPatient:Map<string, any>  = new Map();
+        let numAllPatients = OncoData.instance.currentCommonSidePanel.commonSidePanelModel.patientData.length;
+        if (OncoData.instance.variantCountsPerPatient == null) {
+          let sampleMap:any = OncoData.instance.currentCommonSidePanel.commonSidePanelModel.sampleMap;
+          
+          // Inefficient. Why can't we we use Object.entries? Is it a
+          // JS targeting issue?
+          let sampleMapKeys = Object.keys(sampleMap);
+          let sampleMapAsMap = new Map();
+          sampleMapKeys.map(v => {
+            sampleMapAsMap.set(v, sampleMap[v]);
+          });
+
+          OncoData.instance.mutationRecords.map(v => {
+            let pid:string = sampleMapAsMap.get(v.s) as string;
+            let thisPatientCounts = mapOfCountsPerPatient.get(pid);
+            if(thisPatientCounts == null) {
+              thisPatientCounts = {};
+              mapOfCountsPerPatient.set(pid, thisPatientCounts);
+            }
+            if(thisPatientCounts[v.t] == null) {
+              thisPatientCounts[v.t] = 0;
+            }
+            thisPatientCounts[v.t]++;
+          
+          });
+          OncoData.instance.variantCountsPerPatient = mapOfCountsPerPatient;
+        } else {
+          mapOfCountsPerPatient = OncoData.instance.variantCountsPerPatient;
+        }
+
+        // Given mapOfCountsPerPatient, loop through pids and total by type.
+        let pidsInCohort = new Set(); // empty if 'all patients'
+        pids.map(v => pidsInCohort.add(v));
+
+        let allTypeCounts = {};
+        mapOfCountsPerPatient.forEach((thisPidCounts, pid) => {
+          if(useAllPids || pidsInCohort.has(pid)){ 
+            Object.keys(thisPidCounts).map((typeKey) => {
+              let typeItem = allTypeCounts[typeKey];
+              if (typeItem == null) {
+                allTypeCounts[typeKey] = 1;
+              } else {
+                allTypeCounts[typeKey]++;
+              }
+            });
+          }
+        });
+
+        let numPatients:number = pids.length >0 ? pids.length : numAllPatients;
+        let allTypesPercentKeys = Object.keys(allTypeCounts).map(v => {
+          let percentage = allTypeCounts[v] / numPatients;
+          return {label: v, value: percentage}
+        });
+        allTypesPercentKeys.sort(function(a, b) {
+          return a.label < b.label ? -1 : (a.label > b.label ? 1 : 0);
+        })
+
+        let mutResult = {
+          name: '% patients with variants',
+          field: 'patients_with_variants',
+          type: 'category',
+          "options": [{
+                  "name": "intron",
+                  "value": "intron"
+              }, {
+                  "name": "gain",
+                  "value": "gain"
+              }, {
+                  "name": "loss",
+                  "value": "loss"
+              }
+          ],
+          stat: allTypesPercentKeys
+        };
+        resolve([mutResult]);
+      });
+    } else {
+      // no mutation records
+      return new Promise(resolve => {resolve ([])});
+    }
+  }
+
   getPatientIdsWithQueryBuilderCriteria(
     database: string,
     config: QueryBuilderConfig,
@@ -1182,7 +1465,6 @@ export class DataService {
         Promise.all(
           criteria.rules
             .map(rule => {
-              console.log(config.fields[rule.field].type);
               switch (config.fields[rule.field].type) {
                 case 'number':
                   switch (rule.operator) {
@@ -1345,8 +1627,9 @@ export class DataService {
       ]);
     });
   }
+
   getPathways(): Promise<Array<any>> {
-    return fetch('https://oncoscape.v3.sttrcancer.org/data/reference/pathways.json.gz', {
+    return fetch('https://oncoscape-data-2019.s3-us-west-2.amazonaws.com/data/reference/pathways.json.gz', {
       method: 'GET',
       headers: DataService.headersJson
     }).then(res => res.json());
@@ -1390,6 +1673,7 @@ export class DataService {
         });
     });
   }
+
   getCustomPreprocessing(database: string): Promise<any> {
     return new Promise(resolve => {
       const db = new Dexie('notitia-' + database);
@@ -1402,6 +1686,20 @@ export class DataService {
       });
     });
   }
+  
+  getCustomVisSettings(database: string): Promise<any> {
+    return new Promise(resolve => {
+      const db = new Dexie('notitia-' + database);
+      db.open().then(v => {
+        v.table('visSettings')
+          .toArray()
+          .then(result => {
+            resolve(result);
+          });
+      });
+    });
+  }
+  
   getCustomPathways(database: string): Promise<any> {
     return new Promise(resolve => {
       const db = new Dexie('notitia-' + database);
@@ -1424,32 +1722,146 @@ export class DataService {
     return new Promise(resolve => {
       const db = new Dexie('notitia-' + database);
       db.open().then(v => {
+        let copyOfV:any = v; // hack to avoid TS not knowing about _allTables.
+        // Sometimes the 'mut' table isn't created yet, because we don't have a mut file for this project.
+        // Don't die, just return '0' for the row count.
+        if(copyOfV._allTables.hasOwnProperty(table)) {
         v.table(table)
           .count()
           .then(result => {
             resolve(result);
           });
+        } else {
+          console.warn('WARNING: getRowCount did not find table ' + table + '.');
+          resolve(0);
+        }
       });
     });
   }
+
+  setMiscMeta(database: string, miscType: string, val: any): Promise<any> {
+    let table:string = 'miscMeta';
+    console.log('qwerty');
+    return new Promise(resolve => {
+      const db = new Dexie('notitia-' + database);
+      db.open().then(v => {
+        let copyOfV:any = v; // hack to avoid TS not knowing about _allTables.
+        if(copyOfV._allTables.hasOwnProperty(table)) {
+          try {
+            v.table(table)
+            .add({
+              type: miscType,
+              data: val
+            })
+            .then(result => {
+              console.log(`MJ setMiscMeta [${miscType}], value set. `);
+              resolve(result);
+            }).catch(function(e) {
+              console.error(e.message); // "oh, no!"
+              console.error(`Caught in promise-catch setMiscMeta for ${miscType}. Size is next`);
+              console.log(`size ${JSON.stringify(val).length} `);
+              });
+          } catch(err) {
+            console.error(`Caught in setMiscMeta for ${miscType}. Size is next`);
+            console.log(`size ${JSON.stringify(val).length} `);
+          }
+        } else {
+          console.warn('WARNING: setMiscMeta did not find value for ' + miscType + '.');
+          resolve(0);
+        }
+      });
+    });
+  }
+
+  // look up a value from miscMeta database, where misctype is the 'type' key. 
+  // e.g., "mutationTypes",  for list of variant names imported.
+  getMiscMeta(database: string, miscType: string): Promise<any> {
+    let table:string = 'miscMeta';
+    return new Promise(resolve => {
+      const db = new Dexie('notitia-' + database);
+      db.open().then(v => {
+        let copyOfV:any = v; // hack to avoid TS not knowing about _allTables.
+        if(copyOfV._allTables.hasOwnProperty(table)) {
+        v.table(table)
+          .get(miscType)
+          .then(result => {
+            resolve(result);
+          });
+        } else {
+          console.warn('WARNING: getMiscMeta did not find value for ' + miscType + '.');
+          resolve(0);
+        }
+      });
+    });
+  }
+
+  async getTable(database: string, tbl: string): Promise<any> {
+    return new Promise(resolve => {
+      const db = new Dexie('notitia-' + database);
+      db.open().then(v => {
+        let copyOfV:any = v; // hack to avoid TS not knowing about _allTables.
+        if(copyOfV._allTables.hasOwnProperty(tbl)) {
+          resolve( v.table(tbl));
+        } else {
+          console.warn('WARNING: getTable did not find table ' + tbl + '.');
+          resolve(0);
+        }
+      });
+    });
+  }
+
   getPublicDatasets(): Promise<Array<any>> {
     return fetch('https://oncoscape.v3.sttrcancer.org/public/datasets', {
       method: 'GET',
       headers: DataService.headersJson
     }).then(res => res.json());
   }
+  
+  // TODO: Harmonize the next four functions, which are two variants of two functions.
+  // ==== START ======
+  getGeneSetByCategory(categoryCode: string): Observable<any> {
+    return observableFrom(
+      fetch('https://oncoscape-data-2019.s3-us-west-2.amazonaws.com/data/genesets/' + categoryCode + '.json.gz', {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-cache',
+        headers: DataService.headersJson
+      }).then(res => res.json())
+    );
+  }
+  
+  getGeneSetCategories(): Observable<any> {
+    return observableFrom(
+      fetch('https://oncoscape-data-2019.s3-us-west-2.amazonaws.com/data/genesets/categories.json.gz', {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-cache',
+        headers: DataService.headersJson
+      }).then(res => res.json())
+    );
+  }
+
   getGenesetCategories(): Promise<Array<{ code: string; name: string; desc: string }>> {
-    return fetch('https://oncoscape.v3.sttrcancer.org/data/genesets/categories.json.gz', {
+    return fetch('https://oncoscape-data-2019.s3-us-west-2.amazonaws.com/data/genesets/categories.json.gz', {
       method: 'GET',
+      mode: 'cors',
       headers: DataService.headersJson
-    }).then(res => res.json());
+    }).then(res => 
+      {
+        return res.json();
+      });
   }
+
   getGenesets(category: string): Promise<Array<any>> {
-    return fetch('https://oncoscape.v3.sttrcancer.org/data/reference/geneset-' + category.toLowerCase() + '.json.gz', {
+    return fetch('https://oncoscape-data-2019.s3-us-west-2.amazonaws.com/data/reference/geneset-' + category.toLowerCase() + '.json.gz', {
       method: 'GET',
+      mode: 'cors',
       headers: DataService.headersJson
     }).then(res => res.json());
   }
+  // ==== END ======
+
+
   getCustomGenesets(database: string): Promise<any> {
     return new Promise(resolve => {
       const db = new Dexie('notitia-' + database);
@@ -1459,6 +1871,7 @@ export class DataService {
           .then(result => {
             const genesets = result;
             if (database === 'tcga_brain') {
+              
               genesets.unshift({
                 n: 'Glioma Markers',
                 g: [
@@ -2005,6 +2418,7 @@ export class DataService {
                   'ZMYM2'
                 ]
               });
+              
             } else {
               genesets.unshift({
                 n: 'Pathways in Cancer',
@@ -2404,6 +2818,27 @@ export class DataService {
       });
     });
   }
+  updateCustomGeneset(database: string, geneset: GeneSet): Promise<any> {
+    let p = null;
+    try {
+      p = new Promise(resolve => {
+        const db = new Dexie('notitia-' + database);
+        db.open().then(v => {
+          v.table('genesets')
+            .where('n')
+            .equalsIgnoreCase(geneset.n)
+            .modify({g: geneset.g})
+            .then(w => {
+              resolve(w);
+            });
+        });
+      });
+    } catch (err) {
+      console.error("Generic error: " + err);
+    }
+
+    return p;
+  }
   createCustomGenesetFromSelect(database: string, geneset: GeneSet): Promise<any> {
     return new Promise(resolve => {
       const db = new Dexie('notitia-' + database);
@@ -2463,6 +2898,16 @@ export class DataService {
     return new Promise((resolve, reject) => {
       const db = new Dexie('notitia-' + database);
       db.open().then(conn => {
+        if(cohort["fromSelection"]) { // save it with no conditions. It was created by manual selection. MJ
+          conn
+          .table('cohorts')
+          .add(cohort)
+          .then(v => {
+            resolve(v);
+          });
+          return true;
+        }
+
         const queries = cohort.conditions
           .map(condition => {
             if (condition.field.type === 'number') {
@@ -2548,7 +2993,7 @@ export class DataService {
                   });
               });
           } catch (e) {
-            alert('Your query did not match any samples');
+            alert('Your query did not match any samples.');
             // reject('Your query did not match any samples');
           }
         });
@@ -2571,6 +3016,7 @@ export class DataService {
   }
 
   resolveGeneSymbols(): void {
+    console.log('WARNING TEMPNOTE: resolveGeneSymbols is currently empty.');
     // debugger;
     // API.get('dataset', '/alias/idh1', {}).then(v => {
     //   debugger;
@@ -2594,25 +3040,76 @@ export class DataService {
     //   debugger;
     // });
   }
-  getUserDatasets(token: string): Promise<any> {
+
+  // dataInterfacesAndEnums
+  getUserDatasets(user:string, token: string): Promise<any> {
+    let uri = `https://jwjvsfcl6c.execute-api.us-west-2.amazonaws.com/${environment.envName.toLocaleUpperCase()}/onco-private-dev-getsets` +
+      `?user=${encodeURIComponent(user)}&environment=${environment.envName}&fromOnco=yes&zager=${token}`;
+    console.log(`In getUserDatasets, URI = '${uri}'.`);
+    let parsed = null;
     return new Promise((resolve, reject) => {
-      fetch('https://oncoscape.v3.sttrcancer.org/dataset', {
+      fetch(uri, {
         method: 'GET',
-        headers: {
-          zager: token
-        }
+        mode: 'cors',
+        headers: { zager: token }
       })
         .then(res => res.text())
         .then(value => {
-          console.log(value);
-          const base64Url = value.split('.')[1];
-          const base64 = base64Url.replace('-', '+').replace('_', '/');
-          const ds = JSON.parse(window.atob(base64));
-          const rv = { token: value, datasets: ds };
+          parsed = JSON.parse(value);
+          let newDatasets = [];
+          parsed.sets.Items
+          .filter(item => item.lastError == "none" && item.statusCode == "converted")
+          .map(item => {
+            let dataSet:iDataSet = {
+              project: item.itemId + '|' + item.user,
+              studyDetails: item.studyDetails,
+              datasetAnnotations: item.datasetAnnotations,
+              content: {
+                "description": "NA",
+                "isHuman": true,
+                "isPhi": false,
+                "isPublic": false,
+                "name": item.datasetName,
+                "reviewNumber": "NA",
+                "reviewType": "Exempt",
+                "site": ""   //e.g. "DSBrain"
+              },
+              friendlyName: item.datasetName
+            };
+            newDatasets.push(dataSet);
+          })
+
+          console.log(`===== Results for parsing newDatasets ....`);
+          console.dir(newDatasets);
+          console.log(`end newDatasets results ================`);
+          // const base64Url = value.split('.')[1];
+          // const base64 = base64Url.replace('-', '+').replace('_', '/');
+          // const ds = JSON.parse(window.atob(base64));
+          const rv = { env: environment.envName, datasets: newDatasets };
           resolve(rv);
         });
     });
   }
+
+  // getUserDatasets(token: string): Promise<any> {
+  //   return new Promise((resolve, reject) => {
+  //     fetch('https://oncoscape.v3.sttrcancer.org/dataset', {
+  //       method: 'GET',
+  //       headers: {
+  //         zager: token
+  //       }
+  //     })
+  //       .then(res => res.text())
+  //       .then(value => {
+  //         console.log(value);
+  //         const base64Url = value.split('.')[1];
+  //         const base64 = base64Url.replace('-', '+').replace('_', '/');
+  //         const ds = JSON.parse(window.atob(base64));
+  //         const rv = { token: value, datasets: ds };
+  //         resolve(rv);
+  //       });
+  //   });
+  // }
 
   constructor() {
     DataService.instance = this;
@@ -2646,19 +3143,19 @@ export class DataService {
             if (count > 0) {
               return;
             }
-            const genecoords = fetch('https://oncoscape.v3.sttrcancer.org/data/reference/genecoords.json.gz', {
+            const genecoords = fetch('https://oncoscape-data-2019.s3-us-west-2.amazonaws.com/data/reference/genecoords.json.gz', {
               method: 'GET',
               headers: DataService.headersJson
             }).then(res => res.json());
-            const bandcoords = fetch('https://oncoscape.v3.sttrcancer.org/data/reference/bandcoords.json.gz', {
+            const bandcoords = fetch('https://oncoscape-data-2019.s3-us-west-2.amazonaws.com/data/reference/bandcoords.json.gz', {
               method: 'GET',
               headers: DataService.headersJson
             }).then(res => res.json());
-            const genemap = fetch('https://oncoscape.v3.sttrcancer.org/data/reference/genemap.json.gz', {
+            const genemap = fetch('https://oncoscape-data-2019.s3-us-west-2.amazonaws.com/data/reference/genemap.json.gz', {
               method: 'GET',
               headers: DataService.headersJson
             }).then(res => res.json());
-            const genelinks = fetch('https://oncoscape.v3.sttrcancer.org/data/reference/genelinks.json.gz', {
+            const genelinks = fetch('https://oncoscape-data-2019.s3-us-west-2.amazonaws.com/data/reference/genelinks.json.gz', {
               method: 'GET',
               headers: DataService.headersJson
             }).then(res => res.json());

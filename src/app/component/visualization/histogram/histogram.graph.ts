@@ -22,8 +22,8 @@ export class HistogramGraph extends AbstractVisualization {
   }
 
   // Create - Initialize Mesh Arrays
-  create(labels: HTMLElement, events: ChartEvents, view: VisualizationView): ChartObjectInterface {
-    super.create(labels, events, view);
+  create(entity: EntityTypeEnum, labels: HTMLElement, events: ChartEvents, view: VisualizationView): ChartObjectInterface {
+    super.create(entity, labels, events, view);
     this.meshes = [];
     return this;
   }

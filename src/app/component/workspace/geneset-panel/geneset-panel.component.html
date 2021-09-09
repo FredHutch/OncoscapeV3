@@ -7,19 +7,33 @@
   </div>
   <!-- My Genesets -->
   <div fxLayout.xs='column'>
-    <div fxFlex.sm='1 1 30%' fxFlex.md='1 1 20%' fxFlex.lg='1 1 25%' fxFlex.xl='1 1 20%'>
+    <div fxFlex.sm='1 1 35%' fxFlex.md='1 1 28%' fxFlex.lg='1 1 28%' fxFlex.xl='1 1 28%'>
       <h2 class='panel-column-title'>My Gene Sets</h2>
-      <div *ngFor='let option of genesets' (click)='geneSetDel(option)' class='panel-config-row-del'>
-        <i class='material-icons md-18'>remove_circle_outline</i>
-        <div>{{option.n}}</div>
+      <div *ngFor='let option of genesets' class='panel-config-row-del-dataset-list'>
+        <i class="private-dataset-delete-icon material-icons md-18"   attr.data-tippy-content="Delete?" (click)="geneSetDel(option)">delete_forever</i><i (click)='geneSetEdit(option)' class='material-icons md-18'>info_outline</i>
+        <div (click)='geneSetEdit(option)' >{{option.n}}</div>
       </div>
     </div>
     <!-- Select Genesets -->
-    <div fxFlex.sm='1 1 70%' fxFlex.md='1 1 80%' fxFlex.lg='1 1 75%' fxFlex.xl='1 1 80%'>
-      <h2 class='panel-column-title'>Select / Build a Gene Set</h2>
+    <div fxFlex.sm='1 1 65%' fxFlex.md='1 1 72%' fxFlex.lg='1 1 72%' fxFlex.xl='1 1 72%'>
+      <h2 class='panel-column-title'>Create a Custom Gene Set</h2>
+
+      <mat-form-field  style="width: 300px;">
+        <mat-label>Name of your new gene set</mat-label>
+        <input class='geneset-creation-name' matInput  >
+      </mat-form-field>
+      <mat-form-field  style="width: 300px;">
+        <mat-label>Enter space-separated list of HUGO symbols</mat-label>
+        <textarea class='geneset-creation-text' matInput rows="3" cols="80" ></textarea>
+      </mat-form-field>
+      <button mat-icon-button style="color:rgb(30, 136, 229)" (click)="createCustomGeneSet($event)"><mat-icon>save</mat-icon></button>
+
+      <h2 class='panel-column-title'>&nbsp;&nbsp;&nbsp;&nbsp;--- OR ---</h2>
+
+      <h2 class='panel-column-title'>Select an Existing Gene Set</h2>
 
       <mat-form-field>
-        <mat-select placeholder='Cateogy' [value]='genesetCategory' (selectionChange)='genesetCategoryChange($event)'>
+        <mat-select placeholder='Category' [value]='genesetCategory' (selectionChange)='genesetCategoryChange($event)'>
           <mat-option *ngFor='let option of genesetCategories' [value]='option'>{{option.n}}</mat-option>
         </mat-select>
       </mat-form-field>
@@ -27,12 +41,12 @@
       <!-- Curated -->
       <span *ngIf='buildType === "CURATED"'>
         <mat-form-field style='margin-left:5px;'>
-          <input matInput autocomplete='off' placeholder="Filter (e.g BRCA, Cancer)" (keyup)='$genesetFilter.next($event.target.value)'>
+          <input matInput autocomplete='off' placeholder="Filter (e.g BRCA, Cancer). AND'ed" (keyup)='$genesetFilter.next($event.target.value)'>
         </mat-form-field>
         <div *ngFor='let option of genesetOptionsFilter' (click)='geneSetAdd(option)' class='panel-config-row-add'>
           <i class='material-icons md-18'>add_circle_outline</i>
           <div>{{option.name}}
-            <br />{{option.desc}}
+            <br />{{option.desc}} ({{option.genes.length}} genes)
           </div>
         </div>
       </span>

@@ -6,6 +6,13 @@ export const hazardCompute = (
   config: HazardConfigModel,
   worker: DedicatedWorkerGlobalScope
 ): void => {
+  if(config.reuseLastComputation) {
+    worker.postMessage({config: config, data: {cmd:'reuse'}});
+    return;
+  }
+  
+  // console.log('MJ - entering hazardCompute.');
+  
   const colors = [0x42a5f5, 0x66bb6a, 0xff9800, 0x795548, 0x673ab7, 0xe91e63];
   const getRange = (pointCollections: Array<any>): Array<any> => {
     const dx = [Infinity, -Infinity];
@@ -72,6 +79,11 @@ export const hazardCompute = (
           method: 'survival_ll_nelson_aalen',
           times: t,
           events: e
+        }).then(result => {
+          if (result && result['message'] && result['stack']) { // duck typecheck for error
+            return worker.util.postCpuError(result, worker);
+          }
+          return result;
         })
       );
       cohortPatientData.push({
@@ -94,39 +106,58 @@ export const hazardCompute = (
           method: 'survival_ll_nelson_aalen',
           times: cohortTimes,
           events: cohortEvents
+        }).then(result => {
+          if (result && result['message'] && result['stack']) { // duck typecheck for error
+            return worker.util.postCpuError(result, worker);
+          }
+          return result;
         })
       );
     });
     Promise.all(promises).then(hazardData => {
-      const hazardResults = [];
-      hazardData.forEach((result, i) => {
-        const x = cohortPatientData;
-        hazardResults.push(
-          Object.assign(processHazard(hazardData[i]), cohortPatientData[i], { color: colors[i] })
-        );
-      });
+      // See if we have an error, instead of an array of results.
+      if(hazardData.length == 1 && hazardData[0].length == 1 && (typeof hazardData[0][0] == 'string')) {
+        console.log(`TEMPNOTE: hazard compute error... ${hazardData[0][0]}.`);
+        throw new Error(hazardData[0][0]);
+      } else {
+        const hazardResults = [];
+        hazardData.forEach((result, i) => {
+          const x = cohortPatientData;
+          hazardResults.push(
+            Object.assign(processHazard(hazardData[i]), cohortPatientData[i], { color: colors[i] })
+          );
+        });
 
-      const legends: Array<Legend> = [
-        Legend.create(
-          'Cohorts',
-          hazardResults.map(v => v.name),
-          hazardResults.map(v => '#' + (0xffffff + v.color + 1).toString(16).substr(1)),
-          'COLOR',
-          'DISCRETE'
-        )
-      ];
+        const legends: Array<Legend> = [
+          Legend.create( null,  // MJ null because not sure what 'result' to pass
+            'Cohorts',
+            hazardResults.map(v => v.name),
+            hazardResults.map(v => '#' + (0xffffff + v.color + 1).toString(16).substr(1)),
+            'COLOR',
+            'DISCRETE'
+          )
+        ];
 
+        worker.postMessage({
+          config: config,
+          data: {
+            legends: legends,
+            result: {
+              hazard: hazardResults,
+              cohorts: cohortPatientData
+            }
+          }
+        });
+        worker.postMessage('TERMINATE');
+      }
+    })
+    .catch(err => {
+      console.log(`TEMPNOTE: CAUGHT hazard compute error... ${err}.`);
       worker.postMessage({
         config: config,
-        data: {
-          legends: legends,
-          result: {
-            hazard: hazardResults,
-            cohorts: cohortPatientData
-          }
-        }
+        error: err
       });
       worker.postMessage('TERMINATE');
-    });
+  });
   });
 };

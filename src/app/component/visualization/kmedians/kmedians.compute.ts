@@ -16,6 +16,12 @@ export const kmedianCompute = (
   config: KmedianConfigModel,
   worker: DedicatedWorkerGlobalScope
 ): void => {
+  // if(config.reuseLastComputation) {
+  //   worker.postMessage({config: config, data: {cmd:'reuse'}});
+  //   return;
+  // }
+  
+
   //     worker.util.loadData(config.dataKey).then((data) => {
   //         const legendItems: Array<Legend> = [];
   //         const molecularData = data.molecularData[0];

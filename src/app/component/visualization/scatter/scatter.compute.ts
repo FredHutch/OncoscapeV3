@@ -4,6 +4,12 @@ import { EntityTypeEnum, SpriteMaterialEnum } from './../../../model/enum.model'
 import { DedicatedWorkerGlobalScope } from 'app/service/dedicated-worker-global-scope';
 
 export const scatterCompute = (config: ScatterConfigModel, worker: DedicatedWorkerGlobalScope): void => {
+  if(config.reuseLastComputation) {
+    worker.postMessage({config: config, data: {cmd:'reuse'}});
+    return;
+  }
+  
+  console.log(`IN scatterCompute, uri=[${config.uri}]`);
   worker.util.fetchUri(config.uri).then(result => {
     //{"row":"sample","col":"dim","cols":["one","two","three"],"rows":
     result.resultScaled = result.map(v => {
@@ -18,7 +24,7 @@ export const scatterCompute = (config: ScatterConfigModel, worker: DedicatedWork
     // result.cols;
     result.pid = 'c';
     // result.rows;
-    result.legends = [Legend.create('Data Points', ['Samples'], [SpriteMaterialEnum.CIRCLE], 'SHAPE', 'DISCRETE')]; // config.entity === EntityTypeEnum.GENE ? ['Genes'] : ['Samples'],
+    result.legends = [Legend.create(result, 'Data Points', ['Samples'], [SpriteMaterialEnum.CIRCLE], 'SHAPE', 'DISCRETE')]; // config.entity === EntityTypeEnum.GENE ? ['Genes'] : ['Samples'],
     worker.postMessage({
       config: config,
       data: result

@@ -1,5 +1,7 @@
 import { DatasetService } from './../../service/dataset.service';
 import { DataService } from 'app/service/data.service';
+import { VisualizationEnum } from 'app/model/enum.model';
+
 import { GraphConfig } from 'app/model/graph-config.model';
 import {
   ChangeDetectionStrategy,
@@ -17,6 +19,10 @@ import { PanelEnum } from 'app/model/enum.model';
 import * as downloadjs from 'downloadjs';
 import { FileUploader } from 'ng2-file-upload/ng2-file-upload';
 import { CbioService } from 'app/service/datasource/cbio.service';
+import { ChartComponent } from '../workspace/chart/chart.component';
+import { AbstractVisualization } from './../visualization/visualization.abstract.component';
+import { AbstractScatterVisualization } from '../visualization/visualization.abstract.scatter.component';
+
 declare var $: any;
 
 @Component({
@@ -72,7 +78,7 @@ export class ApplicationBarComponent implements OnInit, OnDestroy {
   // }
   @HostListener('document:keypress', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
-    if (!event.ctrlKey) {
+    if (!event.ctrlKey || !event.shiftKey) {
       return;
     }
     switch (event.key.toLowerCase()) {
@@ -94,11 +100,14 @@ export class ApplicationBarComponent implements OnInit, OnDestroy {
         this.onTogglePanels();
         break;
       case 'p':
-        this.exportImage();
+        this.exportImageAsJpg();
         break;
       case 'i':
         this.toggleBackgroundColor();
         break;
+      case 'm':
+          this.viewPanel(PanelEnum.DATA);
+          break;
       case 'd':
         this.viewPanel(PanelEnum.DASHBOARD);
         break;
@@ -114,6 +123,47 @@ export class ApplicationBarComponent implements OnInit, OnDestroy {
     }
   }
 
+
+  undoFromMenu(): void {
+    console.log('undoFromMenu called');
+    try {
+      let g = ChartScene.instance.views[0].chart as AbstractVisualization;
+      if(g as AbstractScatterVisualization){
+        let s = (g as AbstractScatterVisualization).selectionController;
+        if(s){
+          s.scatterHistory.undo();
+        }
+      }
+    } catch(err) {
+
+    }
+  }
+
+  redoFromMenu(): void {
+    console.log('redoFromMenu called');
+    try {
+      let g = ChartScene.instance.views[0].chart as AbstractVisualization;
+      if(g as AbstractScatterVisualization){
+        let s = (g as AbstractScatterVisualization).selectionController;
+        if(s){
+          s.scatterHistory.redo();
+        }
+      }
+    } catch(err) {
+
+    }
+  }
+
+  undoExists(): boolean {
+    console.log('tbd undoexists called');
+    return true;
+  }
+  redoExists(): boolean {
+    console.log('tbd redoexists called');
+    return true;
+  }
+
+
   onViewCohort(): void {
     this.viewPanel(PanelEnum.COHORT);
   }
@@ -128,6 +178,7 @@ export class ApplicationBarComponent implements OnInit, OnDestroy {
     window.location.reload(true);
   }
   viewPanel(panel: PanelEnum): void {
+    console.log(`MJ viewPanel called with [${JSON.stringify(panel)}]`);
     this.showPanel.emit(panel);
   }
   onTogglePanels(): void {
@@ -135,8 +186,12 @@ export class ApplicationBarComponent implements OnInit, OnDestroy {
     $('.graphPanel').css('max-width', this.togglePanels ? '0px' : 'inherit');
   }
   onSplitScreenChange(): void {
-    this.split = !this.split;
-    this.splitScreenChange.next(this.split);
+    if(ChartScene.instance.views[0].config.visualization == VisualizationEnum.TIMELINES){
+      alert("Timeline view can only be seen by itself, not within a split screen.")
+    } else {
+      this.split = !this.split;
+      this.splitScreenChange.next(this.split);
+    }
   }
   toggleBackgroundColor(): void {
     const isBlack = ChartScene.instance.renderer.getClearColor().r === 0;
@@ -157,13 +212,55 @@ export class ApplicationBarComponent implements OnInit, OnDestroy {
     // window.print();
   }
 
+  initGui() {
+    ChartScene.instance.initGlobalGuiControls();
+  }
+
   exportJpg() {
     const jpg = $('canvas')[0].toDataURL('image/jpeg', 1);
-    downloadjs(jpg, 'test.jpg', 'image/jpeg');
+    downloadjs(jpg, 'export.jpg', 'image/jpeg');
   }
-  exportImage() {
+  exportImageAsJpg() {
     this.exportJpg();
+    alert('The image file "export.jpg" has been downloaded.');
   }
+
+  exportSvg() {
+    //const svg = $('canvas')[0].toDataURL('image/jpeg', 1);
+    let svg;
+    let svgTimelineMain:SVGGraphicsElement = (document.getElementById("rightSvgTimeline") as unknown) as SVGGraphicsElement;
+    if(svgTimelineMain){
+      console.warn('svgTimelineMain.getBBox...');
+      var myPathBox = svgTimelineMain.getBBox();
+      console.log(myPathBox);
+
+      let xAxisSvg:SVGGraphicsElement = (document.getElementById("xAxisSvg") as unknown) as SVGGraphicsElement;
+      let axisYOffset = xAxisSvg.getBBox().height;
+      svg = `<svg>
+      <g id="xAxisSvgGroup" transform="translate(0, ${myPathBox.y - axisYOffset})">
+      ${xAxisSvg.innerHTML}
+      </g>
+      ${svgTimelineMain.innerHTML.replace(/idDataForSvg=/g, 'id=')}
+      </svg>`;
+
+    } else {
+      svg = ChartScene.instance.renderToSvg($('canvas')[0]);
+    }
+
+
+    downloadjs(svg, 'export.svg', 'image/svg');
+  }
+  exportImageAsSvg() {
+    try {
+      this.exportSvg();
+      alert('The SVG image file has been downloaded.\n\nWARNING: *** There may be scaling issues! This feature is experimental. ***');
+    } catch (err) {
+      console.error('ERROR trying to export as SVG.')
+      console.dir(err);
+      alert('Sorry, export as SVG is not supported yet for this visualization.');
+    }
+  }
+
   ngOnInit() {}
 
   ngOnDestroy() {}

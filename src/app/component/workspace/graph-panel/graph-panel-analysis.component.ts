@@ -8,7 +8,8 @@ import {
   ChangeDetectorRef,
   Input
 } from '@angular/core';
-
+import { PanelEnum } from 'app/model/enum.model';
+import { WorkspaceComponent } from '../workspace.component';
 @Component({
   selector: 'app-graph-panel-analysis',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,7 +20,7 @@ import {
       <!-- <button mat-menu-item (click)='select.emit(268435456)'>Locally Linear Embedding</button> -->
       <button mat-menu-item (click)="select.emit(536870912)">Spectral Embedding</button>
       <button mat-menu-item (click)="select.emit(8192)">MDS</button>
-      <button mat-menu-item (click)="select.emit(17592186044416)">UMap</button>
+      <button mat-menu-item (click)="select.emit(17592186044416)">UMAP</button>
       <button mat-menu-item (click)="select.emit(4)">T-SNE</button>
     </mat-menu>
 
@@ -66,14 +67,16 @@ import {
     <a class="os-link os-link-br" href="#" xPosition="after" (click)="select.emit(8796093022208)">Dashboard</a>
     <!-- <button mat-menu-item (click)='select.emit(4294967296)'>Box + Whiskers</button> -->
     <a class="os-link os-link-br" href="#" xPosition="after" (click)="select.emit(1099511627776)">Spreadsheet</a>
+    <a class="os-link os-link-br" href="#" xPosition="after" (click)="handleCohortsClick()">Cohorts</a>
+    <a class="os-link os-link-br" href="#" xPosition="after" (click)="handleGenesetsClick()">Genesets</a>
 
-    <!-- <div class="analysisTitle">Molecular</div> -->
+    <div class="analysisTitle">Molecular</div>
     <a
       class="os-link os-link-br"
       href="#"
       xPosition="after"
       (click)="select.emit(2147483648)"
-      *ngIf="datasetDescription.hasMatrixFields"
+      *ngIf="datasetDescription.hasMatrixFields || datasetDescription.hasMutations"
       >Genome</a
     >
     <a
@@ -84,7 +87,10 @@ import {
       *ngIf="datasetDescription.hasMatrixFields"
       >Chromosome</a
     >
-    <a class="os-link os-link-br" href="#" xPosition="after" (click)="select.emit(17179869184)">Force Directed Graph</a>
+    <a class="os-link os-link-br" href="#" xPosition="after" 
+      (click)="select.emit(17179869184)"
+      *ngIf="datasetDescription.hasMatrixFields"
+      >Force Directed Graph</a>
     <a class="os-link os-link-br" href="#" xPosition="after" (click)="select.emit(256)">Pathways</a>
     <a class="os-link os-link-br" href="#" xPosition="after" (click)="select.emit(5.759403792e27)">Proteins</a>
     <a
@@ -96,22 +102,28 @@ import {
       >Heatmap</a
     >
     <div class="analysisTitle" *ngIf="datasetDescription.hasSurvival || datasetDescription.hasEvents">Clinical</div>
-    <a class="os-link os-link-br" href="#" xPosition="after" (click)="select.emit(16)">Survival</a>
-    <a class="os-link os-link-br" href="#" xPosition="after" (click)="select.emit(4398046511104)">Hazard</a>
+    <a class="os-link os-link-br" *ngIf="datasetDescription.hasSurvival" href="#" xPosition="after" (click)="select.emit(16)">Survival</a>
+    <a class="os-link os-link-br" *ngIf="datasetDescription.hasSurvival" href="#" xPosition="after" (click)="select.emit(4398046511104)">Hazard</a>
     <a
-      class="os-link os-link-br"
+      class="os-link "
       href="#"
       xPosition="after"
-      (click)="select.emit(128)"
+      (click)="handleTimelineClick(false)"
       *ngIf="datasetDescription.hasEvents"
-      >Timelines</a
-    >
-    <div class="analysisTitle" *ngIf="datasetDescription.hasPrecomputed || datasetDescription.hasMatrixFields">
+      >Timelines</a>&nbsp;&nbsp;
+      <a title="Classic Timeline View"
+      class="os-link "
+      href="#"
+      (click)="handleTimelineClick(true)"
+      *ngIf="datasetDescription.hasEvents"
+      >*</a>   <!-- removed os-link-br -->
+      
+    <div class="analysisTitle" *ngIf="true || datasetDescription.hasPrecomputed || datasetDescription.hasMatrixFields">
       Clustering
     </div>
 
-    <a class="os-link os-link-br" href="#" xPosition="after" (click)="select.emit(35184372088832)">Precomputed</a>
-
+    <a class="os-link os-link-br" *ngIf="datasetDescription.hasPrecomputed" href="#" xPosition="after" (click)="select.emit(35184372088832)">Precomputed</a>
+    
     <a
       class="os-link os-link-br"
       href="#"
@@ -156,13 +168,49 @@ import {
       *ngIf="datasetDescription.hasMatrixFields"
       >Cross Decomposition</a
     >
+
+    <a
+      class="os-link os-link-br"
+      href="#"
+      xPosition="after"
+      (click)="select.emit(18014398509481984)"
+      *ngIf="true"
+      >(Saved Points)</a
+    >
+
   `
 })
 export class GraphPanelAnalysisComponent {
   @Output()
   select: EventEmitter<any> = new EventEmitter();
 
+  @Output()
+  showPanel: EventEmitter<PanelEnum> = new EventEmitter<PanelEnum>();
+
+  
   private _datasetDescription: DatasetDescription;
+
+  public handleTimelineClick( oldStyle){
+    console.log('timeline click...')
+    if(oldStyle) {
+      window["currentTimelineType"] = "v3"
+    } else {
+      window["currentTimelineType"] = "svg"
+    }
+    console.log('timeline ='+window["currentTimelineType"])
+    this.select.emit(128); 
+  }
+
+  public handleCohortsClick(){
+    console.log('handleCohortClick      click...');
+    WorkspaceComponent.instance.setPanel(PanelEnum.COHORT);
+    // this.showPanel.emit(PanelEnum.COHORT);
+  }
+
+  public handleGenesetsClick(){
+    console.log('handleGenesetsClick      click...')
+    WorkspaceComponent.instance.setPanel(PanelEnum.GENESET);
+  }
 
   @Input()
   public set datasetDescription(value: DatasetDescription) {

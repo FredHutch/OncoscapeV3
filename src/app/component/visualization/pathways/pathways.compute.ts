@@ -4,7 +4,12 @@ import { PathwaysConfigModel } from './pathways.model';
 
 export const pathwaysCompute = (config: PathwaysConfigModel, worker: DedicatedWorkerGlobalScope): void => {
 
-
+    if(config.reuseLastComputation) {
+        worker.postMessage({config: config, data: {cmd:'reuse'}});
+        return;
+      }
+      
+    
     const headers = new Headers();
     headers.append('Content-Type', 'application/json');
     headers.append('Accept-Encoding', 'gzip');

@@ -1,0 +1,19 @@
+{
+    "method": "Saved Points",
+    "summary": "This feature allows viewing of saved 3D points which have been calculated from some analysis tool",
+    "desc": "<span class='help-method'>Saved Points</span>. ",
+    "urlparagraph":"You can learn more about clustering in the scikit-learn user guide.",
+    "url": "http://scikit-learn.org/stable/modules/generated/sklearn.manifold.MDS.html#sklearn.manifold.MDS",
+    "tutorial": [
+        {
+            "desc": "Learn more on Oncoscape + Sci-Kit clustering methods",
+            "url": "https://www.youtube.com/embed/XQu8TTBmGhA"  
+        }
+    ],
+    "params": [
+    ],
+    "attrs": [
+    ],
+    "citations": [
+    ]
+}

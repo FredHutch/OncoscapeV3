@@ -6,6 +6,7 @@ import { UnsafeAction } from './unsafe.action';
 import { DataField, DataTable } from './../model/data-field.model';
 import { Action } from '@ngrx/store';
 import { DatasetDescription } from 'app/model/dataset-description.model';
+import { DatasetTableInfo } from 'app/model/dataset-table-info.model';
 
 // Action Constants
 export const DATA_LOAD_FROM_DEXIE = '[Data] Load From Dexie';
@@ -17,6 +18,7 @@ export const DATA_LOADED = '[Data] Loaded';
 export const DATA_UPDATE_GENESETS = '[Data] Update Genesets';
 export const DATA_ADD_GENESET = '[Data] Add Geneset';
 export const DATA_DEL_GENESET = '[Data] Del Geneset';
+export const DATA_UPDATE_GENESET = '[Data] Update Geneset';
 export const DATA_UPDATE_PATHWAYS = '[Data] Update Pathways';
 export const DATA_ADD_PATHWAY = '[Data] Add Pathway';
 export const DATA_DEL_PATHWAY = '[Data] Del Pathway';
@@ -55,6 +57,10 @@ export class DataDelGenesetAction implements Action {
   readonly type: string = DATA_DEL_GENESET;
   constructor(public payload: { geneset: GeneSet; database: string }) {}
 }
+export class DataUpdateGenesetAction implements Action {
+  readonly type: string = DATA_UPDATE_GENESET;
+  constructor(public payload: { geneset: GeneSet; database: string }) {}
+}
 export class DataUpdateGenesetsAction implements Action {
   readonly type: string = DATA_UPDATE_GENESETS;
   constructor(public payload: Array<GeneSet>) {}
@@ -88,7 +94,9 @@ export class DataLoadFromPublic implements Action {
 }
 export class DataLoadFromPrivate implements Action {
   readonly type: string = DATA_LOAD_FROM_PRIVATE;
-  constructor(public payload: { bucket: string; token: string }) {}
+  constructor(public payload: { bucket: string; env: string }) {
+    // console.log('MJ - DataLoadFromPrivate constructor.');
+  }
 }
 
 export class DataAddPreprocessingAction implements Action {
@@ -116,7 +124,9 @@ export class DataLoadedAction implements UnsafeAction {
     public pathways: Array<any>,
     public preprocessings: Array<any>,
     public datasetName: string,
-    public datasetDesc: DatasetDescription
+    public datasetDesc: DatasetDescription,
+    public visSettings: Array<any>,
+    public datasetTableInfo: DatasetTableInfo
   ) {}
 }
 
@@ -138,6 +148,7 @@ export type Actions =
   | DataUpdatePathwayAction
   | DataAddGenesetAction
   | DataDelGenesetAction
+  | DataUpdateGenesetAction
   | DataUpdateGenesetsAction
   | DataAddCohortAction
   | DataDelCohortAction

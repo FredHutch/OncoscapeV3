@@ -11,7 +11,16 @@
         </a>
     </div>
   -->
-  <mat-tab-group style="width:275px; background:rgba(255,255,255,.9)" (selectedTabChange)="panelHide($event)">
+
+  <app-workspace-common-side-panel
+    *ngIf="title === 'Graph A'"
+    [config]="config"
+    [legends]="data.legends"
+    [datasetDescription]="datasetDescription"
+    ></app-workspace-common-side-panel>
+  
+
+  <mat-tab-group [selectedIndex]="1" style="width:275px; background:rgba(255,255,255,.9)" (selectedTabChange)="panelHide($event)">
     <mat-tab label="Analysis">
       <ng-template mat-tab-label>
         <mat-icon class="example-tab-icon">bar_chart</mat-icon>
@@ -30,19 +39,22 @@
         <mat-icon class="example-tab-icon">list</mat-icon>
         <div class="mat-tab-custom-lbl">Legend</div>
       </ng-template>
-      <span class="legendHeader">Configure Color, Shapes &amp; Labels</span>
-      <app-graph-panel-visualization
-        [config]="config"
-        [tables]="tables"
-        [fields]="fields"
-        (decoratorAdd)="decoratorAdd.emit($event)"
-        (decoratorDel)="decoratorDel.emit($event)"
-      ></app-graph-panel-visualization>
       <app-workspace-legend-panel
         [config]="config"
         [legends]="data.legends"
         [decorators]="decoratorsWithLegends"
       ></app-workspace-legend-panel>
+      <span class="legendHeader">Configure Color, Shapes &amp; Labels</span>
+      <app-graph-panel-visualization
+        [config]="config"
+        [tables]="tables"
+        [fields]="fields"
+        [genesets]="genesets"
+        (showPanel)="showPanel.emit($event)"
+        (decoratorAdd)="decoratorAdd.emit($event)"
+        (decoratorDel)="decoratorDel.emit($event)"
+        (threeDOption)="threeDOption.emit($event)"
+      ></app-graph-panel-visualization>
     </mat-tab>
     <mat-tab label="Settings">
       <ng-template mat-tab-label>
@@ -74,9 +86,9 @@
         <app-timelines-form
           *ngIf="config && config.visualization === 128"
           (configChange)="graphPanelSetConfig($event)"
+          [config]="config"
           [fields]="fields"
           [events]="events"
-          [config]="config"
         ></app-timelines-form>
         <app-genome-form
           *ngIf="config && config.visualization === 2147483648"
@@ -187,6 +199,13 @@
           [tables]="tables"
           [fields]="fields"
         ></app-mds-form>
+        <app-savedpoints-form
+          *ngIf="config && config.visualization === 18014398509481984"
+          (configChange)="graphPanelSetConfig($event)"
+          [config]="config"
+          [tables]="tables"
+          [fields]="fields"
+        ></app-savedpoints-form>
         <app-fa-form
           *ngIf="config && config.visualization === 65536"
           (configChange)="graphPanelSetConfig($event)"
@@ -358,8 +377,9 @@
       </ng-template>
       <ng-template matTabContent>
         <app-workspace-behavior-panel
-          (clearSelection)="onClearSelection()"
-          (saveSelection)="onSaveSelection($event)"
+        (clearSelection)="onClearSelection()"
+        (invertSelection)="onInvertSelection()"
+        (saveSelection)="onSaveSelection($event)"
           [config]="config"
           [selectionToolConfig]="selectionToolConfig"
         ></app-workspace-behavior-panel>

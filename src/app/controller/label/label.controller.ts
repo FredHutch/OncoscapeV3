@@ -15,6 +15,7 @@ export interface ILabel {
 export class LabelOptions {
   classes: Array<string> = []; // CSS Classes To Apply
   fontsize = 10;
+  fontweight = null;
   ignoreFrustumX = false; // Only Make Sure Object Is In View On Y Axis
   ignoreFrustumY = false; // Only Make Sure Object Is In View On X Axis
   offsetX = 0; // Offset Computed X Position By Amount After 2D Transform
@@ -30,14 +31,13 @@ export class LabelOptions {
   postfix = ''; // Copy To Add After Label
   align: 'LEFT' | 'RIGHT' | 'CENTER' | 'JUSTIFIED' = 'LEFT'; // Text Alignment
   maxLabels = Infinity; // Maximum Number Of Labels
-  algorithm: 'FORCE' | 'GRID' | 'PIXEL' = 'PIXEL'; // Layout Algorythem
-  algorithmIterations = 20; // Number Of Iterations To Apply Algorythem (Force Algo)
+  algorithm: 'FORCE' | 'GRID' | 'PIXEL' = 'PIXEL'; // Layout Algorithm
+  algorithmIterations = 20; // Number Of Iterations To Apply Algorithm (Force Algo)
   pointRadius = 3; // How Big Is The Point...
   background: string = null; // Background Color
   // margin: number = null;
   css = '';
   view: VisualizationView;
-
   constructor(
     view: VisualizationView,
     algorithm: 'FORCE' | 'GRID' | 'PIXEL' = 'PIXEL'
@@ -48,6 +48,9 @@ export class LabelOptions {
   generateCss(): string {
     let css = '';
     css += 'font-size:' + this.fontsize + 'px;';
+    if(this.fontweight) {
+      css += 'font-weight:' + this.fontweight +';';
+    }
     css +=
       'transform-origin: ' +
       (this.origin === 'LEFT'
@@ -102,6 +105,7 @@ export class LabelController {
         ? this.layoutObjectsGrid(objects, options)
         : this.layoutObjectsPixel(objects, options);
   }
+
   public static createMap2D(
     objects: Array<Object3D>,
     view: VisualizationView
@@ -143,9 +147,24 @@ export class LabelController {
       options.offsetZ3d
     );
     let data = objects.map(obj => {
+
+      let customXOffset:number = 0;
+      if(obj.userData['specialLabelXOffset']) {
+        let lineAny:any = obj;
+        let line:THREE.Line = (lineAny as THREE.Mesh).children[0] as THREE.Line;
+        customXOffset = obj.userData['specialLabelXOffset'];
+      }
+      let customYOffset:number = 0;
+      if(obj.userData['specialLabelYOffset']) {
+        let lineAny:any = obj;
+        let line:THREE.Line = (lineAny as THREE.Mesh).children[0] as THREE.Line;
+        customYOffset = obj.userData['specialLabelYOffset'];
+      }
+      let customPosition:THREE.Vector3 = new THREE.Vector3(customXOffset, customYOffset, 0);
       const position = obj.position
         .clone()
         .add(offset)
+        .add(customPosition) //
         .project(camera);
       position.x = position.x * halfWidth + halfWidth;
       position.y = -(position.y * halfHeight) + halfHeight;
@@ -177,6 +196,7 @@ export class LabelController {
     }
     return data;
   }
+  
   private static layoutObjectsForce(
     objects: Array<ILabel>,
     options: LabelOptions
@@ -241,7 +261,7 @@ export class LabelController {
       camera.matrixWorldInverse
     );
     const frustum = new THREE.Frustum();
-    frustum.setFromMatrix(cameraViewProjectionMatrix);
+    frustum.setFromProjectionMatrix(cameraViewProjectionMatrix);
     return objects.filter(obj => frustum.containsPoint(obj.position));
   }
 

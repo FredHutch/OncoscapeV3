@@ -5,6 +5,7 @@ import {
 } from 'app/model/enum.model';
 import { GraphConfig } from '../../../model/graph-config.model';
 import { GraphData } from '../../../model/graph-data.model';
+import { VisualizationAbstractScatterConfigModel } from "../visualization.abstract.scatter.model";
 
 export class OneClassSVMKernal {
   public static RBF = 'rbf';
@@ -24,7 +25,7 @@ export class OneClassSVMKernal {
 //   public static NONE = 'None';
 // }
 
-export class OneClassSVMConfigModel extends GraphConfig {
+export class OneClassSVMConfigModel extends VisualizationAbstractScatterConfigModel {
   constructor() {
     super();
     this.entity = EntityTypeEnum.SAMPLE;

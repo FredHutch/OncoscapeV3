@@ -6,6 +6,11 @@ export const dendogramCompute = (
   config: DendogramConfigModel,
   worker: DedicatedWorkerGlobalScope
 ): void => {
+  if(config.reuseLastComputation) {
+    worker.postMessage({config: config, data: {cmd:'reuse'}});
+    return;
+  }
+  
   if (config.dirtyFlag & DirtyEnum.LAYOUT) {
     worker.util
       .getMatrix(
@@ -29,7 +34,10 @@ export const dendogramCompute = (
             sp_ordering: config.order ? -1 : 1
           })
         ]).then(result => {
-          // // const matrix = mtx.data;
+          if (result && result['message'] && result['stack']) { // duck typecheck for error
+            return worker.util.postCpuError(result, worker);
+          }
+            // // const matrix = mtx.data;
           const minMax = mtx.data.reduce(
             (p, c) => {
               p[0] = Math.min(p[0], ...c);

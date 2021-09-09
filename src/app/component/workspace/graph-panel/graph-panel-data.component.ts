@@ -50,9 +50,10 @@ import { Pathway } from './../../../model/pathway.model';
             >settings</mat-icon
           >Modify List
         </button>
-        <mat-option *ngFor="let option of genesetOptions" [value]="option"> {{ option.n }} </mat-option>
+        <mat-option *ngFor="let option of genesetOptions" [value]="option"> {{ formatGenesetForDropdown(option) }} </mat-option>
       </mat-select>
     </mat-form-field>
+
     <mat-form-field class="form-field" *ngIf="config.enablePathways">
       <mat-select
         #pathwaySelectComponent
@@ -69,6 +70,7 @@ import { Pathway } from './../../../model/pathway.model';
         <mat-option *ngFor="let option of pathwayOptions" [value]="option"> {{ option.n }} </mat-option>
       </mat-select>
     </mat-form-field>
+    
     <mat-form-field class="form-field" *ngIf="config.enablePreprocessing">
       <mat-select
         #preprocessingSelectComponent
@@ -135,12 +137,33 @@ export class GraphPanelDataComponent {
   @Input()
   set cohorts(v: Array<Cohort>) {
     this.cohortOptions = v;
+    let self = this;
+    if(v.length > 0 && this._config.cohortName) {
+      this.cohortSelected = v.find(e => e.n == self._config.cohortName)
+    } else {
     this.cohortSelected = this.cohortOptions[0];
+    }
   }
   @Input()
   set genesets(v: Array<GeneSet>) {
     this.genesetOptions = [{ n: 'All Genes', g: [] }, ...v];
-    this.genesetSelected = this.genesetOptions[1];
+    let self = this;
+    if(v.length > 0) { 
+      if(this._config.markerName) {
+        this.genesetSelected = v.find(e => e.n == self._config.markerName)
+        if(this.genesetSelected == null) {
+          console.error(`ERROR: Could not find geneset ${self._config.markerName} in graph panel data.`);
+          this.genesetSelected = this.genesetOptions[1];
+        }
+      } else {
+        // No geneset (markerName) in our config, but there's
+        // something available beyond All Genes, so let's take the first one.
+        this.genesetSelected = this.genesetOptions[1];
+      }
+    } else {
+      // No genesets passed, so we are forced to use All Genes.
+      this.genesetSelected = this.genesetOptions[0];
+    }
   }
   @Input()
   set preprocessings(v: Array<GeneSet>) {
@@ -173,8 +196,16 @@ export class GraphPanelDataComponent {
     this.showPanel.emit(PanelEnum.PREPROCESSING);
   }
 
+  public formatGenesetForDropdown(gs:any) {
+      if(gs.n == 'All Genes') {
+        return 'All Genes (Extremely Long)'
+      } else {
+        return `${gs.n} (${gs.g.length} genes)`;
+      }
+  }
+
   byName(p1: any, p2: any) {
-    if (p2 === null) {
+    if (p2 == null) {
       return false;
     }
     return p1.n === p2.n;
@@ -192,6 +223,11 @@ export class GraphPanelDataComponent {
   public setGenesetOption(e: MatSelectChange): void {
     if (this.config.markerName === e.value.n) {
       return;
+    }
+    if  (e.value.g.length == 0 && e.value.n['startsWith']('All Genes')) {
+      if (confirm('Are you sure? The "All Genes" option will use an enormous amount of memory and might crash the page. Continue?') == false) {
+        return;
+      }
     }
     this.config.markerName = e.value.n;
     this.config.markerFilter = e.value.g;

@@ -1,6 +1,7 @@
 import { DimensionEnum, EntityTypeEnum, VisualizationEnum } from 'app/model/enum.model';
 import { GraphConfig } from './../../../model/graph-config.model';
 import { GraphData } from './../../../model/graph-data.model';
+import { VisualizationAbstractScatterConfigModel } from "../visualization.abstract.scatter.model";
 
 export class FastIcaAlgorithm {
   public static PARALLEL = 'parallel';
@@ -13,7 +14,7 @@ export class FastIcaFunction {
   public static CUBE = 'cube';
 }
 
-export class FastIcaConfigModel extends GraphConfig {
+export class FastIcaConfigModel extends VisualizationAbstractScatterConfigModel {
   constructor() {
     super();
     this.entity = EntityTypeEnum.SAMPLE;

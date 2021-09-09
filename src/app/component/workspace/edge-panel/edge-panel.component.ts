@@ -5,17 +5,25 @@ import {
   Component, ComponentFactoryResolver, EventEmitter,
   Input, OnDestroy, Output, ViewEncapsulation
 } from '@angular/core';
-import { MatSelectChange } from '@angular/material';
+import { MatSelectChange, MatCheckboxChange, MatButtonToggle } from '@angular/material';
 import { EdgeConfigModel } from 'app/component/visualization/edges/edges.model';
+import { EdgesGraph } from 'app/component/visualization/edges/edges.graph';
 import { DataField } from 'app/model/data-field.model';
 import { GraphEnum, ConnectionTypeEnum } from 'app/model/enum.model';
 import { ModalService } from 'app/service/modal-service';
 import { Subject ,  Subscription } from 'rxjs';
 import { DataFieldFactory, DataTable } from './../../../model/data-field.model';
-import { DataDecorator, DataDecoratorTypeEnum } from './../../../model/data-map.model';
+import { VariantCheckbox, DataDecorator, DataDecoratorTypeEnum } from './../../../model/data-map.model';
 import { WorkspaceLayoutEnum } from './../../../model/enum.model';
 import { GraphConfig } from './../../../model/graph-config.model';
 import { WorkspaceConfigModel } from './../../../model/workspace.model';
+import { ChartScene } from '../chart/chart.scene';
+import { ThemePalette } from '@angular/material/core';
+import { AbstractVisualization } from 'app/component/visualization/visualization.abstract.component';
+import { AbstractScatterVisualization } from 'app/component/visualization/visualization.abstract.scatter.component';
+import { GenomeGraph } from 'app/component/visualization/genome/genome.graph';
+import { OncoData } from 'app/oncoData';
+
 declare var $: any;
 
 @Component({
@@ -27,6 +35,127 @@ declare var $: any;
 })
 export class EdgePanelComponent implements OnDestroy {
 
+  variantCheckbox: VariantCheckbox = {
+    name: 'All Variants',
+    completed: false,
+    color: 'primary',
+    subtasks: [
+      {name: 'Mutation', completed: false, color: '#9C27B0'},
+      {name: 'Amplification', completed: false, color: '#3F51B5'} ,
+      {name: 'Gain', completed: false, color: '#3fa5b5'} ,
+      {name: 'Loss', completed: false, color: '#f26602'},
+      {name: 'Deletion', completed: false, color: '#ff0000'},
+    ]
+  };
+
+  // Use these if we are grouping variants into a hierarchy
+  allComplete: boolean = false;
+  updateAllComplete() {
+    this.allComplete = this.variantCheckbox.subtasks != null && this.variantCheckbox.subtasks.every(t => t.completed);
+  }
+
+  someComplete(): boolean {
+    if (this.variantCheckbox.subtasks == null) {
+      return false;
+    }
+    return this.variantCheckbox.subtasks.filter(t => t.completed).length > 0 && !this.allComplete;
+  }
+
+  setAll(completed: boolean) {
+    this.allComplete = completed;
+    if (this.variantCheckbox.subtasks == null) {
+      return;
+    }
+    this.variantCheckbox.subtasks.forEach(t => t.completed = completed);
+  }
+
+
+  setVariantCheckbox(e: MatCheckboxChange) {
+    let subtask = this.variantCheckbox.subtasks.find(v => v.name == e.source.name);
+    if(subtask) {
+      subtask.completed = e.checked;
+      this.showLinksSelected();
+
+      let genomeGraph = (ChartScene.instance.views[1].chart as GenomeGraph);
+      if(genomeGraph){
+        genomeGraph.recalcGeneSizesAndRender(this.variantCheckbox);
+      }
+    }
+  }
+
+  addConnections(){
+    // If at least one side (markers, samples) has a selection,
+    // loop through all checked variant subtasks in this.task,
+    // and create connections of that variant.
+    console.log('Check in addConnections for selections.');
+    if(this.notEnoughSelectedToConnect() == false) {
+      console.log('YES, called notEnoughSelectedToConnect');
+      this.showLinksSelected();
+    }
+  }
+
+  private hasShownAlertForSelectingBothSides:boolean = false;
+  showLinksSelected(){
+    // If at least one side (markers, samples) has a selection,
+    // loop through all checked variant subtasks in this.task,
+    // and create connections of that variant.
+    if(this.notEnoughSelectedToConnect() && this.hasShownAlertForSelectingBothSides==false) {
+      alert('Select nodes on both sides, before trying to show links between them.');
+      this.hasShownAlertForSelectingBothSides = true;
+    } else {
+      let edgesGraph = (ChartScene.instance.views[2].chart as EdgesGraph);
+      if(edgesGraph){
+        edgesGraph.hideAllLinks();
+        edgesGraph.markLinkVisibilityOfSelected(true, this.variantCheckbox);
+      }
+    }
+  }
+
+  hideLinksSelected(){
+    // // If at least one side (markers, samples) has a selection,
+    // // delete all links where they exist and are selected.
+    // if(this.notEnoughSelectedToConnect()) {
+    //   alert('Select nodes, on one or both graphs, before trying to hide links between them.');
+    // } else {
+    //   let edgesGraph = (ChartScene.instance.views[2].chart as EdgesGraph);
+    //   if(edgesGraph){
+    //     edgesGraph.markLinkVisibilityOfSelected(false, this.variantCheckbox);
+    //   }
+    // }
+  }
+
+  hideLinksUnselected(){
+    let edgesGraph = (ChartScene.instance.views[2].chart as EdgesGraph);
+    if(edgesGraph){
+      alert('NYI'); //edgesGraph.hideLinksOfUnselected(this.variantCheckbox);
+    }
+  }
+
+  hideAllLinks(){
+    let edgesGraph = (ChartScene.instance.views[2].chart as EdgesGraph);
+    if(edgesGraph){
+      edgesGraph.hideAllLinks();
+    }
+  }
+
+  notEnoughSelectedToConnect(){
+    // If at least one side (markers, samples) has a selection, return false.
+    let notEnoughSelected:boolean = true;
+    let leftHasSelection 
+    let leftChart = (ChartScene.instance.views[0].chart as AbstractScatterVisualization);
+    if(leftChart){
+      console.log(`Left selections = ${leftChart.selectionController.highlightIndexes.size}.`);
+      notEnoughSelected = leftChart.selectionController.highlightIndexes.size == 0;
+    } else {
+      let rightChart = (ChartScene.instance.views[1].chart as AbstractScatterVisualization);
+      if(rightChart){
+        console.log(`Right selections = ${rightChart.selectionController.highlightIndexes.size}.`);
+        notEnoughSelected = rightChart.selectionController.highlightIndexes.size == 0;
+      }
+    }
+    console.log('checking notEnoughSelectedToConnect = ' + notEnoughSelected);
+    return notEnoughSelected;
+  }
 
   edgeConfig: EdgeConfigModel = new EdgeConfigModel();
   _workspaceConfig: WorkspaceConfigModel;
@@ -80,10 +209,14 @@ export class EdgePanelComponent implements OnDestroy {
   // }
 
   layoutOptionChange(e: MatSelectChange): void {
+    ChartScene.instance.invalidatePrerender();
 
   }
 
   edgeOptionChange(e: MatSelectChange): void {
+    ChartScene.instance.invalidatePrerender();
+    console.log(`MJ edgeOptionChange`);
+    console.log(`MJ e.value = [${JSON.stringify(e.value)}]`);
     const optionLabel = e.value;
     const option = this.edgeOptions.find(v => v.label === optionLabel);
     this.edgeConfig.field = option;
@@ -103,6 +236,7 @@ export class EdgePanelComponent implements OnDestroy {
   }
 
   colorOptionChange(e: MatSelectChange): void {
+    ChartScene.instance.invalidatePrerender();
     const colorLabel = e.value;
     const field = this.colorOptions.find(v => v.label === colorLabel);
     if (field.key === 'None') {
@@ -119,6 +253,7 @@ export class EdgePanelComponent implements OnDestroy {
   }
 
   groupOptionChange(e: MatSelectChange): void {
+    ChartScene.instance.invalidatePrerender();
     const colorLabel = e.value;
     const field = this.colorOptions.find(v => v.label === colorLabel);
     if (field.key === 'None') {
@@ -135,7 +270,27 @@ export class EdgePanelComponent implements OnDestroy {
   }
 
   graphConfigChange(graphConfig: GraphConfig): void {
-    if (graphConfig.graph === GraphEnum.GRAPH_A) {
+    ChartScene.instance.invalidatePrerender();
+    let graphToUse:number = 1;
+    try {
+      graphToUse = graphConfig.graph;
+      // console.log('TEMPNOTE: graphToUse is okay.');
+    } catch (err) {
+      console.error('TEMPNOTE: GraphEnum is null. Bad values for GRAPH_A and _B. Returning nothing.');
+      //return;
+    }
+
+    // MJ copied this here from edgeOptionChange.
+    console.log('==== get colorOptions');
+    if(this._graphAConfig && this._graphBConfig ){
+    this.groupOptions = this.colorOptions = DataFieldFactory.getConnectionColorFields(
+      OncoData.instance.dataLoadedAction.fields, // this.fields,
+      OncoData.instance.dataLoadedAction.tables, // this.tables,
+      this._graphAConfig.entity,
+      this._graphBConfig.entity);
+    }
+
+    if (graphToUse === GraphEnum.GRAPH_A) {
       this.edgeConfig.markerFilterA = this._graphAConfig.markerFilter;
       this.edgeConfig.sampleFitlerA = this._graphAConfig.sampleFilter;
       this.edgeConfig.patientFilterA = this._graphAConfig.patientFilter;
@@ -148,7 +303,7 @@ export class EdgePanelComponent implements OnDestroy {
         this.edgeConfigChange.emit(this.edgeConfig);
       }
     }
-    if (graphConfig.graph === GraphEnum.GRAPH_B) {
+    if (graphToUse === GraphEnum.GRAPH_B) {
       this.edgeConfig.markerFilterB = this._graphBConfig.markerFilter;
       this.edgeConfig.sampleFitlerB = this._graphBConfig.sampleFilter;
       this.edgeConfig.patientFilterB = this._graphBConfig.patientFilter;
@@ -161,6 +316,8 @@ export class EdgePanelComponent implements OnDestroy {
         this.edgeConfigChange.emit(this.edgeConfig);
       }
     }
+    // console.log('TEMPNOTE: end of graphToUse usage.');
+
     const connectionType = ConnectionTypeEnum.createFromEntities(this.edgeConfig.entityA, this.edgeConfig.entityB);
 
     switch (connectionType) {
@@ -211,6 +368,7 @@ export class EdgePanelComponent implements OnDestroy {
   ngOnDestroy() {
     this.$graphChange.unsubscribe();
   }
+
   constructor(public ms: ModalService, private cd: ChangeDetectorRef) {
     this.layoutOptions = [
       WorkspaceLayoutEnum.HORIZONTAL, WorkspaceLayoutEnum.VERTICAL, WorkspaceLayoutEnum.OVERLAY
@@ -224,5 +382,7 @@ export class EdgePanelComponent implements OnDestroy {
 
     this.$graphChange = this.$graphAChange.pipe(merge(
       this.$graphBChange)).subscribe(this.graphConfigChange.bind(this));
+
+    OncoData.instance.edgeMainVariantCheckbox = this.variantCheckbox;
   }
 }

@@ -6,20 +6,12 @@ import { environment } from './environments/environment';
 import 'hammerjs';
 import Amplify from 'aws-amplify';
 
-// if (environment.production) {
-enableProdMode();
+const envNameLower:string = environment.envName.toLowerCase();
+console.log(`TEMPNOTE: environment = ${envNameLower}`);
+if (envNameLower == 'prod') {
+  enableProdMode();
+}
 
-// AWS.config.region = 'us-west-2';
-// AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-//   IdentityPoolId: 'us-west-2:109beda4-7960-4451-8697-bbbbfb0278ea'
-// });
-// AWS.config.update({
-//   region: 'us-west-2',
-//   credentials: new AWS.CognitoIdentityCredentials({
-//     IdentityPoolId: 'us-west-2:109beda4-7960-4451-8697-bbbbfb0278ea'
-//   }),
-//   dynamoDbCrc32: false
-// });
 Amplify.configure({
   Auth: {
     mandatorySignIn: false,
@@ -40,7 +32,7 @@ Amplify.configure({
     //   expires: 365,
     //   // OPTIONAL - Cookie secure flag
     //   secure: true
-    // }
+    // } 
   },
   Storage: {
     region: 'us-west-2',

@@ -5,13 +5,14 @@ import {
 } from 'app/model/enum.model';
 import { GraphConfig } from './../../../model/graph-config.model';
 import { GraphData } from './../../../model/graph-data.model';
+import { VisualizationAbstractScatterConfigModel } from "../visualization.abstract.scatter.model";
 
 export class MdsDissimilarity {
   public static ECULIDEAN = 'euclidean';
   public static PRECOMPUTED = 'precomputed';
 }
 
-export class MdsConfigModel extends GraphConfig {
+export class MdsConfigModel extends VisualizationAbstractScatterConfigModel {
   constructor() {
     super();
     this.entity = EntityTypeEnum.SAMPLE;

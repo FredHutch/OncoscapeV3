@@ -11,6 +11,8 @@ import { ChartEvent, ChartEvents } from './../../workspace/chart/chart.events';
 import { ChartFactory } from './../../workspace/chart/chart.factory';
 import { AbstractVisualization } from './../visualization.abstract.component';
 import { SurvivalConfigModel, SurvivalDataModel, SurvivalDatumModel } from './survival.model';
+import { SurvivalStats } from './survival.stats';
+import { OncoData } from 'app/oncoData';
 
 export class SurvivalGraph extends AbstractVisualization {
 
@@ -25,9 +27,11 @@ export class SurvivalGraph extends AbstractVisualization {
     public confidences: Array<THREE.Mesh>;
     public grid: Array<THREE.Object3D>;
 
+    private pValuesDivTexts:string = '';
+
     // Create - Initialize Mesh Arrays
-    create(labels: HTMLElement, events: ChartEvents, view: VisualizationView): ChartObjectInterface {
-        super.create(labels, events, view);
+    create(entity: EntityTypeEnum, labels: HTMLElement, events: ChartEvents, view: VisualizationView): ChartObjectInterface {
+        super.create(entity, labels, events, view);
         this.confidences = [];
         this.meshes = [];
         this.lines = [];
@@ -67,11 +71,91 @@ export class SurvivalGraph extends AbstractVisualization {
 
     }
 
+    // Create string for <div> with all p-value statistics.
+    // This gets shown when the button "i P-values" is clicked on.
+    prepareValuesDivTexts(statsResults:Array<any>) {
+        // originalCohorts: groupedDataTable.map(g => g.name),
+        // dof: dof,
+        // KMStats: KMStats,
+        // pValue: pValue
+        
+        let s:string = `<div id='survivalStatsDiv' style='z-index: 100; display: none; background-color: #eeeeee; border-style: ridge; border-width: 1 ;` +
+        `position:fixed;bottom:35px;right:10px; font-size: 15px; pointer-events: all ' ` +
+        ` ><div style='margin: 8px'>`;
+        if(statsResults.length ==0){
+            s = s + "To see p-values, please use Params tab to show more cohorts.";
+        } else {
+            s = s + `<table id="survivalStatsTable" border="1" frame="hsides" rules="rows" style=" border: 1px solid lightgray;">`;
+            s = s + `<thead >
+            <th /><th /><th />
+            <th><b>Log-rank</b></th>
+            <th><b>P-value</b></th>
+            </thead>`
+            s = s + '<tbody>';
+            statsResults.forEach(stats => {
+                let cohort0 = stats.originalCohorts[0];
+                let cohort1 = stats.originalCohorts[1];
+                let sidebarColor0 = OncoData.instance.currentCommonSidePanel.colorOfSavedCohortByName(cohort0);
+                let sidebarColor1 = OncoData.instance.currentCommonSidePanel.colorOfSavedCohortByName(cohort1);
+
+                s = s + '<tr>';
+                s = s + `<td  title="${cohort0}" width="10" bgcolor="${sidebarColor0}" >&nbsp;</td>`;
+                s = s + `<td   width="3"></td>`;
+                s = s + `<td  title="${cohort1}" width="10" bgcolor="${sidebarColor1}" >&nbsp;</td>`;
+                s = s + `
+                <td>&nbsp;${stats.KMStats[0].toFixed(5)}</td>
+                <td>&nbsp;${stats.pValue.toFixed(5)}</td>
+                <tr>`;
+            });
+            s = s + '</tbody></table>';
+        }
+        s = s+ "</div></div>";
+        this.pValuesDivTexts = s;
+    }
+
     addObjects(type: EntityTypeEnum): void {
+        // console.log('MJ addObjects in survival');
+        let self = this;
 
         if (this.data.result.survival === undefined) {
             return;
         }
+
+        let stats = new SurvivalStats();
+        let statsResults:Array<any> = [];
+
+        // groupedDataTable: [{tte, ev}, ...]
+        let cohorts = this.data.result.cohorts;
+        if (cohorts.length > 1){
+            let a = cohorts; //.map(c => c.n);   //Array.from(Array(cohorts.length).keys());
+            let combinations = a.flatMap(
+                (v, i) => a.slice(i+1).map( w => [v,w] )
+            );
+            combinations.forEach(combo => {
+                // let groupedDataTable = cohorts.map(function(c)  { 
+                //     return {tte: c.patients.map(i => i.t), ev: c.patients.map(i => i.e)};
+                // });
+                let groupedDataTable:Array<any> = [];
+                let c = combo[0]; // first cohort in combo
+                groupedDataTable.push (
+                    {name: c.name, tte: c.patients.map(i => i.t), ev: c.patients.map(i => i.e)}
+                );
+                c = combo[1]; // second cohort in combo
+                groupedDataTable.push (
+                    {name: c.name, tte: c.patients.map(i => i.t), ev: c.patients.map(i => i.e)}
+                );
+
+                let logrankresults = stats.logranktest(groupedDataTable);
+                // console.log('MJ logrank results  ...');
+                statsResults.push(logrankresults);
+                console.dir(logrankresults);
+                    
+            });
+
+        } else {
+            // console.log('MJ only one cohort (all), so no p value test.');
+        }
+        self.prepareValuesDivTexts(statsResults);
 
         const sX = scaleLinear().range([-500, 500]).domain(
             this.data.result.survival.reduce((p, c) => {
@@ -85,8 +169,15 @@ export class SurvivalGraph extends AbstractVisualization {
                 p[1] = Math.max(p[1], c.range[1][1]);
                 return p;
             }, [Infinity, -Infinity]));
-        this.data.result.survival.forEach((result, i) => {
-            this.drawLine(0, 0, result, sX, sY, i, 'Survival');
+        self.data.result.survival.forEach((result, i) => {
+            let cohortName = self.data.result.cohorts[i].name;
+            if(OncoData.instance.currentCommonSidePanel) {
+                let curveColor = OncoData.instance.currentCommonSidePanel.colorOfSavedCohortByName(cohortName);
+                let curveColorAsInt:number = new THREE.Color(curveColor).getHex();
+                self.drawLine(0, 0, result, sX, sY, i, 'Survival', curveColorAsInt);
+            } else {
+                console.warn('Expected colorOfSavedCohortByName in survival addObjects.');
+            }
         });
         for (let x = -500; x <= 500; x += 100) {
             this.labelsForTimes.push(
@@ -109,24 +200,29 @@ export class SurvivalGraph extends AbstractVisualization {
 
     drawLine(xOffset: number, yOffset: number, cohort: SurvivalDatumModel,
         xScale: ScaleContinuousNumeric<number, number>, yScale: ScaleContinuousNumeric<number, number>,
-        renderOrder, label: string): void {
+        renderOrder, label: string, curveColorAsInt: number): void {
         let pts: Array<Vector2>, line: THREE.Line;
 
         // Confidence
         const shape = new Shape();
         shape.autoClose = false;
-        const initPoint = cohort.lower[0];
+        const initPoint = [0, 1]; // TEMPNOTE: It was cohort.lower[0] was only [0], not [0, 1]
+        let cohortLowerCopy = cohort.lower.slice();
+        cohortLowerCopy[0] = [0,1];
+        let cohortUpperCopy = cohort.upper.slice();
+        cohortUpperCopy[0] = [0,1];
+
         shape.moveTo(xScale(initPoint[0]) + xOffset, yScale(initPoint[1]) + yOffset);
-        cohort.lower.forEach(pt => {
+        cohortLowerCopy.forEach(pt => {
             shape.lineTo(xScale(pt[0]) + xOffset, yScale(pt[1]) + yOffset);
         });
-        cohort.upper.reverse().forEach(pt => {
+        cohortUpperCopy.reverse().forEach(pt => {
             shape.lineTo(xScale(pt[0]) + xOffset, yScale(pt[1]) + yOffset);
         });
 
         const geometry = new ShapeGeometry(shape);
         const material = new THREE.MeshPhongMaterial({
-            color: cohort.color,
+            color: curveColorAsInt, //cohort.color,
             transparent: true,
             opacity: 0.1,
             blending: THREE.NormalBlending
@@ -140,7 +236,7 @@ export class SurvivalGraph extends AbstractVisualization {
         // Line
         pts = cohort.line.map(v => new Vector2(xScale(v[0]) + xOffset, yScale(v[1]) + yOffset));
 
-        line = ChartFactory.linesAllocate(cohort.color, pts, {});
+        line = ChartFactory.linesAllocate(curveColorAsInt, pts, {}); // cohort.color
         this.lines.push(line);
         this.view.scene.add(line);
 
@@ -174,6 +270,9 @@ export class SurvivalGraph extends AbstractVisualization {
         }
     }
 
+    handleSurvivalStatsButtonClick() {
+        alert('inside handler!');
+    }
 
     removeObjects(): void {
         this.view.scene.remove(...this.confidences);
@@ -202,11 +301,18 @@ export class SurvivalGraph extends AbstractVisualization {
         const optionsForTimes = new LabelOptions(this.view, 'PIXEL');
         optionsForTimes.fontsize = 10;
 
+        let buttonHtml = ''; //`<i attr.data-tippy-content="Statistics"  class="handmade-icon-button material-icons md-18">info</i>`;
+        buttonHtml = `<button id="survivalStatsButton" type="button" onclick='(function(){
+            var div = document.getElementById("survivalStatsDiv");
+            div.style.display = div.style.display == "none" ? "block" : "none";
+        })()'>${buttonHtml} Statistics</button>`;
 
         if (this.view.camera.position.z > 10000) {
             this.labels.innerHTML =
-                '<div style="position:fixed;bottom:10px;left:50%; font-size: 15px;">Time (Days)</div>' +
-                '<div style="position:fixed;right:10px;top:50%; transform: rotate(90deg); font-size: 15px;">Percent</div>';
+            '<div style="position:fixed;bottom:10px;left:50%; font-size: 15px;">Time (Days)</div>' +
+            this.pValuesDivTexts +
+            `<div style="position:fixed;bottom:10px;right:10px; font-size: 15px; pointer-events: all">${buttonHtml}</div>` +
+            '<div style="position:fixed;right:10px;top:50%; transform: rotate(90deg); font-size: 15px;">Percent</div>';
             // this.labels.innerHTML = '';
             // // '<div style="position:fixed;bottom:50px;left:30%; font-size: 1.2rem;">Time</div>' +
             // // '<div style="position:fixed;left:275px;top:50%; transform: rotate(90deg);font-size: 1.2rem;">Percent</div>';
@@ -215,6 +321,8 @@ export class SurvivalGraph extends AbstractVisualization {
             optionsForTimes.fontsize = 10;
             this.labels.innerHTML =
                 '<div style="position:fixed;bottom:10px;left:50%; font-size: 15px;">Time (Days)</div>' +
+                this.pValuesDivTexts +
+                `<div style="position:fixed;bottom:10px;right:10px; font-size: 15px; pointer-events: all">${buttonHtml}</div>` +
                 '<div style="position:fixed;right:10px;top:50%; transform: rotate(90deg); font-size: 15px;">Percent</div>' +
                 LabelController.generateHtml(this.labelsForPercents, optionsForPercents) +
                 LabelController.generateHtml(this.labelsForTimes, optionsForTimes);

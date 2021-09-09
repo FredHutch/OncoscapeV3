@@ -1,4 +1,5 @@
 <form novalidate>
+    <span class="legendHeader">Configure Edges</span>
     <!-- <mat-form-field class='form-field'>
         <mat-select [value]='layoutSelected' placeholder='Layout' (selectionChange)='layoutOptionChange($event)'>
             <mat-option *ngFor='let option of layoutOptions' [value]='option'>
@@ -6,13 +7,13 @@
             </mat-option>
         </mat-select>
     </mat-form-field> -->
-    <mat-form-field class='form-field' *ngIf='showEdgeConnect'>
-        <mat-select [value]='edgeSelected' placeholder='Edge Connections' (selectionChange)='edgeOptionChange($event)'>
+    <mat-form-field [hidden]="true" class='form-field' *ngIf='false && showEdgeConnect'>
+        <mat-select [value]='edgeSelected'   placeholder='Edge Connections' (selectionChange)='edgeOptionChange($event)'>
             <mat-option *ngFor='let option of edgeOptions' [value]='option.label'>
                 {{ option.label }}
             </mat-option>
         </mat-select>
-    </mat-form-field>
+    </mat-form-field> 
     <mat-form-field class='form-field' *ngIf='showEdgeColor'>
         <mat-select [value]='colorSelected' placeholder='Edge Color' (selectionChange)='colorOptionChange($event)'>
             <mat-option *ngFor='let option of colorOptions' [value]='option.label'>
@@ -27,4 +28,48 @@
             </mat-option>
         </mat-select>
     </mat-form-field>
+
+    <section class="example-section">
+        <!--<span class="example-list-section">
+          <mat-checkbox class="example-margin" 
+                        [checked]="allComplete"
+                        [indeterminate]="someComplete()"
+                        (change)="setAll($event.checked)">
+            {{task.name}}
+          </mat-checkbox>
+        </span> -->
+        <span class="example-list-section">
+          <ul style="padding: 0px; list-style-type: none;">
+            <li *ngFor="let subtask of variantCheckbox.subtasks" >
+              <mat-checkbox [(ngModel)]="subtask.completed"
+                                name="{{subtask.name}}"
+                            [color]="primary"
+                            [ngStyle]="{'border-left': '12px solid '+subtask.color, 'padding': '2px 7px' }"
+                            (ngModelChange)="updateAllComplete()"
+                            (change)="setVariantCheckbox($event)">
+                {{subtask.name}}
+              </mat-checkbox>
+            </li>
+          </ul>
+        </span>
+        <!-- <span>
+            <button ngDisabled="notEnoughSelectedToConnect()" mat-button style="color:#1e88e5;width:100%;" (click)="showLinksSelected()">
+                <mat-icon class="material-icons md-18" style="text-align:left;height:32px;transform:translate(0px, 2px);margin-right:0px;"
+                  >add</mat-icon
+                >Show Links of Selected
+              </button>            
+              <button ngDisabled="notEnoughSelectedToConnect()" mat-button style="color:#1e88e5;width:100%;" (click)="hideLinksSelected()">
+                <mat-icon class="material-icons md-18" style="text-align:left;height:32px;transform:translate(0px, 2px);margin-right:0px;"
+                  >remove</mat-icon
+                >Hide Links of Selected
+              </button>            
+              <button mat-button style="color:#1e88e5;width:100%;" (click)="hideAllLinks()">
+                <mat-icon class="material-icons md-18" style="text-align:left;height:32px;transform:translate(0px, 2px);margin-right:0px;"
+                  >remove</mat-icon
+                >Hide All Links
+              </button>            
+        </span> -->
+      </section>
+
+    
 </form>

@@ -5,6 +5,7 @@ import {
 } from 'app/model/enum.model';
 import { GraphConfig } from './../../../model/graph-config.model';
 import { GraphData } from './../../../model/graph-data.model';
+import { VisualizationAbstractScatterConfigModel } from "../visualization.abstract.scatter.model";
 
 export class LinearDiscriminantAnalysisSolver {
   public static SVD = 'svd';
@@ -18,7 +19,7 @@ export class LinearDiscriminantAnalysisShrinkage {
   public static FLOAT = 'float';
 }
 
-export class LinearDiscriminantAnalysisConfigModel extends GraphConfig {
+export class LinearDiscriminantAnalysisConfigModel extends VisualizationAbstractScatterConfigModel {
   constructor() {
     super();
     this.entity = EntityTypeEnum.SAMPLE;

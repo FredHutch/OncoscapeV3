@@ -12,9 +12,16 @@ export class ChartEvent {
   public mouse: { x: number; y: number; xs: number; ys: number };
   public chart: GraphEnum;
   constructor(event: MouseEvent, mouse: { x: number; y: number; xs: number; ys: number }, chart?: GraphEnum) {
-    this.event = event;
-    this.mouse = mouse;
-    this.chart = chart;
+    // STTR-218 - events need to be fully new, not carry shared parts as baggage.
+    let _event = new MouseEvent(event.type, event);
+    let _mouse = {x:0,y:0,xs:0,ys:0};
+    let _chart = chart;
+
+    Object.assign(_mouse, mouse);
+    Object.assign(_chart, chart);
+    this.event = _event;
+    this.mouse = _mouse;
+    this.chart = _chart;
   }
 }
 
@@ -58,7 +65,7 @@ export class ChartEvents {
     this.mouseUp = observableFromEvent<MouseEvent>(container, 'mouseup');
     this.mouseMove = observableFromEvent<MouseEvent>(container, 'mousemove');
     this.mouseDown = observableFromEvent<MouseEvent>(container, 'mousedown');
-    this.keyPress = observableFromEvent<KeyboardEvent>(window, 'keypres');
+    this.keyPress = observableFromEvent<KeyboardEvent>(window, 'keypress');
     this.keyDown = observableFromEvent<KeyboardEvent>(window, 'keydown');
     this.keyUp = observableFromEvent<KeyboardEvent>(window, 'keyup');
 

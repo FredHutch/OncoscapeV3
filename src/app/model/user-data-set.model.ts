@@ -1,4 +1,4 @@
-export interface UserDataSet {
+export interface HIDDEN_UserDataSet {
     nameString: string;
     descriptionString: string;
     fileString: string;

@@ -31,6 +31,7 @@ export const DATA_DECORATOR_DEL = '[GRAPH] Data Decorator Remove';
 export const DATA_DECORATOR_CREATE = '[GRAPH] Data Decorator Create';
 export const DATA_DECORATOR_DEL_ALL = '[GRAPH] Data Decorator Remove All';
 export const SELECTION_TOOL_CHANGE = '[GRAPH] Selection Tool Change';
+export const THREED_RENDER_OPTION = '[GRAPH] 3D Render Option';
 
 // Action Classes
 export class WorkspaceConfigAction implements Action {
@@ -88,6 +89,13 @@ export class DataDecoratorAddAction implements Action {
   ) {}
 }
 
+export class ThreeDRenderOptionAction implements Action {
+  readonly type: string = THREED_RENDER_OPTION;
+  constructor(
+    public payload: { config: GraphConfig; option: string; value: any }
+  ) {}
+}
+
 // Action Type
 export type Actions =
   | DataSetAction
@@ -99,4 +107,5 @@ export type Actions =
   | DataDecoratorAddAction
   | DataDecoratorDelAction
   | DataDecoratorDelAllAction
-  | SelectionToolChangeAction;
+  | SelectionToolChangeAction
+  | ThreeDRenderOptionAction;

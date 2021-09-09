@@ -13,6 +13,7 @@ import {
 import { GraphConfig } from './../../../model/graph-config.model';
 import { ChartEvents } from './../../workspace/chart/chart.events';
 import { DeConfigModel, DeDataModel } from './de.model';
+import { TooltipOverride } from 'app/model/dataset-table-info.model';
 
 export class DeGraph extends AbstractVisualization
   implements ChartObjectInterface {
@@ -39,11 +40,21 @@ export class DeGraph extends AbstractVisualization
   private colors: Array<any>;
   private config: DeConfigModel;
 
+  public tooltipSnippetFromColorDecorator(id:any, tooltipOverride:TooltipOverride):string {
+    return "";
+  };
+
+  public tooltipColorFromDecorator(id:any, color:any){
+    return color;
+  };
+
   create(
-    label: HTMLElement,
+    entity: EntityTypeEnum, 
+    labels: HTMLElement,
     events: ChartEvents,
     view: VisualizationView
   ): ChartObjectInterface {
+    super.create(entity, labels, events, view);
     return this;
   }
   updateDecorator(config: GraphConfig, decorators: DataDecorator[]) {
@@ -86,7 +97,7 @@ export class DeGraph extends AbstractVisualization
       case ShapeEnum.CIRCLE:
         return new THREE.SphereGeometry(3);
       case ShapeEnum.SQUARE:
-        return new THREE.CubeGeometry(3, 3, 3);
+        return new THREE.BoxGeometry(3, 3, 3);
       case ShapeEnum.TRIANGLE:
         return new THREE.TetrahedronGeometry(3);
       case ShapeEnum.CONE:

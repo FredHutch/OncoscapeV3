@@ -8,6 +8,7 @@ export interface Cohort {
     pids: Array<string>;
     sids: Array<string>;
     conditions: Array<CohortCondition>;
+
 }
 
 export interface CohortField {  // Field W/o Value

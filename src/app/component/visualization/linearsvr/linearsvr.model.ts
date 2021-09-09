@@ -5,6 +5,7 @@ import {
 } from 'app/model/enum.model';
 import { GraphConfig } from '../../../model/graph-config.model';
 import { GraphData } from '../../../model/graph-data.model';
+import { VisualizationAbstractScatterConfigModel } from "../visualization.abstract.scatter.model";
 
 export class LinearSVRRandomState {
   public static INSTANCE = 'instance';
@@ -16,7 +17,7 @@ export class LinearSVRLoss {
 }
 
 
-export class LinearSVRConfigModel extends GraphConfig {
+export class LinearSVRConfigModel extends VisualizationAbstractScatterConfigModel {
   constructor() {
     super();
     this.entity = EntityTypeEnum.SAMPLE;

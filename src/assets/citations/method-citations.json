@@ -788,7 +788,22 @@
   {
     "methods": [
       {
-        "method": "Oncocape 3rd Party Licenses",
+        "method": "Images and Other Visual Assets",
+        "url": ""
+      }
+    ],
+    "citations": [
+      {
+        "name": "Freepik icons",
+        "desc": "Icons made by Freepik from www.flaticon.com.",
+        "url": "https://www.flaticon.com/authors/freepik"
+      }
+    ]
+  },
+  {
+    "methods": [
+      {
+        "method": "Oncoscape 3rd Party Licenses",
         "url": ""
       }
     ],

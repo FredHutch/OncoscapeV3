@@ -29,6 +29,10 @@ export class PlsGraph extends AbstractVisualization
     ids: Array<string>;
   }>();
 
+  public tooltipColorFromDecorator(id:any, color:any){
+    return color;
+  };
+
   // Private Members
   public meshes: Array<THREE.Mesh>;
   public decorators: DataDecorator[];
@@ -40,10 +44,12 @@ export class PlsGraph extends AbstractVisualization
   private config: PlsConfigModel;
 
   create(
-    label: HTMLElement,
+    entity: EntityTypeEnum,    
+    labels: HTMLElement,
     events: ChartEvents,
     view: VisualizationView
   ): ChartObjectInterface {
+    super.create(entity, labels, events, view);
     return this;
   }
   updateDecorator(config: GraphConfig, decorators: DataDecorator[]) {

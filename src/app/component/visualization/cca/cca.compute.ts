@@ -7,6 +7,11 @@ export const CCACompute = (
   config: CCAConfigModel,
   worker: DedicatedWorkerGlobalScope
 ): void => {
+  if(config.reuseLastComputation) {
+    worker.postMessage({config: config, data: {cmd:'reuse'}});
+    return;
+  }
+  
   // const classifier = new Set(config.sampleFilter);
   // config.sampleFilter = [];
   worker.util.getDataMatrix(config).then(matrix => {
@@ -32,6 +37,9 @@ export const CCACompute = (
         max_iter: config.max_iter
       })
       .then(result => {
+        if (result && result['message'] && result['stack']) { // duck typecheck for error
+          return worker.util.postCpuError(result, worker);
+        }
         result.resultScaled = worker.util.scale3d(
           result.result,
           config.pcx - 1,
@@ -42,7 +50,7 @@ export const CCACompute = (
         result.mid = matrix.mid;
         result.pid = matrix.pid;
         result.legends = [
-          Legend.create(
+          Legend.create( result, 
             'Data Points',
             config.entity === EntityTypeEnum.GENE ? ['Genes'] : ['Samples'],
             [SpriteMaterialEnum.CIRCLE],

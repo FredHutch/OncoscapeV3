@@ -1,4 +1,4 @@
-
+import * as THREE from 'three';
 import {debounceTime} from 'rxjs/operators';
 import { Object3D, Raycaster } from 'three';
 import { Subscription } from 'rxjs';
@@ -13,6 +13,7 @@ export class AbstractMouseController {
     protected _debounce: number;
     protected _mouseOver: boolean;
     protected _events: ChartEvents;
+    protected _keyPressSubscription: Subscription;
     protected _keyDownSubscription: Subscription;
     protected _keyUpSubscription: Subscription;
     protected _mouseMoveSubscription: Subscription;
@@ -24,7 +25,7 @@ export class AbstractMouseController {
     public getIntersects(
         view: VisualizationView,
         pos: { x: number, y: number, xs: number, ys: number },
-        objects: Array<THREE.Object3D>): Array<THREE.Intersection> {
+        objects: Array<THREE.Object3D> ): Array<THREE.Intersection> {
         this._raycaster.setFromCamera(pos, view.camera);
         return this._raycaster.intersectObjects(objects, false);
     }
@@ -37,8 +38,11 @@ export class AbstractMouseController {
         if (value) {
             this._keyUpSubscription = this._events.chartKeyUp.subscribe(this.onKeyUp.bind(this));
             this._keyDownSubscription = this._events.chartKeyDown.subscribe(this.onKeyDown.bind(this));
+            this._keyPressSubscription = this._events.chartKeyDown.subscribe(this.onKeyPress.bind(this));
             this._mouseUpSubscription = this._events.chartMouseUp.subscribe(this.onMouseUp.bind(this));
             this._mouseDownSubscription = this._events.chartMouseDown.subscribe(this.onMouseDown.bind(this));
+            let objName = this._view.chart ? this._view.chart.constructor.name : 'UNDEFINED';
+            console.log(`msCntlr sub msmv ${objName} , graph =` + this._view.config.graph);
             this._mouseMoveSubscription = this._events.chartMouseMove.pipe(
                 debounceTime(this._debounce))
                 .subscribe(this.onMouseMove.bind(this));
@@ -58,6 +62,7 @@ export class AbstractMouseController {
 
     public onKeyUp(e: KeyboardEvent): void { }
     public onKeyDown(e: KeyboardEvent): void { }
+    public onKeyPress(e: KeyboardEvent): void { }
     public onMouseMove(e: ChartEvent): void { }
     public onMouseDown(e: ChartEvent): void { }
     public onMouseUp(e: ChartEvent): void { }
@@ -69,6 +74,9 @@ export class AbstractMouseController {
         } catch (e) { }
         try {
             this._keyDownSubscription.unsubscribe();
+        } catch (e) { }
+        try {
+            this._keyPressSubscription.unsubscribe();
         } catch (e) { }
         try {
             this._mouseUpSubscription.unsubscribe();

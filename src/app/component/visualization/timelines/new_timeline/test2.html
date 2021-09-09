@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>TEST TEST TEST Timeline Conversion  build 0172</title>
+<link rel="stylesheet" type="text/css" href="./inspector.css">
+<body>
+<h2>my h2</h2>
+<table border="1"><tr>
+<tr><td>stuff1</td><td id="oncoSortTools"></td></tr>
+<tr><td>stuff2</td><td id="oncoSvgTable"></td></tr>
+
+<tr><td>stuff3</td><td><div style="display:none;" id="onco3"></div></td></tr>
+<tr><td>stuff4</td><td >
+
+<div>
+	<div style="float:left" >&nbsp;Zoom:&nbsp;</div>
+	<div style="float:left" id="divStretcher"></div>
+	<div style="float:left"  >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Track Height:&nbsp;</div>
+	<div style="float:left" id="divTrackHeight"></div>
+</div>
+</td></tr>
+
+</table>
+<script type="module">
+
+import define from "./index.js";
+import {Runtime, Library, Inspector} from "./runtime.js";
+
+//const runtime = new Runtime();
+//const main = runtime.module(define, Inspector.into(document.getElementById("mjObservable")));
+
+const runtime = new Runtime(Object.assign(new Library, {width: 640}));
+
+
+
+runtime.module(define, name => {
+  console.log('log ' +name)
+  if(name == "svgTable" || name == "viewof svgTable") {
+    return Inspector.into("#oncoSvgTable")();
+  }
+  if(name == "tooltip" || name == "viewof sortTools") {
+	return Inspector.into("#oncoSortTools")();
+  }
+
+  if(name == "viewof dynamicTrackHeight") {
+	return Inspector.into("#divTrackHeight")();
+  }
+  if(name == "viewof stretcher") {
+	return Inspector.into("#divStretcher")();
+  }
+
+  return Inspector.into("#onco3")();
+  
+  /*
+  if (name === "stretcher") return Inspector.into("#onco3")();
+  if (name === "viewof stretcher") return Inspector.into("#onco3")();
+  if (name === "svgTable") return Inspector.into("#oncoSvgTable")();
+  if (name === "viewof svgTable") return Inspector.into("#oncoSvgTable")();
+  if (name === "update") return true;
+  */
+});
+
+
+</script>

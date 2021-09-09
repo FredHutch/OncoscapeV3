@@ -1,8 +1,8 @@
 <form [formGroup]='form' novalidate>
   <mat-form-field class='form-field'>
     <mat-select placeholder='Align By' formControlName='align' [compareWith]='byLabel'>
-      <mat-optgroup *ngFor='let group of eventGroups' [label]='group.label'>
-        <mat-option *ngFor='let evt of group.events' [value]='evt.label'>
+      <mat-optgroup *ngFor='let group of alignOptions' [label]='group.label'>
+        <mat-option *ngFor='let evt of group.items' [value]='evt'>
           {{ evt.label }}
         </mat-option>
       </mat-optgroup>
@@ -17,6 +17,14 @@
       </mat-optgroup>
     </mat-select>
   </mat-form-field>
+  <mat-form-field [ngStyle]="{'margin-left': 15}" class='form-field'>
+    <mat-select placeholder='Sort Comparison (for events)' formControlName='sortComparison' [compareWith]='byLabel'>
+      Comparison:&nbsp;<mat-option *ngFor='let item of sortComparisonOptions' [value]='item'>
+        {{ item }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
   <mat-form-field class='form-field'>
     <mat-select placeholder='Group By' formControlName='group' [compareWith]='byLabel'>
       <mat-optgroup *ngFor='let group of groupOptions' [label]='group.label'>
@@ -33,6 +41,13 @@
       </mat-option>
     </mat-select>
   </mat-form-field>
+
+  <button mat-button style="color:#1e88e5;width:100%;" (click)="createCohortFromButton($event)">
+    <mat-icon class="material-icons md-18" style="transform:translate(0px, 2px);margin-right:0px;"
+      >settings</mat-icon
+    >Create Range Cohort
+  </button>
+
   <div formArrayName='bars'>
     <div *ngFor='let bar of ctrls; let i=index'>
       <div [formGroupName]='i'>
@@ -65,6 +80,9 @@
       </div>
     </div>
   </div>
+
+
+
 </form>
 <!--
       <div>

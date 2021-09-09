@@ -5,6 +5,7 @@ import {
 } from 'app/model/enum.model';
 import { GraphConfig } from '../../../model/graph-config.model';
 import { GraphData } from '../../../model/graph-data.model';
+import { VisualizationAbstractScatterConfigModel } from "../visualization.abstract.scatter.model";
 
 export class NuSVCKernal {
   public static RBF = 'rbf';
@@ -24,7 +25,7 @@ export class NuSVCRandomState {
   public static NONE = 'None';
 }
 
-export class NuSVCConfigModel extends GraphConfig {
+export class NuSVCConfigModel extends VisualizationAbstractScatterConfigModel {
   constructor() {
     super();
     this.entity = EntityTypeEnum.SAMPLE;

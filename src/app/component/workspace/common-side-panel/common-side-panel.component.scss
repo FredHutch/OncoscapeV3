@@ -1,0 +1,91 @@
+@import 'src/theme.scss';
+.legendHeader {
+  text-transform: capitalize;
+  text-align: left;
+  width: 100%;
+  padding: 10px 0px 10px 0px;
+  font-size: 12px;
+  font-weight: 400;
+  display: inline-block;
+}
+.legendItem {
+  position: relative;
+  padding-left: 25px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 15px;
+  padding-bottom: 10px;
+  text-transform: capitalize;
+}
+
+.swatch {
+  height: 15px;
+  width: 15px;
+  position: absolute;
+  left: 0px;
+}
+
+.swatchButtons {
+  padding: 0px 0px 0px 10px;
+  display: none;
+  background: #fff;
+  position: absolute;
+  right: 15px;
+  top: 2px;
+  line-height: 24px;
+  a {
+    color: mat-color($primary);
+  }
+}
+
+.legendItem:hover {
+  .swatchButtons {
+    display: block;
+    font-size: 0.8rem;
+  }
+}
+
+.commonSideItem {
+  position: relative;
+  padding-left: 25px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 15px;
+  padding-bottom: 10px;
+
+}
+
+.button-next-to-input {
+  font-size: 16px;
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+}
+
+.mat-form-field-onco-wide-panel {
+  width: 228px;
+  }
+
+.common-side-cohort-list-item { cursor: pointer; }
+
+.common-side-cohort-list-item:hover
+{
+  color: white;
+  background-color: #039CE5;
+}
+
+.common-side-cohort-list-delete { cursor: pointer; }
+.common-side-cohort-list-delete:hover
+{
+  background-color: lightgray;
+  font-size: 12px;
+}
+
+.common-widget {
+  background-color: lightblue;
+  border: solid 1px gray;
+
+}.common-widget.common-widget-svgdiv {
+  background-color: white;
+  border: none !important;
+}

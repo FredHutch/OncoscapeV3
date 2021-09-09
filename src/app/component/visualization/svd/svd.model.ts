@@ -5,8 +5,9 @@ import { GraphConfig } from './../../../model/graph-config.model';
 import { VisualizationEnum, ShapeEnum, GraphEnum } from 'app/model/enum.model';
 import { DataField } from 'app/model/data-field.model';
 import { DimensionEnum, DistanceEnum, DenseSparseEnum, EntityTypeEnum } from './../../../model/enum.model';
+import { VisualizationAbstractScatterConfigModel } from "../visualization.abstract.scatter.model";
 
-export class SvdConfigModel extends GraphConfig {
+export class SvdConfigModel extends VisualizationAbstractScatterConfigModel {
 
     dimension: DimensionEnum = DimensionEnum.THREE_D;
     domain: Array<number> = [-300, 300];

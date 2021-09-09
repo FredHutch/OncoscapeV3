@@ -5,6 +5,7 @@ import {
 } from 'app/model/enum.model';
 import { GraphConfig } from './../../../model/graph-config.model';
 import { GraphData } from './../../../model/graph-data.model';
+import { VisualizationAbstractScatterConfigModel } from "../visualization.abstract.scatter.model";
 
 export class LocalLinearEmbeddingEigenSolver {
   public static AUTO = 'auto';
@@ -26,7 +27,7 @@ export class LocalLinearEmbeddingNeighborsAlgorithm {
   public static BALL_TREE = 'ball_tree';
 }
 
-export class LocalLinearEmbeddingConfigModel extends GraphConfig {
+export class LocalLinearEmbeddingConfigModel extends VisualizationAbstractScatterConfigModel {
   constructor() {
     super();
     this.entity = EntityTypeEnum.SAMPLE;

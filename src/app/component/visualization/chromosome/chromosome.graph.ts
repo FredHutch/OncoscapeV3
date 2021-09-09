@@ -7,7 +7,7 @@ import { DataDecorator } from './../../../model/data-map.model';
 import { EntityTypeEnum } from './../../../model/enum.model';
 import { DataService } from './../../../service/data.service';
 import { ChartEvent, ChartEvents } from './../../workspace/chart/chart.events';
-import { ChartFactory, DataDecoatorRenderer } from './../../workspace/chart/chart.factory';
+import { ChartFactory, DataDecoratorRenderer } from './../../workspace/chart/chart.factory';
 import { AbstractVisualization } from './../visualization.abstract.component';
 import { ChromosomeConfigModel, ChromosomeDataModel } from './chromosome.model';
 import * as _ from 'lodash';
@@ -63,7 +63,7 @@ export class ChromosomeGraph extends AbstractVisualization {
     return this._config as ChromosomeConfigModel;
   }
 
-  public renderer: DataDecoatorRenderer = (group: THREE.Group, mesh: THREE.Sprite): void => {
+  public renderer: DataDecoratorRenderer = (group: THREE.Group, mesh: THREE.Sprite): void => {
     // if (i === 1) {
     //     const arcShape = new THREE.Shape();
     //     arcShape.absarc(0.0, 0.0, 10.0, 10.0, 20.0, true);
@@ -108,8 +108,8 @@ export class ChromosomeGraph extends AbstractVisualization {
   };
 
   // Create - Initialize Mesh Arrays
-  create(labels: HTMLElement, events: ChartEvents, view: VisualizationView): ChartObjectInterface {
-    super.create(labels, events, view);
+  create(entity: EntityTypeEnum, labels: HTMLElement, events: ChartEvents, view: VisualizationView): ChartObjectInterface {
+    super.create(entity, labels, events, view);
     this.meshes = [];
     return this;
   }
@@ -192,7 +192,7 @@ export class ChromosomeGraph extends AbstractVisualization {
     }, this);
 
     const geoBuf = new THREE.BufferGeometry();
-    geoBuf.addAttribute('position', new THREE.BufferAttribute(geneArray, 3));
+    geoBuf.setAttribute('position', new THREE.BufferAttribute(geneArray, 3));
 
     // const lineMat = new THREE.LineBasicMaterial({ color: 0x282828, opacity: 1.0, linewidth: 0.75 });
     // const l2 = new THREE.LineSegments(geoBuf, lineMat);

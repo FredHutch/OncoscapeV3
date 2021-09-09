@@ -5,6 +5,7 @@ import {
 } from 'app/model/enum.model';
 import { GraphConfig } from './../../../model/graph-config.model';
 import { GraphData } from './../../../model/graph-data.model';
+import { VisualizationAbstractScatterConfigModel } from "../visualization.abstract.scatter.model";
 
 export class NmfInit {
   public static RANDOM = 'random';
@@ -22,7 +23,7 @@ export class NmfBetaLoss {
   public static ITAKURA_SAITO = 'itakura-saito';
 }
 
-export class NmfConfigModel extends GraphConfig {
+export class NmfConfigModel extends VisualizationAbstractScatterConfigModel {
   constructor() {
     super();
     this.entity = EntityTypeEnum.SAMPLE;

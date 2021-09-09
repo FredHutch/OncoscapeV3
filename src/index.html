@@ -6,7 +6,7 @@
     <base href="/" />
     <meta name="theme-color" content="#039BE5" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="author" content="Michael Zager" />
+    <meta name="author" content="STTR" />
     <meta name="keywords" content="Oncoscape, Cancer, Visualization, CBio, Xena, GDC" />
     <meta
       name="description"
@@ -15,7 +15,7 @@
     <meta property="og:title" content="Oncoscape" />
     <meta
       property="og:description"
-      content="Discover the innovative world of Apple and shop everything iPhone, iPad, Apple Watch, Mac, and Apple TV, plus explore accessories, entertainment, and expert device support."
+      content="Oncoscape allows you to explore clinical data in conjunction with molecular data."
     />
     <meta property="og:url" content="https://oncoscape.v3.sttrcancer.org/" />
     <meta property="og:locale" content="en_US" />
@@ -29,9 +29,19 @@
     <script type="application/ld+json">
       {"@context":"http://schema.org","@type":"WebApplication","name":"Oncoscape","url":"https://oncoscape.v3.sttrcancer.org/","keywords":"Data Visualization, Genomics, Cancer, Biology, Fred Hutchinson","description":"Maximize the potential of your clinical and genomic data by combining it with best-in-class analysis, reference data sets and domain-specific visualizations.","applicationCategory":"Data Visualization","genre":"Genomics","sameAs":["https://twitter.com/oncoscape","https://www.linkedin.com/company/oncoscape/","https://www.instagram.com/oncoscape/","https://www.youtube.com/channel/UCHaDnB41FEkOxu_W9a_C9dQ?view_as=subscriber"],"screenshot":"https://oncoscape.v3.sttrcancer.org/screenshot.jpg","about":{"@type":"Thing","description":"Maximize the potential of your clinical and genomic data by combining it with best-in-class analysis, reference data sets and domain-specific visualizations.","name":"Oncoscape"},"funder":{"@type":"Organization","url":"http://www.fredhutch.org/","address":"1100 Fairview Ave. N., #E3-300 PO Box 19024 Seattle, WA 98109-1024","knowsAbout":"Cancer Research","legalName":"Fred Hutchinson Cancer Research Center","logo":"http://www.fredhutch.org/etc/designs/public/img/logos/fred_hutch_logo.png"},"author":{"@type":"Person","email":"mzager@fredhutch.org","familyName":"Zager","givenName":"Michael","jobTitle":"Developer / Designer / Director","address":"Seattle, WA"},"sponsor":{"@type":"Person","familyName":"Holland","givenName":"Eric","jobTitle":"Neurosurgeon"},"contributor":[{"@type":"Person","email":"mzager@fredhutch.org","familyName":"Zager","givenName":"Michael","jobTitle":"Developer / Designer / Director","address":"Seattle, WA"},{"@type":"Person","familyName":"Krenn","givenName":"Gretchen","jobTitle":"Developer"}],"browserRequirements":"Requires Javscript. Requires HTML5. Build For Google Chrome.","softwareVersion":"3.0","operatingSystem":"All","version":"3.0"}
     </script>
-    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+    <link rel="icon"  type="image/x-icon" href="favicon.ico" />
     <link async href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
     <link async href="https://fonts.googleapis.com/css?family=Lato:100,300,400" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js@5/dist/tippy.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js@5.0.0/themes/light-border.css" sdfsdf="https://unpkg.com/tippy.js/themes/light-border.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+      <!--
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js/themes/light.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js/themes/material.css" crossorigin="anonymous">
+    -->
   </head>
 
   <body class="mat-typography" style="padding: 0px;margin: 0px;overflow: hidden;max-height: 100vh;overflow-y: hidden;">
@@ -44,7 +54,7 @@
         <main>
           Maximize the potential of your clinical and genomic data by combining it with best-in-class analysis,
           reference data sets and domain-specific visualizations. To request training or a custom solution contact us at
-          <a>contact-sttr@fredhutch.org.</a>
+          <a href="mailto:contact@oncoscape.org">contact@oncoscape.org</a>.
           <article>
             <section>
               <h3>Analysis</h3>
@@ -74,7 +84,7 @@
                 <dt>Gene Sets</dt>
                 <dd>Select from thousands of curated gene sets from MSigDB or create your own.</dd>
                 <dt>Pathways</dt>
-                <dd>Select from thousands of top level pathways from Reactome, PathwayCommons, and more.</dd>
+                <dd>Select from thousands of the top-level pathways from Reactome, PathwayCommons, and more.</dd>
               </dl>
             </section>
             <section>
@@ -132,7 +142,7 @@
                   Gain insights into the distribution of your data by visualizing the minimum, first quartile, median,
                   3rd quartile and maximum values.
                 </dd>
-                <dt>Force Directed Grap</dt>
+                <dt>Force Directed Graph</dt>
                 <dd>
                   Visualize graph data in three-dimensions using a class of algorithms called "force directed graphs. "
                   These algorithmsuse the number and strength of connections to position nodes.
@@ -145,13 +155,14 @@
         </main>
       </div>
     </app-root>
+    <div style="display:none;" id="oncoHideAfterAppRoot"></div>
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-55684588-3"></script>
     <script>
       var global = global || window;
       if (global === undefined) {
         var global = window;
       }
-      document.oncontextmenu = () => false;
+      // MJ - do not disable right click now.  was: document.oncontextmenu = () => false;
       window.dataLayer = window.dataLayer || [];
       function gtag() {
         dataLayer.push(arguments);

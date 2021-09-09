@@ -30,6 +30,10 @@ export class DendogramGraph extends AbstractVisualization
     ids: Array<string>;
   }>();
 
+  public tooltipColorFromDecorator(id:any, color:any){
+    return color;
+  };
+
   // Chart Elements
   private data: DendogramDataModel;
   private config: DendogramConfigModel;
@@ -40,7 +44,7 @@ export class DendogramGraph extends AbstractVisualization
   geometry = new THREE.BufferGeometry();
   material = new THREE.PointsMaterial({
     size: this.pointSize,
-    vertexColors: THREE.VertexColors
+    vertexColors: true
   });
 
   public meshes: THREE.Object3D[];
@@ -54,10 +58,12 @@ export class DendogramGraph extends AbstractVisualization
   private sMouseUp: Subscription;
 
   create(
+    entity: EntityTypeEnum, 
     labels: HTMLElement,
     events: ChartEvents,
     view: VisualizationView
   ): ChartObjectInterface {
+    super.create(entity, labels, events, view);
     this.labels = labels;
     this.events = events;
     this.view = view;
@@ -143,15 +149,15 @@ export class DendogramGraph extends AbstractVisualization
       });
     });
 
-    geometry.addAttribute(
+    geometry.setAttribute(
       'position',
       new THREE.Float32BufferAttribute(positions, 3)
     );
-    geometry.addAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
     geometry.computeBoundingSphere();
     const material = new THREE.PointsMaterial({
       size: 10,
-      vertexColors: THREE.VertexColors
+      vertexColors: true
     });
     this.points = new THREE.Points(geometry, material);
     this.group.add(this.points);

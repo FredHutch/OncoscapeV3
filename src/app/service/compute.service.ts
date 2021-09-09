@@ -29,6 +29,8 @@ import { LinearDiscriminantAnalysisConfigModel } from './../component/visualizat
 import { LinkedGeneConfigModel } from './../component/visualization/linkedgenes/linkedgenes.model';
 import { LocalLinearEmbeddingConfigModel } from './../component/visualization/locallinearembedding/locallinearembedding.model';
 import { MdsConfigModel } from './../component/visualization/mds/mds.model';
+import { SavedPointsConfigModel } from './../component/visualization/savedpoints/savedpoints.model';
+import { TableLoaderConfigModel } from './../component/visualization/tableLoader/tableLoader';
 // tslint:disable:max-line-length
 import { MiniBatchDictionaryLearningConfigModel } from './../component/visualization/minibatchdictionarylearning/minibatchdictionarylearning.model';
 import { NmfConfigModel } from './../component/visualization/nmf/nmf.model';
@@ -56,6 +58,13 @@ import { ProteinConfigModel } from 'app/component/visualization/protein/protein.
 /*
 When samples and genes are specified empty arrays == all
 */
+import { LoaderHideAction } from './../action/layout.action';
+import { Legend } from 'app/model/legend.model';
+import { config } from 'aws-sdk';
+import { ChartScene } from 'app/component/workspace/chart/chart.scene';
+import { OncoData } from 'app/oncoData';
+
+
 @Injectable()
 export class ComputeService {
   private isoMap$ = new Subject<any>();
@@ -76,6 +85,8 @@ export class ComputeService {
   private nmf$ = new Subject<any>();
   private fa$ = new Subject<any>();
   private mds$ = new Subject<any>();
+  private savedPoints$ = new Subject<any>();
+  private tableLoader$ = new Subject<any>();
   private pca$ = new Subject<any>();
   private som$ = new Subject<any>();
   private chromosome$ = new Subject<any>();
@@ -124,6 +135,10 @@ export class ComputeService {
   private workerB: Worker = null; // Graph B
   private workerE: Worker = null; // Edges
 
+  private workerAConfigStorage: GraphConfig = null;
+  private workerBConfigStorage: GraphConfig = null;
+  private workerEConfigStorage: GraphConfig = null;
+  
   getSubjectByVisualization(v: VisualizationEnum): Subject<any> {
     return v === VisualizationEnum.BOX_WHISKERS
       ? this.boxWhiskers$
@@ -159,6 +174,10 @@ export class ComputeService {
       ? this.fa$
       : v === VisualizationEnum.MDS
       ? this.mds$
+      : v === VisualizationEnum.SAVED_POINTS
+      ? this.savedPoints$
+      : v === VisualizationEnum.TABLE_LOADER
+      ? this.tableLoader$
       : v === VisualizationEnum.PCA
       ? this.pca$
       : v === VisualizationEnum.SOM
@@ -221,25 +240,225 @@ export class ComputeService {
       ? this.histogram$
       : null;
   }
+
+  roughSizeOfObject( object ) {
+
+    var objectList = [];
+    var stack = [ object ];
+    var bytes = 0;
+
+    while ( stack.length ) {
+        var value = stack.pop();
+
+        if ( typeof value === 'boolean' ) {
+            bytes += 4;
+        }
+        else if ( typeof value === 'string' ) {
+            bytes += value.length * 2;
+        }
+        else if ( typeof value === 'number' ) {
+            bytes += 8;
+        }
+        else if
+        (
+            typeof value === 'object'
+            && objectList.indexOf( value ) === -1
+        )
+        {
+            objectList.push( value );
+            if (value instanceof Float32Array) {
+              bytes += value.byteLength;
+            } else {
+            if (Array.isArray(value) && value.length > 100) {
+              bytes += value.length * 16;  //  MJ Just roughly assume it's an array of numbers.
+            } else {
+              for( var i in value ) {
+                  stack.push( value[ i ] );
+              }
+            }
+          }
+        }
+    }
+    return bytes;
+  }
+
   onMessage(v) {
-    if (v.data === 'TERMINATE') {
+    console.log(`onmessage compute.service ${Date.now()}`);
+    
+    if (v.data === 'TERMINATE' || v.data.cmd == 'cpuError' || v.data.error) {
       const worker = v.target as Worker;
       worker.removeEventListener('message', this.onMessage);
       worker.terminate();
       if (worker === this.workerA) {
         this.workerA = null;
+        this.workerAConfigStorage = null;
       }
       if (worker === this.workerB) {
         this.workerB = null;
+        this.workerBConfigStorage = null;
       }
       if (worker === this.workerE) {
         this.workerE = null;
+        this.workerEConfigStorage = null;
+      }
+
+      if (v.data.error || v.data.cmd == 'cpuError') {
+        console.log(`MJ error or cpuError...`);
+        console.dir(v.data);
+        let errMessage = 'An error ocurred during computation.';
+        if(v.data.error){
+          errMessage = v.data.error.message;
+        }
+        let errDetails:string = '(Could not detect which computation failed.)';
+        if (v.data.cmd && v.data.cmd == 'cpuError' && v.data.details ) {
+          errMessage = v.data.details.errorMessage
+          errDetails = `Computation: '${v.data.details.cpuMethod}.`;
+        }
+        document.querySelector('.loader')["style"]["visibility"] = 'hidden';
+        alert(`ERROR: ${JSON.stringify(errMessage)} ... \n ${errDetails}'\n You might need to reload the web page.`)
+
       }
     } else {
-      this.getSubjectByVisualization(v.data.config.visualization).next(v.data);
+      if (v.data.cmd === 'log') { // only cmd defined. otherwise, it's all data from the computation.
+        console.log(`${v.data.cmd} MSGfromCompute: ${v.data.msg}.`);
+      } else {
+        let dataToUse = v.data;
+        if(v.data.config.visualization != VisualizationEnum.TABLE_LOADER){
+          let dataToUse = {...(v.data)};
+        }
+        // MJ We are not using the 'result' passed in here after all. Remove so we can treat a legend as non-looped object.
+        if(dataToUse.data.legends) {
+          dataToUse.data.legends.map(l => l.result = null);
+        }
+        console.log('config check 1');
+        let copyOfConfig:GraphConfig = GraphConfig.cloneFromAny(dataToUse.config) ; // !! TBD make deep copy
+        dataToUse.config = copyOfConfig;
+
+        const worker = v.target as Worker;
+        // Copy the config data back into storage, as firmColors etc. may have been changed by compute thread.
+        if (worker === this.workerA) {
+          this.workerAConfigStorage = copyOfConfig;
+        }
+        if (worker === this.workerB) {
+          this.workerBConfigStorage = copyOfConfig
+        }
+        if (worker === this.workerE) {
+          this.workerEConfigStorage = copyOfConfig
+        }
+        let vizName:string = VisualizationEnum[copyOfConfig.visualization];
+
+
+        if(dataToUse.data.cmd == 'reuse'){
+          // re-use last data for this visualization, since the config values did not change.
+          console.log(`MJ  retrieving oncoData for vis: ${vizName}.`);
+          let storedData = OncoData.instance.lastData[vizName]['results'];
+          let deepCopyData = Object.assign({}, storedData, JSON.parse(JSON.stringify(storedData)));
+
+          dataToUse = deepCopyData;
+          dataToUse.data.cmd = 'reuse';
+          dataToUse.config = copyOfConfig;
+        } else {
+          // we got new data back from computation.
+          if(copyOfConfig.visualization != VisualizationEnum.TABLE_LOADER){
+            let deepCopyData = Object.assign({}, dataToUse, JSON.parse(JSON.stringify(dataToUse)));
+            console.log(`MJ  recording oncoData for vis: ${vizName}.`);
+            OncoData.instance.lastData[vizName] = {};
+            OncoData.instance.lastData[vizName]['results'] = deepCopyData; // dataToUse
+            OncoData.instance.lastData[vizName]['size'] = this.roughSizeOfObject(v.data);
+          }
+        }
+        // Compute function might generate a legend for Cohorts (e.g. with Survival viz),
+        // but without having access to cohort data via OncoData.instance.
+        // So we sniff for a legend called "Cohorts", and swap in proper cohort colors
+        // to match cohort names in legend.labels.
+        /* Looking for a legend like this:
+        display: "DISCRETE"
+        labels: (4) ["All", "AllBut3", "SwoopDown", "veryDiff"]
+        name: "Cohorts"
+        type: "COLOR"
+        */
+        try {
+        if(dataToUse.data && dataToUse.data.legends) {
+          let legends:Array<Legend> = dataToUse.data.legends;
+          let legend:Legend = legends.find(l => l.name=='Cohorts' && l.display=='DISCRETE' && l.type=='COLOR');
+          if (legend) { // We found the compute fn's default color legend for cohorts, so now use proper colors.
+            legend.labels.map(function(v,i) {
+              legend.values[i] = OncoData.instance.currentCommonSidePanel.colorOfSavedCohortByName(v);
+            });
+          }
+        }
+
+        if(copyOfConfig.visualization == VisualizationEnum.EDGES) {
+          // Notify both graph A and B that we have news.
+          // GenomeGraph, for example, wants to know what our edge settings were.
+          let gsi = ChartScene.instance;
+          if(gsi) {
+            if(gsi.views[0]) {
+              gsi.views[0].chart.updatedEdgeConfig(copyOfConfig as EdgeConfigModel);
+            }
+            if(gsi.views[1]) {
+              gsi.views[1].chart.updatedEdgeConfig(copyOfConfig as EdgeConfigModel);
+            }
+          }
+        }
+
+      } catch (err) {
+        console.error(err);
+      }
+      this.getSubjectByVisualization(v.data.config.visualization).next(dataToUse);
+
+
+      }
     }
   }
+
+
+  graphConfigsAreEquivalent(a, b) {
+    if(a == null || b == null) {
+      return false;
+    }
+
+    let aProps = Object.getOwnPropertyNames(a);
+    let bProps = Object.getOwnPropertyNames(b);
+    aProps = aProps
+    .filter(e => e !== 'uiOptions')
+    .filter(e => e !== 'reuseLastComputation');
+    bProps = bProps
+    .filter(e => e !== 'uiOptions')
+    .filter(e => e !== 'reuseLastComputation');
+
+    if (aProps.length != bProps.length) {
+        return false;
+    }
+
+    for (var i = 0; i < aProps.length; i++) {
+        var propName = aProps[i];
+        let aVal = JSON.stringify(a[propName]);
+        let bVal = JSON.stringify(b[propName]);
+        if (aVal !== bVal) {
+            return false;
+        }
+    }
+
+    return true;
+  }
+
   execute(config: GraphConfig, subject: Subject<any>): Observable<any> {
+    let vizName:string = VisualizationEnum[config.visualization];
+    // Let us avoid using cached edges for now, until we are sure 
+    // underlying graphA and graphB configs have not changed. MJ
+    console.log(`MJ  checking oncoData for vis: ${vizName}.`);
+    if (vizName != 'EDGES' && OncoData.instance.lastData[vizName]) {
+      let lastData:any = OncoData.instance.lastData[vizName];
+      // Do object compare, but ignore uiOptions. They do not affect data from compute call.
+      if(this.graphConfigsAreEquivalent(config, lastData.results.config)){
+        config.reuseLastComputation = true;
+      }
+    }
+
+    
+
+
     // If user requests no computation, just pass the config through
     // debugger;
     // if (config.dirtyFlag === DirtyEnum.NO_COMPUTE) {
@@ -254,6 +473,7 @@ export class ComputeService {
           this.workerA.terminate();
           this.workerA = null;
         }
+        this.workerAConfigStorage = config;
         this.workerA = new Worker('assets/compute.js');
         this.workerA.addEventListener('message', this.onMessage.bind(this));
         this.workerA.postMessage(config);
@@ -265,6 +485,7 @@ export class ComputeService {
           this.workerB.terminate();
           this.workerB = null;
         }
+        this.workerBConfigStorage = config;
         this.workerB = new Worker('assets/compute.js');
         this.workerB.addEventListener('message', this.onMessage.bind(this));
         this.workerB.postMessage(config);
@@ -276,6 +497,7 @@ export class ComputeService {
           this.workerE.removeEventListener('message', this.onMessage);
           this.workerE = null;
         }
+        this.workerEConfigStorage = config;
         this.workerE = new Worker('assets/compute.js');
         this.workerE.addEventListener('message', this.onMessage.bind(this));
         this.workerE.postMessage(config);
@@ -378,6 +600,14 @@ export class ComputeService {
 
   mds(config: MdsConfigModel): Observable<any> {
     return this.execute(config, this.mds$);
+  }
+
+  savedPoints(config: SavedPointsConfigModel): Observable<any> {
+    return this.execute(config, this.savedPoints$);
+  }
+
+  tableLoader(config: TableLoaderConfigModel): Observable<any> {
+    return this.execute(config, this.tableLoader$);
   }
 
   fa(config: FaConfigModel): Observable<any> {

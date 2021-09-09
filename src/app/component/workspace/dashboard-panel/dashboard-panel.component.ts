@@ -94,11 +94,12 @@ export class DashboardPanelComponent implements AfterViewInit, OnDestroy {
             '</div>'
         );
 
-        debugger;
-
         result.stats.forEach(stat => {
           const myData = stat.data as Array<{ mylabel: string; myvalue: number; color?: any }>;
-          const myTitle = stat.name;
+          const myTitle:string = stat.name; 
+          
+          // If starts with "%", they are percentages, so format accordingly.
+          const arePercentages = myTitle.startsWith("%");
 
           const w = 500;
           const h = 400;
@@ -122,7 +123,7 @@ export class DashboardPanelComponent implements AfterViewInit, OnDestroy {
             '#1976d2',
             '#1565c0',
             '#0d47a1'
-          ];
+          ]; 
 
           // Scales
           const xScale = d3
@@ -191,7 +192,9 @@ export class DashboardPanelComponent implements AfterViewInit, OnDestroy {
             .attr('class', 'xAxisLabels')
             .attr('y', d => yScale(d.myvalue) - 4)
             .attr('text-anchor', 'middle')
-            .text(d => d.myvalue);
+            .text(d => arePercentages ? 
+              (d.myvalue * 100).toFixed(2)+'%' : 
+              d.myvalue);
 
           svg
             // x-axis labels

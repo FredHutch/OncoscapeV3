@@ -5,6 +5,7 @@ import {
 } from 'app/model/enum.model';
 import { GraphConfig } from './../../../model/graph-config.model';
 import { GraphData } from './../../../model/graph-data.model';
+import { VisualizationAbstractScatterConfigModel } from "../visualization.abstract.scatter.model";
 
 export class DictionaryLearningFitAlgorithm {
   public static LARS = 'lars';
@@ -19,7 +20,7 @@ export class DictionaryLearningTransformAlgorithm {
   public static THRESHOLD = 'threshold';
 }
 
-export class DictionaryLearningConfigModel extends GraphConfig {
+export class DictionaryLearningConfigModel extends VisualizationAbstractScatterConfigModel {
   constructor() {
     super();
     this.entity = EntityTypeEnum.SAMPLE;

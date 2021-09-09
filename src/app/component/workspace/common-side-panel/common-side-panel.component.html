@@ -1,0 +1,80 @@
+<div   >
+  <!-- <div class='legendHeader' style='padding-bottom: 0px;font-weight: 300p;'>Data Set: {{config.database}} </div> -->
+  <!--
+    <div *ngIf="datasetDescription.hasSurvival" >
+    <span class="legendHeader">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Survival Curve</span>
+    <div #HIDDENsurvivalSvgContainer style='height:155px;  '></div>
+    <hr>
+  </div>
+
+  <div *ngIf="datasetDescription.hasCopyNumber" >
+    <span id="copynumberContainerHeader" class="legendHeader">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copy Number</span>
+    <div #copynumberSvgContainer style='height:130px;  '></div>
+    <hr>
+  </div>-->
+<div id="copynumberContainerHeader" style="display:none"></div>
+
+<survival-widget #svgContainer_Survival  id="common-survival-widget" *ngIf="datasetDescription.hasSurvival"
+  id ="myId1" #myId>
+</survival-widget>
+<copynumber-widget #svgContainer_Copy_Number  id="common-copynumber-widget" *ngIf="datasetDescription.hasCopyNumber"
+  id ="myId2" #myId>
+</copynumber-widget>
+<diffexp-widget #svgContainer_Differential_Expression  id="common-diffexp-widget" *ngIf="datasetDescription.hasMatrixFields"
+  id ="myId3" #myId>
+</diffexp-widget>
+
+
+  <div #cohortControls class="commonSideItem mat-form-field-onco-wide-panel">
+    <form class="mat-form-field-onco-wide-panel">
+
+      <mat-form-field class="mat-form-field-onco-wide-panel">
+        <!--<mat-label>Selected Cohort</mat-label>-->
+        <span class="legendHeader">Selected Cohort</span>
+        <table width="100%" style="border-collapse: collapse; border: 1px solid lightgray;"><tr>
+          <td id="colorCellForSelectedCohort" width="10" bgcolor="blue">&nbsp;</td>
+          <td id="spacerColorCellForSelectedCohort"  >&nbsp;</td>
+          <td width="100%" height="39.2"><input #selectedCohortTextField value="All Patients + Samples" matInput (keyup)="applySelectedCohortNameFilter($event.target.value)" placeholder="All Patients + Samples">
+          </td>
+        <td id="cellForAddingCohort" style="display:none;"><button (click)="addCohortClicked($event)"  mat-button class="button-next-to-input"><mat-icon>add</mat-icon></button></td>
+      </tr></table>
+        <!--  [(value)]="selectedCohortText"  -->
+      </mat-form-field>
+
+      <span class="legendHeader">Saved Cohorts</span>
+  
+      <div class="mat-form-field-onco-wide-panel">
+       <!-- <mat-label>Saved Cohorts</mat-label> -->
+        <table id="savedCohortsTable" width="100%" border="1" frame="hsides" rules="rows" style="border-collapse: collapse; border: 1px solid lightgray;">
+          <tr>
+          <td   width="10" bgcolor="lightgray" >&nbsp;</td>
+          <td   >&nbsp;</td>
+          <td width="100%"  >All Patients + Samples</td>
+        <!--<td id="cellForAddingCohort" style="display:none;"><button (click)="addCohortClicked($event)"  mat-button class="button-next-to-input"><mat-icon>add</mat-icon></button></td>-->
+        </tr></table>
+        
+      
+        <!--  [(value)]="selectedCohortText" -->
+      </div> <!-- was </mat-form-field> -->
+
+      <!-- 
+      <mat-form-field>
+        <mat-label>Cohorts</mat-label>
+        <mat-select #cohortChosen [(value)]="cohortChoice">
+          <mat-option>None</mat-option>
+          <mat-option value="All">All Patients + Samples</mat-option>
+          <mat-option value="option2">Option 2</mat-option>
+          <mat-option value="option3">Option 3</mat-option>
+        </mat-select>
+      </mat-form-field>
+      
+ 
+    
+      <p>Selected: {{cohortChoice}}</p>    -->
+
+
+    </form>
+  </div>
+
+  <hr>
+</div>

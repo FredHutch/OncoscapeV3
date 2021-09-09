@@ -10,6 +10,7 @@ import {
 import { PanelEnum } from '../../../model/enum.model';
 import { DataHubService } from './../../../service/datahub.service';
 import { MatTabChangeEvent } from '@angular/material';
+import tippy from 'tippy.js';
 
 @Component({
   selector: 'app-workspace-file-panel',
@@ -26,7 +27,7 @@ export class FilePanelComponent {
   @Output()
   loadPublic = new EventEmitter<any>();
   @Output()
-  loadPrivate = new EventEmitter<{ bucket: string; token: string }>();
+  loadPrivate = new EventEmitter<{ bucket: string; env: string }>();
   @Output()
   hide = new EventEmitter<any>();
   @Output()
@@ -42,15 +43,24 @@ export class FilePanelComponent {
       // case 'GDC':
       //   this.setDatasetsGdc();
       //   return;
-      case 'Memorial Slone Kettering':
+      case 'HIDDEN Memorial Sloan Kettering':
         this.setDatasetsCBio();
         return;
       // tslint:disable-next-line:quotemark
-      case "Children's Hospital of Philadelphia":
+      case "HIDDEN Children's Hospital of Philadelphia":
         this.setDatasetsChop();
         return;
       case 'Private Datasets':
         this.setDatasetsPrivate();
+        setTimeout(v => {
+          tippy('.private-dataset-list-item', {
+            theme: 'light-border',
+            arrow: true,
+            placement: "right" //,
+            // appendTo: document.body,
+            // interactive: true
+          });
+          }, 100);        
         return;
         break;
     }
@@ -299,9 +309,12 @@ export class FilePanelComponent {
     this.cd.markForCheck();
   }
   setDatasetsCBio(): void {
+    this.datasets = [];
+    console.log('Inside setDatasetsCBio.');
     this.dataService.getPublicDatasets().then(result => {
       this.datasets = result
         .map(v => {
+          console.log('MSK: ' + JSON.stringify(v));
           return { name: v.content.name, img: 'DScancer', src: v.project.split('|')[0], uid: v.project.split('|')[0] };
         })
         .filter(v => v.name.toLowerCase().indexOf('kim') === -1)
@@ -319,6 +332,7 @@ export class FilePanelComponent {
   setDatasetsPrivate(): void {
     this.datasets = [];
     this.cd.markForCheck();
+
   }
 
   uploadExcelClick(): void {

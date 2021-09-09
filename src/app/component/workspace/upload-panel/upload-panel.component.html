@@ -2,12 +2,14 @@
   <div>
     <a href="#" class="modalClose" (click)="closeClick()"> </a>
     <h1 class="panel-header">Data Upload</h1>
-    <h2 class="panel-header-desc">Complete the four steps below to visualize your own data</h2>
+    <h2 class="panel-header-desc">Complete the steps below to visualize your own data.</h2>
+    Oncoscape imports data in <a target="_blank" href="https://github.com/cBioPortal/cbioportal/blob/master/docs/Data-Loading.md">the formats of the cBioPortal</a> project. After preparing individual text files, put them all into a .zip file (no nesting inside folders, just flat). The .zip file is what you will upload to Oncoscape.
   </div>
 
   <!-- Create Dataset -->
-  <mat-vertical-stepper linear="true" style="transform: translateX(-24px);width:60%;display:inline-block;">
-    <mat-step label="Step 1: Accept Our Terms of Use" completed="true">
+
+  <mat-vertical-stepper #stepper linear="true" style="transform: translateX(-24px);width:80%;display:inline-block;">
+    <mat-step label="Step 1: Accept Our Terms of Use" completed="false">
       <p>
         Oncoscape requires all Protected Health Information (PHI) be removed from datasets prior to upload. PHI is
         defined and regulated under United States Public Law 104-191 under the Health Insurance Portability and
@@ -24,20 +26,19 @@
       <p>
         By clicking I Agree, you certify that your dataset is free of PHI and conforms with all United States laws and
         regulations as well as the Fred Hutchinson Cancer Research Center's
-        <a class="os-link" target="_blank" href="http://www.fredhutch.org/en/util/terms-privacy.html"
-          >Terms of Use and Privacy Policy</a
-        >.
+        <a class="os-link" target="_blank" href="/assets/terms.html">Terms and Conditions</a>.
       </p>
-      <button mat-raised-button matStepperNext color="primary">I Accept</button>
+      <button mat-raised-button (click)="processIAccept()" color="primary">I Accept</button>
     </mat-step>
 
-    <mat-step label="Step 2: Upload Your Data" completed="true">
+    <mat-step label="Step 2: Select Your .zip Data File" class="fileupload-step2" completed="false">
       <p>
-        <input style="display:none;" #fileInput type="file" multiple accept="text/csv" />
+        <input style="display:none;" #fileInput class="oncoscape-file-choice" type="file" multiple accept=".zip" (change)="fileChangeEvent($event)" placeholder="Upload file..."/>
 
-        Select CSV file(s) to upload to Oncoscape.<br />
-        <a href="/assets/oncoscape-upload-instructions.pdf" class="os-link" target="_blank">Click here</a> to download
-        instructions for CSV filename and content formatting.<br />
+        Oncoscape expects your files to be in the <a href="https://github.com/cBioPortal/cbioportal/blob/master/docs/File-Formats.md" class="os-link" target="_blank">cBioPortal format</a>, and placed into a .zip file. See <a href="javascript:{alert('[Add _target.] Documentation not ready yet. Please contact Matt Jensen at mnjensen@fredhutch.org')}" class="os-link" >these tips</a> about file organization and content formatting.<br />
+        <br />
+        Select the .zip file to upload to Oncoscape.<br />
+        
 
         <!--
           The easiest way to view your data in Oncoscape is to upload it using our Excel template. For detailed instructions or to
@@ -64,7 +65,8 @@
       </p>
     </mat-step>
 
-    <mat-step label="Step 3: Annotate Your Dataset" completed="true">
+    <mat-step label="Step 3: Annotate Your Dataset" MatStepperNext completed="false">
+      <button id='populate' *ngIf='isMJ("step3Annotate")' (click)='testPopulate()'>MJ TEST: Populate</button>
       <form [formGroup]="formGroup">
         <div class="forms-container">
           <div class="form-container">
@@ -82,7 +84,7 @@
             <mat-form-field>
               <input
                 matInput
-                placeholder="Description"
+                placeholder="Dataset Description"
                 formControlName="description"
                 autocomplete="off"
                 [errorStateMatcher]="matcher"
@@ -129,59 +131,81 @@
             </mat-form-field>
 
             <mat-form-field>
-              <input matInput placeholder="Contact Email" formControlName="contactName" autocomplete="off" />
+              <input matInput placeholder="Contact Email" formControlName="contactEmail" autocomplete="off" />
             </mat-form-field>
 
             <mat-form-field>
-              <input matInput placeholder="Contact Phone" formControlName="contactName" autocomplete="off" />
+              <input matInput placeholder="Contact Phone" formControlName="contactPhone" autocomplete="off" />
             </mat-form-field>
 
             <!-- <mat-checkbox formControlName='contactAllow'>Permit Contact</mat-checkbox> -->
           </div>
         </div>
 
-        <button (click)="formSubmit()" style="width:120px;" mat-raised-button color="primary">Next</button>
+        <button (click)="formValidate()" style="width:120px;" mat-raised-button color="primary">Next</button>
       </form>
     </mat-step>
 
-    <mat-step label="Step 4: Configure Access" completed="true">
+    <mat-step label="Step 4: Upload" completed="false">
       <div style="display:inline-block">
-        <mat-radio-group
-          (change)="accessChange($event)"
-          [(ngModel)]="accessOption"
-          style="display: inline-flex;flex-direction: column;"
-        >
-          <mat-radio-button class="radiobtn" value="private"
-            >Do not allow anyone else to view this dataset</mat-radio-button
-          >
-          <mat-radio-button class="radiobtn" value="protected">Specify a list of authorized users</mat-radio-button>
-          <mat-radio-button class="radiobtn" value="public">Allow anyone to view this dataset</mat-radio-button>
-        </mat-radio-group>
+        You are ready to upload your data. The terms accepted above apply. Click the button below to upload.
+        <p >&nbsp;</p>
+        <p id='feedbackAfterError'></p>
         <p>
-          <button (click)="formSubmit()" style="width:120px;margin-top:10px;" mat-raised-button color="primary">
-            Done
+          <button (click)="formSubmit()" [disabled]="disableUploadButton === true" style="width:120px;margin-top:10px;" mat-raised-button color="primary">
+            Upload
           </button>
         </p>
       </div>
-      <div
-        *ngIf="accessOption === 'protected'"
-        style="display:inline-block;padding-left: 20px;margin-left:20px;
-      vertical-align: top;border:0px solid #eee; border-left-width:1px;"
-      >
-        <mat-form-field>
-          <input [(ngModel)]="collaborator" matInput placeholder="Enter Collaborator Email" autocomplete="off" />
-        </mat-form-field>
-        <i class="material-icons md-18" (click)="addCollaborator()" style="color:#1e88e5 !important"
-          >add_circle_outline</i
-        >
-        <div *ngFor="let option of collaborators" class="panel-config-row-del" (click)="removeCollaborator(option)">
-          <div style="width:180px">{{ option.email }}</div>
-          <i class="material-icons md-18" style="color:#1e88e5">remove_circle_outline</i>
-        </div>
+      <div id='progressArea'>
+          <table id="stateTable"  class="table" data-toggle="table" data-show-refresh="false">
+            <thead>
+              <tr>
+                <th scope="col">Uploading</th><th></th>
+                <th scope="col">Validating</th><th></th>
+                <th scope="col">Converting</th><th></th>
+                <th scope="col">Finalizing</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                  <td>
+                    <i id="stageUploading"  class="fa fa-upload" style="font-size:48px;color:lightgray"></i><br/>
+                    <i id="stageUploadingProgress"  class="fa fa-ellipsis-h" style="font-size:48px;color:lightgray"></i>
+                  </td>
+                  <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                  <td>
+                    <i id="stageValidating"  class="fa fa-gears" style="font-size:48px;color:lightgray"></i><br/>
+                    <i id="stageValidatingProgress"  class="fa fa-ellipsis-h" style="font-size:48px;color:lightgray"></i>
+                  </td>
+                  <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                  <td>
+                    <i id="stageConverting"  class="fa fa-gears" style="font-size:48px;color:lightgray"></i><br/>
+                    <i id="stageConvertingProgress"  class="fa fa-ellipsis-h" style="font-size:48px;color:lightgray"></i>
+                  </td>
+                  <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                  <td>
+                    <i id="stageFinalizing"  class="fa fa-edit" style="font-size:48px;color:lightgray"></i><br/>
+                    <i id="stageFinalizingProgress"  class="fa fa-ellipsis-h" style="font-size:48px;color:lightgray"></i>
+                  </td>
+              </tr>
+            </tbody>
+          </table>
       </div>
     </mat-step>
   </mat-vertical-stepper>
+  <div id="file-choice-details" ></div>
+  <div id="dataset-name-display" ></div>
+
+  
+  <app-workspace-upload-feedback-panel
+  [hidden]="!uploadFeedbackVisible" 
+  (hide)="hideUploadFeedback()"
+  ></app-workspace-upload-feedback-panel>
+
+
   <div style="display:inline-block;width:30%;margin-left:5%;vertical-align:top;text-align: center;">
+    <!-- 
     <div class="video-responsive">
       <iframe
         width="420"
@@ -191,5 +215,6 @@
         allowfullscreen
       ></iframe>
     </div>
+  -->
   </div>
 </div>

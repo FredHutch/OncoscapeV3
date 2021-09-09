@@ -1,4 +1,5 @@
-import { OrbitControls } from 'three-orbitcontrols-ts';
+import { environment } from '../../../../environments/environment';
+// MJ import { OrbitControls } from 'three-orbitcontrols-ts';
 import * as TWEEN from '@tweenjs/tween.js';
 import { ChartSelection } from './../../../model/chart-selection.model';
 import { EventEmitter, Injectable } from '@angular/core';
@@ -19,6 +20,7 @@ import {
   SpotLight,
   WebGLRendererParameters
 } from 'three';
+import { AbstractScatterVisualization } from './../../visualization/visualization.abstract.scatter.component';
 import { VisualizationView } from './../../../model/chart-view.model';
 import { ChartObjectInterface } from './../../../model/chart.object.interface';
 import { DataDecorator } from './../../../model/data-map.model';
@@ -28,6 +30,39 @@ import { EdgesGraph } from './../../visualization/edges/edges.graph';
 import { EdgeConfigModel } from './../../visualization/edges/edges.model';
 import { ChartEvent, ChartEvents } from './chart.events';
 import { ChartFactory } from './chart.factory';
+import { ThreeToSvg } from './three_to_svg';
+import { OncoSVGRenderer } from './OncoSVGRenderer';
+import { GlobalGuiControls } from 'app/globalGuiControls';
+import { OncoData } from 'app/oncoData';
+
+var THREE = require('three');
+var gggg =  new OncoSVGRenderer();
+console.log(gggg._color);
+
+// Object['unfreeze'] = function (o) {
+//   var oo = undefined
+//   if (o instanceof Array) {
+//     oo = []
+//     var clone = function (v) {
+//       oo.push(v)
+//     }
+//     o.forEach(clone)
+//   }
+//   else if (o instanceof String) {
+//     oo = new String(o).toString()
+//   }
+//   else if (typeof o == 'object') {
+//     oo = {}
+//     for (var property in o) {
+//       oo[property] = o[property]
+//     }
+//   }
+//   return oo
+// }
+// console.log(`MJ before setting projector and svg`);
+// var THREE = Object['unfreeze'](require('three'))
+
+var OrbitControls = require('three-orbit-controls')(THREE);
 
 @Injectable()
 export class ChartScene {
@@ -46,7 +81,7 @@ export class ChartScene {
   private container: HTMLElement;
   private events: ChartEvents;
   public renderer: WebGLRenderer;
-  private views: Array<VisualizationView>;
+  public views: Array<VisualizationView>;
   private centerLine: Line;
 
   private workspace: WorkspaceConfigModel;
@@ -66,17 +101,26 @@ export class ChartScene {
     this.onSelect.next(e);
   }
 
+  private globalGuiControls:GlobalGuiControls;
+
+  public initGlobalGuiControls(){
+    this.globalGuiControls.init();
+  }
+      
   public init(container: HTMLElement, labelsA: HTMLElement, labelsB: HTMLElement, labelsE: HTMLElement) {
+    let self = this; 
+    this.globalGuiControls = new GlobalGuiControls();
+  
     this.labelsA = labelsA;
     this.labelsB = labelsB;
     this.labelsE = labelsE;
     window.addEventListener('resize', this.onResize.bind(this));
-
+    
     const dimension: ClientRect = container.getBoundingClientRect();
     this.container = container;
 
     this.renderer = new WebGLRenderer({
-      // precision: 'lowP',
+      // precision: 'lowP', 
       antialias: true,
       alpha: false,
       preserveDrawingBuffer: true
@@ -148,6 +192,7 @@ export class ChartScene {
         view.camera.lookAt(new Vector3(0, 0, 0));
         view.scene.add(view.camera);
         view.scene.add(new AmbientLight(0xaaaaaa, 0.3));
+
         return view;
       } else {
         const camera = view.camera as PerspectiveCamera;
@@ -161,9 +206,40 @@ export class ChartScene {
       view.scene.add(view.camera);
 
       // Controls
+      
       view.controls = new OrbitControls(view.camera, this.renderer.domElement);
       view.controls.enabled = false;
-      view.controls.addEventListener('change', this.render);
+      view.controls.enableKeys = false;
+      view.controls.zoomSpeed = 1.6;
+      
+      view.controls.addEventListener('change', () => {
+        if(window['globalOncoscapeMenuState'] != 1) {
+          self.renderControlsChangeWrapper(self, view)
+        }
+      });
+      let thisControl = view.controls;
+      // saveState is not in the three-orbitcontrols-ts@0.1.2 npm package, for some reason.
+      view.controls['saveState'] = () => {
+        thisControl.target0.copy(thisControl.target);
+        thisControl.position0.copy(thisControl.object.position);
+        // Check whether the camera has zoom property
+        if(thisControl._checkOrthographicCamera && thisControl._checkPerspectiveCamera){
+          if (thisControl._checkOrthographicCamera(thisControl.object) || thisControl._checkPerspectiveCamera(thisControl.object)){
+            thisControl.zoom0 = thisControl.object.zoom;
+          }
+        } else {
+          console.warn('MJ saveState does not see checks.');          
+        }
+      }
+
+      // Store lastAngles, so in OrbitControls onChange, we can see if they have changed.
+      // If not change in angles, it is purely a Zooming event.
+      let oc = view.controls; // (view.controls as OrbitControls);
+      console.log(`AFTER CREATE, Az ${oc.getAzimuthalAngle().toPrecision(6)} Po: ${oc.getPolarAngle().toPrecision(6)}  `);
+      oc['lastAngles'] = {
+        azimuthal: oc.getAzimuthalAngle().toPrecision(8),
+        polar: oc.getPolarAngle().toPrecision(8),
+      }
 
       // Lighting
       view.scene.add(new HemisphereLight(0x999999, 0xffffff, 1));
@@ -177,6 +253,21 @@ export class ChartScene {
     this.render();
   }
 
+  renderControlsChangeWrapper = (chartScene:any, view:any) => {
+    let thisCamera:PerspectiveCamera = view.controls.object;
+    this.invalidatePrerender();
+    chartScene.render();
+  }
+
+  // Prerendering is for the edges. Thus we only need to prerender
+  // if zoom, rotate, pan, etc. has happened, or we have recalculated
+  // objects in graph A or B. We do not  need to prerender just because
+  // we change coloring (or shape?) in A or B.
+  private _needToPrerender:boolean = true;
+  invalidatePrerender(){
+    this._needToPrerender = true;
+  }
+
   render = () => {
     let view;
     this.renderer.clear();
@@ -186,9 +277,12 @@ export class ChartScene {
       this.renderer.render(v.scene, v.camera);
     });
 
-    view = this.views[2];
-    if (view.chart !== null) {
-      view.chart.preRender(this.views, this.workspace.layout, this.renderer);
+    if(this._needToPrerender){
+      view = this.views[2];
+      if (view.chart !== null) {
+        view.chart.preRender(this.views, this.workspace.layout, this.renderer);
+      }
+      this._needToPrerender = false;
     }
 
     // Center Line
@@ -210,9 +304,25 @@ export class ChartScene {
     // tslint:disable-next-line:semicolon
   };
 
-  private onResize() {
-    const dimension: ClientRect = this.container.getBoundingClientRect();
-    this.renderer.setSize(dimension.width, dimension.height);
+  applyThreeDOption= (config: GraphConfig, option:string, value:any) => {
+    let viewIndex= config.graph - 1;
+    let view = this.views[viewIndex];
+    if(config.isScatterVisualization){
+      let viewChartAsScatterViz = <AbstractScatterVisualization>  view.chart;
+      viewChartAsScatterViz.processThreeDOption(option, value);
+    }
+  }  
+
+  renderToSvg = (canvas: any) => {
+    let svgThing = new ThreeToSvg();
+    svgThing.init(canvas);
+    let result = svgThing.svgSnapshot(ChartScene.instance.views);
+    return result;
+  };
+
+
+  // Called by onResize
+  private processViewsOnResize(dimension:ClientRect){
     this.views.forEach((view, i) => {
       // This is the edges
       if (i === 2) {
@@ -266,6 +376,28 @@ export class ChartScene {
     this.render();
   }
 
+  private onResize() {
+    let self = this;
+    self.invalidatePrerender();
+    const dimension: ClientRect = self.container.getBoundingClientRect();
+    // 2021-03-15 - The renderer started intermittently being null when the site loads.
+    if(self.renderer){
+      self.renderer.setSize(dimension.width, dimension.height);
+      self.processViewsOnResize(dimension);
+    } else {
+      // We make one more attempt. 
+      console.warn('Null renderer in onResize.');
+      window.setTimeout( () => {
+        if(self.renderer){
+          self.renderer.setSize(dimension.width, dimension.height);
+          self.processViewsOnResize(dimension);
+        } else {
+          console.error('Second null renderer in onResize. Giving up.');
+        }
+      }, 250)
+    }
+  }
+
   private onChartFocus(e: ChartEvent) {
     if (this.views[1].chart !== null && this.views[0].chart !== null) {
       this.views[0].chart.enable(e.chart === GraphEnum.GRAPH_A);
@@ -288,6 +420,13 @@ export class ChartScene {
     data: any,
     chartObjectInterface: ChartObjectInterface
   ): void {
+    if(chartObjectInterface == null){
+      // Got data nut not attachedto one visualization.
+      // For example, TableLoader results, for diffexp widget.
+      return;
+    }
+
+    this.invalidatePrerender();
     let view: VisualizationView;
     switch (graph) {
       case GraphEnum.EDGES:
@@ -298,7 +437,7 @@ export class ChartScene {
           }
           const e = config as EdgeConfigModel;
           view.config = config;
-          view.chart = chartObjectInterface.create(this.labelsE, this.events, view);
+          view.chart = chartObjectInterface.create(config.entity, this.labelsE, this.events, view);
           // view.chart.
           view.chart.onRequestRender.subscribe(this.render.bind(this));
           view.chart.onConfigEmit.subscribe(this.config.bind(this));
@@ -333,11 +472,19 @@ export class ChartScene {
             // camera.aspect = view.viewport.width / view.viewport.height;
             // camera.updateProjectionMatrix();
           }
+
+          let mostRecentSelectionController = OncoData.instance.currentSelectionController;
           view.chart = chartObjectInterface.create(
+            config.entity,
             config.graph === GraphEnum.GRAPH_A ? this.labelsA : this.labelsB,
             this.events,
             view
           );
+          if(config.graph != GraphEnum.GRAPH_A){
+            // This should only be set for GRAPH_A. Ugly.
+            OncoData.instance.currentSelectionController = mostRecentSelectionController;
+          }
+
           if (!entityChanged) {
             view.chart.decorators = decorators;
           } else {
@@ -376,6 +523,8 @@ export class ChartScene {
   }
   constructor() {
     ChartScene.instance = this;
+    console.log('created reachableChartScene');
+    window['reachableChartScene'] = this;
     this.animate();
   }
 }

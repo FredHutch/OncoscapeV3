@@ -1,5 +1,5 @@
 import { UnsafeAction } from './../action/unsafe.action';
-import { UserDataSet } from './../model/user-data-set.model';
+import { UserDataSet } from "../dataInterfacesAndEnums";
 import * as user from './../action/user.action';
 export interface State {
     userData: any;

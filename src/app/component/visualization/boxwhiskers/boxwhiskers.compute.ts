@@ -8,6 +8,11 @@ export const boxwhiskersCompute = (
   config: BoxWhiskersConfigModel,
   worker: DedicatedWorkerGlobalScope
 ): void => {
+  if(config.reuseLastComputation) {
+    worker.postMessage({config: config, data: {cmd:'reuse'}});
+    return;
+  }
+  
   if (config.continuousVariable.tbl !== null && config.categoricalVariable1.tbl !== null) {
     // Continuous Molecular
     if (config.continuousVariable.ctype & CollectionTypeEnum.MOLECULAR) {

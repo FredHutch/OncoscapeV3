@@ -5,6 +5,11 @@ import {LinearSVRConfigModel} from './linearsvr.model';
 
 
 export const LinearSVRCompute = (config: LinearSVRConfigModel, worker: DedicatedWorkerGlobalScope): void => {
+  if(config.reuseLastComputation) {
+    worker.postMessage({config: config, data: {cmd:'reuse'}});
+    return;
+  }
+  
   const classifier = new Set(config.sampleFilter);
   config.sampleFilter = [];
     worker.util.getDataMatrix(config).then(matrix => {
@@ -27,23 +32,27 @@ export const LinearSVRCompute = (config: LinearSVRConfigModel, worker: Dedicated
                 max_iter: config.max_iter,
                 classes: classes
             }).then(result => {
-                result.resultScaled = worker.util.scale3d(result.result, config.pcx - 1, config.pcy - 1, config.pcz - 1);
-                result.sid = matrix.sid;
-                result.mid = matrix.mid;
-                result.pid = matrix.pid;
-                result.legends = [
-                    Legend.create('Data Points',
-                        config.entity === EntityTypeEnum.GENE ? ['Genes'] : ['Samples'],
-                        [SpriteMaterialEnum.CIRCLE],
-                        'SHAPE',
-                        'DISCRETE'
-                    )];
-                worker.postMessage({
-                    config: config,
-                    data: result
-                });
-                worker.postMessage('TERMINATE');
-            });
+              if (result && result['message'] && result['stack']) { // duck typecheck for error
+                return worker.util.postCpuError(result, worker);
+              }
+              result.resultScaled = worker.util.scale3d(result.result, config.pcx - 1, config.pcy - 1, config.pcz - 1);
+              result.sid = matrix.sid;
+              result.mid = matrix.mid;
+              result.pid = matrix.pid;
+              result.legends = [
+                  Legend.create( result,
+                      'Data Points',
+                      config.entity === EntityTypeEnum.GENE ? ['Genes'] : ['Samples'],
+                      [SpriteMaterialEnum.CIRCLE],
+                      'SHAPE',
+                      'DISCRETE'
+                  )];
+              worker.postMessage({
+                  config: config,
+                  data: result
+              });
+              worker.postMessage('TERMINATE');
+          });
     });
 };
 

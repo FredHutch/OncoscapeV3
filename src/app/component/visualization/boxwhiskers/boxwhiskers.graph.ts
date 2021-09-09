@@ -10,7 +10,7 @@ import { ChartObjectInterface } from './../../../model/chart.object.interface';
 import { DataDecorator } from './../../../model/data-map.model';
 import { EntityTypeEnum } from './../../../model/enum.model';
 import { ChartEvent, ChartEvents } from './../../workspace/chart/chart.events';
-import { ChartFactory, DataDecoatorRenderer } from './../../workspace/chart/chart.factory';
+import { ChartFactory, DataDecoratorRenderer } from './../../workspace/chart/chart.factory';
 import { AbstractVisualization } from './../visualization.abstract.component';
 import { BoxWhiskersConfigModel, BoxWhiskersDataModel } from './boxwhiskers.model';
 
@@ -40,7 +40,7 @@ export class BoxWhiskersGraph extends AbstractVisualization {
   public entityWidth = 6;
   public text: Array<MeshText2D>;
 
-  public renderer: DataDecoatorRenderer = (group: THREE.Group, mesh: THREE.Sprite): void => {
+  public renderer: DataDecoratorRenderer = (group: THREE.Group, mesh: THREE.Sprite): void => {
     const color = mesh.material['color'].getHex();
     mesh.material['color'].setHex(0xffffff);
     mesh.material.opacity = 1;
@@ -55,8 +55,8 @@ export class BoxWhiskersGraph extends AbstractVisualization {
   };
 
   // Create - Initialize Mesh Arrays
-  create(labels: HTMLElement, events: ChartEvents, view: VisualizationView): ChartObjectInterface {
-    super.create(labels, events, view);
+  create(entity: EntityTypeEnum, labels: HTMLElement, events: ChartEvents, view: VisualizationView): ChartObjectInterface {
+    super.create(entity, labels, events, view);
     this.meshes = [];
     this.globalMeshes = [];
     this.lines = [];

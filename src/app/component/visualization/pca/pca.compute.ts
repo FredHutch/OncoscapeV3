@@ -4,13 +4,19 @@ import { Legend } from './../../../model/legend.model';
 import { PcaConfigModel } from './pca.model';
 
 export const pcaCompute = (config: PcaConfigModel, worker: DedicatedWorkerGlobalScope): void => {
+  if(config.reuseLastComputation) {
+    worker.postMessage({config: config, data: {cmd:'reuse'}});
+    return;
+  }
+
   worker.util.getDataMatrix(config).then(matrix => {
     const stps = worker.util.minifyPreprocessingSteps(config.preprocessing.steps);
+    var minComponents = Math.min(config.n_components, matrix.mid.length)
     worker.util
       .fetchResult({
         method: 'cluster_sk_pca',
         data: matrix.data,
-        n_components: config.n_components,
+        n_components: minComponents, // config.n_components,
         dimension: config.dimension,
         random_state: config.random_state,
         tol: config.tol,
@@ -21,6 +27,14 @@ export const pcaCompute = (config: PcaConfigModel, worker: DedicatedWorkerGlobal
         preprocessing: worker.util.minifyPreprocessingSteps(config.preprocessing.steps)
       })
       .then(result => {
+        if (result && result['message'] && result['stack']) { // duck typecheck for error
+          return worker.util.postCpuError(result, worker);
+        }
+        // Sometimes error comes as string in result[0].
+        // e.g. "Found array with 0 feature(s) (shape=(171, 0)) while a minimum of 1 is required."
+        if (result && Array.isArray(result) && result.length == 1 && ((typeof result[0]) == 'string')){
+          return worker.util.postCpuErrorManual(result[0], worker, '-unknown-')
+        }
         result.cumsum = result.explainedVarianceRatio.reduce((p, c) => {
           p.push(((p.length && p[p.lxwength - 1]) || 0) + c);
           return p;
@@ -42,7 +56,7 @@ export const pcaCompute = (config: PcaConfigModel, worker: DedicatedWorkerGlobal
         }
 
         result.legends = [
-          Legend.create(
+          Legend.create( result,
             'Data Points',
             config.entity === EntityTypeEnum.GENE ? ['Genes'] : ['Samples'],
             [SpriteMaterialEnum.CIRCLE],

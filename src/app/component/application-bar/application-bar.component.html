@@ -1,30 +1,61 @@
 <div class="application-bar-menu">
-  <span class="btn-underline application-bar-button" *ngIf="_config" (click)="viewPanel(512)">{{
+  <!--<span class="application-bar-logo" >
+    Oncoscape 
+  </span>-->
+  <span  onclick="alert('Oncoscape build 1212')" class="application-bar-version" style="letter-spacing: 1px;color: #EEE;">
+    Oncoscape (v3x beta)</span>
+
+  <!-- MJ <span class="btn-underline application-bar-button" *ngIf="_config" (click)="viewPanel(512)">{{
     _config.datasetName
-  }}</span>
+  }}</span> -->
   <span class="application-bar-buttons">
+    <span class="btn-underline application-bar-button" > 
+      <button mat-icon-button  (click)='undoFromMenu()'>
+        <mat-icon>undo</mat-icon>
+      </button>
+    </span>
+    <span class="btn-underline application-bar-button" > 
+      <button mat-icon-button  (click)='redoFromMenu()'>
+        <mat-icon>redo</mat-icon>
+      </button>
+    </span>
     <span class="btn-underline application-bar-button" *ngIf="datasetSelected" (click)="onSplitScreenChange()">
       <span class="copy">Split Screen</span>
     </span>
     <span class="btn-underline application-bar-button" *ngIf="datasetSelected" (click)="viewPanel(256)">
       Settings
     </span>
-    <span class="btn-underline application-bar-button" (click)="viewPanel(1024)"> Sign In </span>
+    <!-- <span class="btn-underline application-bar-button" (click)="viewPanel(32768)"> Sign In </span> -->
     <span class="btn-underline application-bar-button" (click)="viewPanel(1024)"> Citations </span>
     <span class="btn-underline application-bar-button" (click)="viewPanel(512)"> Credits </span> &nbsp;
+
+    <span class="btn-underline application-bar-button" (click)="viewPanel(4)"> Data </span> &nbsp;
+    <span class="btn-underline application-bar-button" > 
+    <button mat-icon-button [matMenuTriggerFor]="menu">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <!--<button *ngIf='datasetSelected' mat-menu-item (click)='reload()'>Data Sets</button>-->
+      <button mat-menu-item (click)='initGui()'>3D GUI Controls</button>
+      <button mat-menu-item (click)='viewPanel(4)'>Pick Data Set</button>
+      <button mat-menu-item (click)='viewPanel(512)'>The Team</button>
+      <button mat-menu-item (click)='viewPanel(1024)'>Citations</button>
+      <a mat-menu-item href='mailto:contact@oncoscape.org'>Feedback</a>
+<!--
+      // These items are specific to charts. Should either test that we are in a chart,
+      // or move them to a separate menu.
+
+      <button mat-menu-item (click)='toggleBackgroundColor()'>Invert Color</button>
+-->      
+      <button mat-menu-item (click)='exportImageAsJpg()'>Save As JPG</button>
+      <button mat-menu-item (click)='exportImageAsSvg()'>EXPERIMENTAL: Save As SVG</button>
+      <button mat-menu-item (click)='deleteAllCaches()'>Reset Oncoscape</button>
+    </mat-menu>
   </span>
-  <span class="application-bar-logo " (click)="viewPanel(512)"
-    >Oncoscape <span style="letter-spacing: 1px;color: #EEE;">(v3.11.17 beta)</span>
-    <!--
-      <mat-menu #appMenu="matMenu">
-        <button *ngIf='datasetSelected' mat-menu-item (click)='reload()'>Data Sets</button>
-        <button mat-menu-item (click)='viewPanel(512)'>The Team</button>
-        <button mat-menu-item (click)='viewPanel(1024)'>Citations</button>
-        <a mat-menu-item href='mailto:contact-sttr@fredhutch.org'>Feedback</a>
-        <button mat-menu-item (click)='toggleBackgroundColor()'>Invert Color</button>
-        <button mat-menu-item (click)='exportImage()'>Print</button>
-        <button mat-menu-item (click)='deleteAllCaches()'>Reset Oncoscape</button>
-      </mat-menu>
-    -->
-  </span>
+
+</span>
+</div>
+
+<div id="svgForExport" style="display: none; " >
+  <!-- svg rendering element gets inserted here -->
 </div>
