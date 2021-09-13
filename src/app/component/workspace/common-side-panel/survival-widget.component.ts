@@ -135,15 +135,21 @@ export class SurvivalWidgetComponent extends WidgetComponent {
 
           const line = d3.line()
           .defined(d => !isNaN(d["value"])) 
-          .x(d => x(d["date"]/365))
+          .x(d => x(d["date"]/dateDivisor))
           .y(d => y(d["value"]));
       
+          console.log('date division');
+          let dateDivisor = 365;
+          if(allPatients[0]['os_status']) { // Possible bug, if for some reason [0] has null here.
+            dateDivisor = 12; // use months, not days
+          }
+
           let maxDate = this.maxDateAcrossCohorts([
             self.data[0].values.map(dv => [dv.date, 1])  // turns {date, value} into [date, dummyVal]
           ]);
       
           const x = d3.scaleLinear()
-          .domain([0, maxDate/365]) 
+          .domain([0, maxDate/dateDivisor])
           .range([this.survivalSvgMargin.left, this.commonSidePanelModel.width - this.survivalSvgMargin.right]);
       
           const y = d3.scaleLinear()
@@ -185,7 +191,11 @@ export class SurvivalWidgetComponent extends WidgetComponent {
                 curveIsSelected = true;
               }
             }
-            
+
+            // let itemValuesScaledtoYears = item.values.map( v => {
+            //   return { date: v.date/dateDivisor, value: v.value}
+            // });
+
             this.svgD3Selection.append("path")
                 .datum(item.values)
                 .attr("fill", "none")
@@ -245,11 +255,15 @@ export class SurvivalWidgetComponent extends WidgetComponent {
     const patientHasSurvivalData = (v) => {
         let hasTcgaSurvival:boolean =
         v['vital_status'] &&
+        (v['vital_status'].toString().toLowerCase != "unknown") &&
+        (v['vital_status'].toString().toLowerCase != "") &&
         (v['days_to_death'] || v['days_to_last_follow_up'] || v['days_to_last_followup']);
         
 
         let hasCbioportalSurvival:boolean =
         v['os_status'] &&
+        (v['os_status'].toString().toLowerCase != "unknown") &&
+        (v['os_status'].toString().toLowerCase != "") &&
         v['os_months'];
 
         return hasTcgaSurvival || hasCbioportalSurvival;

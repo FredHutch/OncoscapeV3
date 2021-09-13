@@ -315,21 +315,18 @@ export class AbstractVisualization implements ChartObjectInterface {
   public originalZoomDistance:number = 1;
 
 
-  onOrbitControlsChange(graph:AbstractVisualization, view, evt) {
-    // zoom: evt.target.object.zoom,
-    // zoom0: evt.target.zoom0
+  onOrbitControlsChange(graph:AbstractVisualization, view:VisualizationView, evt) {
     if(view && view.camera){
-      
       if(OncoData.instance.inHistoryUndoRedo == false) {
-        let oc = (view.controls as OrbitControls);
+        let orbitControls = view.controls;
         // console.log(`Az ${oc.getAzimuthalAngle().toPrecision(6)} Po: ${oc.getPolarAngle().toPrecision(6)}  `);
         let dist:number = view.controls.target.distanceTo(view.controls.object.position)
         let sanity = view.camera.position.length();
         let zoom:number = this.originalZoomDistance / dist;
 
-        let lastAngles = oc['lastAngles'];
-        if (lastAngles.azimuthal == oc.getAzimuthalAngle().toPrecision(6) &&
-            lastAngles.polar == oc.getPolarAngle().toPrecision(6)) {
+        let lastAngles = orbitControls['lastAngles'];
+        if (lastAngles.azimuthal == orbitControls.getAzimuthalAngle().toPrecision(6) &&
+            lastAngles.polar == orbitControls.getPolarAngle().toPrecision(6)) {
           // Angles are the same as last change, so this change is just zooming?
           // Need to check against last target too.
           if (dist.toPrecision(11) != graph.lastZoomDistance.toPrecision(11)){  // dist was zoom
@@ -341,8 +338,8 @@ export class AbstractVisualization implements ChartObjectInterface {
           }
         } else {
           // console.log('just rotation change');
-          lastAngles.azimuthal = oc.getAzimuthalAngle().toPrecision(6);
-          lastAngles.polar = oc.getPolarAngle().toPrecision(6);
+          lastAngles.azimuthal = orbitControls.getAzimuthalAngle().toPrecision(6);
+          lastAngles.polar = orbitControls.getPolarAngle().toPrecision(6);
         }
       } else {
         // console.log('Avoiding orbit changes while in undo.');

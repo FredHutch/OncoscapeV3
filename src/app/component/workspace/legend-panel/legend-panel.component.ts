@@ -22,7 +22,7 @@ import { OncoData } from 'app/oncoData';
 @Component({
   selector: 'app-workspace-legend-panel',
   templateUrl: './legend-panel.component.html',
-  styleUrls: ['./legend-panel.component.scss'],
+  styleUrls: ['./legend-panel.component.v002.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
@@ -95,6 +95,10 @@ export class LegendPanelComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy() {}
 
+
+  visibilityClick(i:number){
+    window.alert(i);
+  }
 
   customizeColor(legend: Legend, i:number): void {
     console.log(`MJ click on legend item [${i}] color box`);

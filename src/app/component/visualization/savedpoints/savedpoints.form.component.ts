@@ -83,18 +83,21 @@ export class SavedPointsFormComponent extends AbstractScatterForm {
   static SavedPointsFromUpdatePoints(updatePoints, sampleMap){
     let rowData = [];
     let errorStr=null;
+    console.warn('SavedPointsFromUpdatePoints');
 
     updatePoints.map(function(r){
       let sid = r.i.toLowerCase(); // Look it up to validate
-      let x = r.c[0];
-      let y = r.c[1];
-      let z = r.c[2];
-      let pid:string = sampleMap[sid].toLowerCase();
-      if(pid) {
-        let newPoint = {sid:sid, pid:pid , x:x, y:y, z:z};
-        rowData.push(newPoint);
-      } else {
-        errorStr = `Cannot find patientID for sampleID [${sid}]`;
+      if(sampleMap[sid]){
+        let x = r.c[0];
+        let y = r.c[1];
+        let z = r.c[2];
+        let pid:string = sampleMap[sid].toLowerCase();
+        if(pid) {
+          let newPoint = {sid:sid, pid:pid , x:x, y:y, z:z};
+          rowData.push(newPoint);
+        } else {
+          errorStr = `Cannot find patientID for sampleID [${sid}]`;
+        }
       }
     });
 
@@ -145,12 +148,14 @@ export class SavedPointsFormComponent extends AbstractScatterForm {
             console.log('error, not a number');
             errorStr = 'Text was not in the form of a number.'
           } else {
-            let pid:string = sampleMap[sid].toLowerCase();
-            if(pid) {
-              let newPoint = {sid:sid, pid:pid , x:x, y:y, z:z};
-              rowData.push(newPoint);
-            } else {
-              errorStr = `Cannot find patientID for sampleID [${sid}]`;
+            if(sampleMap[sid]){
+              let pid:string = sampleMap[sid].toLowerCase();
+              if(pid) {
+                let newPoint = {sid:sid, pid:pid , x:x, y:y, z:z};
+                rowData.push(newPoint);
+              } else {
+                errorStr = `Cannot find patientID for sampleID [${sid}]`;
+              }
             }
           }
         }

@@ -51,10 +51,11 @@ export class InfoPanelComponent implements AfterViewInit, OnDestroy {
       return;
     } // { key: 'Data Set', value: config.datasetName },
     this.message = this.graphAInfo = [
-      { key: 'Data Table', value: config.table.label },
-      { key: 'Analysis', value: config.label },
-      { key: 'Cohort', value: config.cohortName },
-      { key: 'Gene Set', value: config.markerName }
+      { key: 'Data Set:', value: config.database },
+      { key: 'Table:', value: config.table.label },
+      { key: 'Analysis:', value: config.label },
+      { key: 'Cohort:', value: config.cohortName },
+      { key: 'Gene Set:', value: config.markerName }
     ];
     this._graphAConfig = config;
     this.cd.detectChanges();

@@ -16,8 +16,12 @@
     <!-- Color -->
     <div *ngIf='legend.type === "COLOR"'>
       <div *ngFor='let label of legend.labels; let i = index; ' class='legendItem'>
-        <div class='swatch' (click)="customizeColor(legend, i)" style="{cursor:pointer; }" [style.background-color]='legend.values[i]'></div>
-        <span (click)="legendItemClick(legend, i)" style="{cursor:pointer; }">{{label}}{{legend.counts && legend.counts[i]?'&nbsp;&nbsp;&nbsp;('+legend.counts[i]+')':''}}</span>
+        <!--<span (click)="visibilityClick(i)"  class="material-icons-outlined material-icons.md-18">visibility</span>-->
+        <table><tr>
+          <!--<td><span class="eye2" (click)="visibilityClick(i)" ><i class="fa fa-eye"></i></span></td>-->
+          <td><span class='swatch2' (click)="customizeColor(legend, i)"   [style.background-color]='legend.values[i]'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+          <td><span (click)="legendItemClick(legend, i)" style="{cursor:pointer; }">{{label}}{{legend.counts && legend.counts[i]?'&nbsp;&nbsp;&nbsp;('+legend.counts[i]+')':''}}</span></td>
+        </tr></table>
         <!-- <div class='swatchButtons'>
                 <a href='#' class='os-link' (click)='select()'>Select</a> |
                 <a href='#' class='os-link' (click)='deselect()'>Deselect</a>
