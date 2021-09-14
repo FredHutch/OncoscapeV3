@@ -1,6 +1,6 @@
-# Oncoscape (Next Version)
+# Oncoscape
 
-This is code for the next version of Oncoscape, beyond V2 and V3. This project will ultimately replace Oncoscape's production version, but at the present time is not ready for public contributions.
+This is code for the most current version of Oncoscape, currently called V3. 
 
 New features include:
 
@@ -10,6 +10,8 @@ New features include:
 * Print-quality output
 
 Documentation: To be added.
+
+If you are looking for the older version, Oncoscape V2, see https://github.com/FredHutch/Oncoscape .
 
 ----
 ### Contact
