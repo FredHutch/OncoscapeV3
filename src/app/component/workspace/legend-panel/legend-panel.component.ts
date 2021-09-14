@@ -18,6 +18,7 @@ import * as THREE from 'three';
 import { CommonSidePanelComponent } from '../common-side-panel/common-side-panel.component';
 import { SelectionModifiers } from 'app/component/visualization/visualization.abstract.scatter.component';
 import { OncoData } from 'app/oncoData';
+import { debug } from 'console';
 
 @Component({
   selector: 'app-workspace-legend-panel',
@@ -74,19 +75,6 @@ export class LegendPanelComponent implements AfterViewInit, OnDestroy {
     this.updateLegend();
   }
 
-  //   // formatValues(legend: Legend): void {
-  //   if(legend.type === 'COLOR') {
-  //   for (let i = 0; i < legend.values.length; i++) {
-  //     if (!isNaN(legend.values[i])) {
-  //       legend.values[i] = '#' + (0xffffff + legend.values[i] + 1).toString(16).substr(1);
-  //     }
-  //   }
-  // } else if (legend.type === 'SHAPE') {
-  //   for (let i = 0; i < legend.values.length; i++) {
-  //     legend.values[i] = './assets/shapes/shape-' + legend.values[i] + '-solid-legend.png';
-  //   }
-  // }
-  // }
   public select(): void {}
 
   public deselect(): void {}
@@ -103,8 +91,10 @@ export class LegendPanelComponent implements AfterViewInit, OnDestroy {
   customizeColor(legend: Legend, i:number): void {
     console.log(`MJ click on legend item [${i}] color box`);
     let color = prompt('Type a color name like red or green, or a web color code like #440080.', '#440080')
-    ChartFactory.writeCustomValueToLocalStorage(this._config.database, 'legendColors', legend.name + '!' + ChartFactory.cleanForLocalStorage(legend.labels[i]), color);
-    window.setTimeout(this.update, 100);
+    if(color) {
+      ChartFactory.writeCustomValueToLocalStorage(this._config.database, 'legendColors', legend.name + '!' + ChartFactory.cleanForLocalStorage(legend.labels[i]), color);
+      window.setTimeout(this.update, 100);
+    }
   }
 
   legendItemClick(legend: Legend, i:number): void {

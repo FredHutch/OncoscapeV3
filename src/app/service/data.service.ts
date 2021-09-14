@@ -405,7 +405,9 @@ export class DataService {
                   if (!decorator.legend.labels.find(v => v === 'NA')) {
                     decorator.legend.labels.concat(['NA']);
                   }
-                  decorator.legend.values = scale['range']().concat(['#DDDDDD']);
+                  if(decorator.legend.labels.length = decorator.legend.values.length+1){
+                    decorator.legend.values = scale['range']().concat(['#DDDDDD']);
+                  }
              
                   break;
 
@@ -432,7 +434,9 @@ export class DataService {
                   if (!decorator.legend.labels.find(v => v === 'NA')) {
                     decorator.legend.labels.concat(['NA']);
                   }
-                  decorator.legend.values = scale['range']().concat([SpriteMaterialEnum.NA]);
+                  if(decorator.legend.labels.length = decorator.legend.values.length+1){
+                    decorator.legend.values = scale['range']().concat(['#DDDDDD']);
+                  }
                   break;
               }
               // db.close();
@@ -564,36 +568,36 @@ export class DataService {
               resolve(decorator);
               break;
 
-              case DataDecoratorTypeEnum.GROUP:
-                scale = this.getGroupScale(items, decorator.field);
-                decorator.values = items.map(v => ({
+            case DataDecoratorTypeEnum.GROUP:
+              scale = this.getGroupScale(items, decorator.field);
+              decorator.values = items.map(v => ({
+                pid: v.p,
+                sid: psMap[v.p],
+                mid: null,
+                key: EntityTypeEnum.PATIENT,
+                label: formatLabel(decorator.field, v[decorator.field.key]),
+                value: scale(formatValue(decorator.field, v[decorator.field.key]))
+              }));
+              resolve(decorator);
+              break;
+
+            case DataDecoratorTypeEnum.SIZE:
+              scale = this.getSizeScale(items, decorator.field);
+              console.log('SIZE scale done.');
+              decorator.values = items.map(function(v) {
+                let newV = {
                   pid: v.p,
                   sid: psMap[v.p],
                   mid: null,
                   key: EntityTypeEnum.PATIENT,
                   label: formatLabel(decorator.field, v[decorator.field.key]),
                   value: scale(formatValue(decorator.field, v[decorator.field.key]))
-                }));
-                resolve(decorator);
-                break;
+                };
+                return newV;
+              });
 
-              case DataDecoratorTypeEnum.SIZE:
-                scale = this.getSizeScale(items, decorator.field);
-                console.log('SIZE scale done.');
-                decorator.values = items.map(function(v) {
-                  let newV = {
-                    pid: v.p,
-                    sid: psMap[v.p],
-                    mid: null,
-                    key: EntityTypeEnum.PATIENT,
-                    label: formatLabel(decorator.field, v[decorator.field.key]),
-                    value: scale(formatValue(decorator.field, v[decorator.field.key]))
-                  };
-                  return newV;
-                });
-
-                resolve(decorator);
-                break;
+              resolve(decorator);
+              break;
       
             case DataDecoratorTypeEnum.COLOR:
               let data = {};

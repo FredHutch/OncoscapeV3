@@ -113,7 +113,6 @@ export class TooltipController extends AbstractMouseController  {
             ctd = (tooltip as ComplexTooltipData);
             entityTypeToUse = ctd.entityType;
         }
-        console.log('mjtooltip generateDetailsHtml');
 
         // Build list of fields. If one is the color legend field, replace it.
         // window.reachableOncoData.dataLoadedAction.datasetTableInfo.tooltips
@@ -135,8 +134,6 @@ export class TooltipController extends AbstractMouseController  {
                     pid = OncoData.instance.currentCommonSidePanel.commonSidePanelModel
                         .sampleMap[tooltipString];
                     if(pid) {
-                        console.log('tooltipObject in generateDetailsHtml......')
-                        console.dir(tooltipObject);
                         let colorDecorator:DataDecorator = null;
                         
 
@@ -145,7 +142,6 @@ export class TooltipController extends AbstractMouseController  {
                             colorDecorator = view.chart.decorators.find(v => v.type == DataDecoratorTypeEnum.COLOR);
 
                             let colorSnippet = view.chart.tooltipSnippetFromColorDecorator(tooltipString, tooltipOverride);
-                            console.log(`colorSnippet=${colorSnippet}.`);
                             result = result + colorSnippet;
                         }
 
