@@ -319,7 +319,6 @@ export class AbstractVisualization implements ChartObjectInterface {
     if(view && view.camera){
       if(OncoData.instance.inHistoryUndoRedo == false) {
         let orbitControls = view.controls;
-        // console.log(`Az ${oc.getAzimuthalAngle().toPrecision(6)} Po: ${oc.getPolarAngle().toPrecision(6)}  `);
         let dist:number = view.controls.target.distanceTo(view.controls.object.position)
         let sanity = view.camera.position.length();
         let zoom:number = this.originalZoomDistance / dist;
@@ -332,8 +331,6 @@ export class AbstractVisualization implements ChartObjectInterface {
           if (dist.toPrecision(11) != graph.lastZoomDistance.toPrecision(11)){  // dist was zoom
             let oldZoomDistance = graph.lastZoomDistance;
             graph.lastZoomDistance = dist; // dist was zoom
-            
-            //console.log(` old Z:${oldZoomDistance} newZ:${dist}`);
             graph.adjustGraphDetailsBasedOnZoomChange( oldZoomDistance, dist, true);
           }
         } else {
