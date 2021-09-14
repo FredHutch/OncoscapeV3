@@ -53,7 +53,6 @@ export const chromosomeCompute = (config: ChromosomeConfigModel, worker: Dedicat
       }
     });
   } catch (err) {
-    console.log(`TEMPNOTE: CAUGHT chromosome compute error... ${err}.`);
     worker.postMessage({
       config: config,
       error: err
