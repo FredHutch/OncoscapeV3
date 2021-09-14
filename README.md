@@ -9,7 +9,7 @@ New features include:
 * New tools for selection and cohort creation
 * Print-quality output
 
-Documentation: To be added.
+Documentation: [To be linked.]
 
 If you are looking for the older version, Oncoscape V2, see https://github.com/FredHutch/Oncoscape .
 
