@@ -661,6 +661,9 @@ export class DataService {
                 });
               }
               decorator.legend = new Legend();
+              console.warn(`## newLegend() in data service...##`);
+              console.dir(decorator.legend)
+
               decorator.legend.decorator = decorator;
               decorator.legend.result = null; // MJ TODO result;
               decorator.legend.type = 'COLOR';
@@ -696,6 +699,7 @@ export class DataService {
                 decorator.legend.values = scale['range']().concat([0xdddddd]);
 
               }
+              decorator.legend.visibility = new Array(decorator.legend.labels.length).fill(1); 
 
               // Total up the counts for each label.
               let valueCounts = {};

@@ -496,7 +496,7 @@ export class TooltipController extends AbstractMouseController  {
             } else {
                 if (data['ids'] && this._view.chart){
                     let id = data['ids'][itemIndex];
-                    console.log('Figure out color');
+                    // Figure out color
                     color = this._view.chart.tooltipColorFromDecorator(id, color);
                 }
             }

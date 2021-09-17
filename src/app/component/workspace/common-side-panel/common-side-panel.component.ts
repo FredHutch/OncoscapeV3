@@ -472,13 +472,20 @@ export class CommonSidePanelComponent implements AfterViewInit, OnChanges, OnDes
     if (firstRnaTable){
       HANDCODEDRNATABLENAME = firstRnaTable.tbl;
     }
-    // 262144 is CollectionTypeEnum.MATRIX. Use that if we don't have
-    // a window.reachableOncoData.dataLoadedAction.tables with ctype == CollectionTypeEnum.MRNA
-    if(WorkspaceComponent.instance.hasLoadedTable(HANDCODEDRNATABLENAME) == false){
-      WorkspaceComponent.instance.requestLoadedTable(HANDCODEDRNATABLENAME);
-      window.setTimeout(() => this.drawDiffexp(), 50);  
-      return null;
+
+
+    let debugRnaLoadKey = OncoData.instance.dataLoadedAction.dataset + '_hasShownSkipLoadRna';
+    if(window[debugRnaLoadKey] == null) {
+      window.alert("******** SKIP LOADING RNA *****");
     }
+    window[debugRnaLoadKey]=true;
+    // // 262144 is CollectionTypeEnum.MATRIX. Use that if we don't have
+    // // a window.reachableOncoData.dataLoadedAction.tables with ctype == CollectionTypeEnum.MRNA
+    // if(WorkspaceComponent.instance.hasLoadedTable(HANDCODEDRNATABLENAME) == false){
+    //   WorkspaceComponent.instance.requestLoadedTable(HANDCODEDRNATABLENAME);
+    //   window.setTimeout(() => this.drawDiffexp(), 50);  
+    //   return null;
+    // }
     
     if(true) { // =======this.commonSidePanelModel.tableNameUsedForCopynumber) {         
       // continue
@@ -558,9 +565,10 @@ export class CommonSidePanelComponent implements AfterViewInit, OnChanges, OnDes
             self.drawWidgets();  // copynumbers widget goes into a loop unitl it's marked ready for drawing. This lets survival widget draw right away.
 
             if(this.newCopynumberWidget) {
-              this.newCopynumberWidget.loadCNAAndFilterIfNeeded(this.newCopynumberWidget, this.config).then(function(v) {
-                console.log('MJ loaded cna data (if needed) within processConfigChangeAfterGenomeLoaded.');
-              });
+              window.alert('*** SKIPPING CNA ***');
+              // this.newCopynumberWidget.loadCNAAndFilterIfNeeded(this.newCopynumberWidget, this.config).then(function(v) {
+              //   console.log('MJ loaded cna data (if needed) within processConfigChangeAfterGenomeLoaded.');
+              // });
             }
           })
       });

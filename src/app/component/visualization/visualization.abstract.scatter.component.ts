@@ -215,6 +215,8 @@ export class AbstractScatterVisualization extends AbstractVisualization {
   recalculateLegendTotals() {
     // Update decorators[x].legend.counts, based on _lastSelectionPatientIds.
     let self = this;
+    console.log("----recalculateLegendTotals-----");
+
     this.decorators.forEach(dec => {
       if (dec.type == DataDecoratorTypeEnum.COLOR) { //} || dec.type == DataDecoratorTypeEnum.SHAPE ) {
 

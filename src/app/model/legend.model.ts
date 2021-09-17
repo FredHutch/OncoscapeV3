@@ -1,6 +1,7 @@
 /**
  * Represents a visual legend
  */
+import * as THREE from 'three';
 
 import { DataDecorator } from "./data-map.model";
 
@@ -13,6 +14,7 @@ export class Legend {
   values: Array<any>;
   counts: Array<number>;
   decorator: DataDecorator;
+  visibility: Array<number>;
 
   get items(): Array<{ label: string, value: string }> {
     return this.labels.map((lbl, i) => ({
@@ -34,6 +36,7 @@ export class Legend {
       type: 'COLOR' | 'SHAPE' | 'SIZE' | 'INTERSECT' | 'IMAGE', 
       display: 'CONTINUOUS' | 'DISCRETE' ): Legend {
     const l = new Legend();
+    console.log("----create legend-----");
     l.result = null; // WWWWWWWWW MJ TODO result;
     l.display = display;
     l.name = name;
@@ -41,7 +44,26 @@ export class Legend {
     l.labels = labels;
     l.values = values;
     l.counts = []; // fill in later
+    l.visibility = new Array(labels.length).fill(1) // fully visible, to start.
     return l;
   }
+
+  static clickedPidsFromLegendItem(legend: Legend, i:number): any {
+    if (legend.decorator && legend.decorator.pidsByLabel != null) {
+      let clickedColorValue:string = legend.values[i];
+      let clickedPids = legend.decorator.pidsByLabel.find(v => v.label == clickedColorValue);
+      if(!clickedPids){
+        let a:THREE.Color = new THREE.Color(clickedColorValue);
+        let colorInt = a.getHex();
+        clickedPids = legend.decorator.pidsByLabel.find(v => v.label == colorInt.toString());
+      }
+      console.log(`clickedPids.length = ${clickedPids.pids.length}.`)
+      console.dir(clickedPids);
+      return clickedPids;
+    }   else {
+      return null;
+    }
+  }
+
 }
 

@@ -105,6 +105,7 @@ import { GraphPanelComponent } from './component/workspace/graph-panel/graph-pan
 import { HelpPanelComponent } from './component/workspace/help-panel/help-panel.component';
 import { LandingPanelComponent } from './component/workspace/landing-panel/landing-panel.component';
 import { LegendPanelComponent } from './component/workspace/legend-panel/legend-panel.component';
+import { LegendItemComponent } from './component/workspace/legend-item/legend-item.component';
 import { LoaderComponent } from './component/workspace/loader/loader.component';
 import { PathwayPanelComponent } from './component/workspace/pathway-panel/pathway-panel.component';
 import { QueryBuilderComponent } from './component/workspace/query-panel/query-builder/query-builder.component';
@@ -152,6 +153,7 @@ import { MatDialogModule } from '@angular/material';
     FilePanelComponent,
     EdgePanelComponent,
     LegendPanelComponent,
+    LegendItemComponent,
     GraphPanelComponent,
     GenesetPanelComponent,
     StatPanelComponent,

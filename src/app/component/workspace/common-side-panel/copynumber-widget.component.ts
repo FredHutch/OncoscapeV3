@@ -125,11 +125,25 @@ export class CopynumberWidgetComponent extends WidgetComponent {
   async drawCopynumbers(): Promise<any> {
     let self = this;
 
+    let debugCNAkey = OncoData.instance.dataLoadedAction.dataset + '_hasShownSkipCNA';
+    if(window[debugCNAkey] == null) {
+      window.alert("******** SKIP drawCopynumbers *****");
+    }
+    window[debugCNAkey]=true;
+    return;
+
+
+
+
+
+
+
+
     // if(this._config.table && 
     //   (this._config.table.tbl.toLowerCase().endsWith('cna') ||
     //    this._config.table.ctype== CollectionTypeEnum.GISTIC || 
     //    this._config.table.ctype== CollectionTypeEnum.GISTIC_THRESHOLD)){
-
+   
     while (this.copynumberWidgetReadyToDraw ==false || this.commonSidePanelModel.genesData == null || this.commonSidePanelModel.genesData.length == 0) {
       console.log('=== wait loop in drawCopynumbers');
       window.setTimeout(() => {

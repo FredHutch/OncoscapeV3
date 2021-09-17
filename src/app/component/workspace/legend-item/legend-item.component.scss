@@ -1,0 +1,54 @@
+@import 'src/theme.scss';
+.legendHeader {
+  text-transform: capitalize;
+  text-align: left;
+  width: 100%;
+  padding: 10px 0px 10px 0px;
+  font-size: 12px;
+  font-weight: 400;
+  display: inline-block;
+}
+
+.eye2 {
+  height: 15px;
+  width: 15px;
+  cursor:pointer;
+}
+
+.swatch2 {
+  height: 15px;
+  width: 15px;
+  border-style: solid;
+  border-width: thin;
+  cursor:pointer;
+}
+
+.legendItem {
+  position: relative;
+  padding-left: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 15px;
+  padding-bottom: 10px;
+  text-transform: capitalize;
+}
+
+.swatchButtons {
+  padding: 0px 0px 0px 10px;
+  display: none;
+  background: #fff;
+  position: absolute;
+  right: 15px;
+  top: 2px;
+  line-height: 24px;
+  a {
+    color: mat-color($primary);
+  }
+}
+
+.legendItem:hover {
+  .swatchButtons {
+    display: block;
+    font-size: 0.8rem;
+  }
+}

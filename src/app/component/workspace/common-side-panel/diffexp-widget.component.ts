@@ -46,6 +46,11 @@ export class DiffexpWidgetComponent extends WidgetComponent {
     let has = WorkspaceComponent.instance.hasLoadedTable(options.tableName);
     let lt:LoadedTable = WorkspaceComponent.instance.getLoadedTable(options.tableName);
 
+    if(lt == null) {
+      console.warn('** DE widget seeing null for loaded table. Remove debugging. **')
+      return;
+    }
+
     let deResults:DiffexpResults= new DiffexpResults();
     deResults.geneResults =[]
     // get decorators from viz in graphA, else graphB?

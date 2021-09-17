@@ -19,6 +19,7 @@ import { CommonSidePanelComponent } from '../common-side-panel/common-side-panel
 import { SelectionModifiers } from 'app/component/visualization/visualization.abstract.scatter.component';
 import { OncoData } from 'app/oncoData';
 import { debug } from 'console';
+import { AnalyticsProvider } from 'aws-amplify';
 
 @Component({
   selector: 'app-workspace-legend-panel',
@@ -84,10 +85,6 @@ export class LegendPanelComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy() {}
 
 
-  visibilityClick(i:number){
-    window.alert(i);
-  }
-
   customizeColor(legend: Legend, i:number): void {
     console.log(`MJ click on legend item [${i}] color box`);
     let color = prompt('Type a color name like red or green, or a web color code like #440080.', '#440080')
@@ -97,45 +94,30 @@ export class LegendPanelComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+
+
   legendItemClick(legend: Legend, i:number): void {
     console.log(`MJ click on legend item [${i}] text itself`);
     
     // build list of matching patient IDs, then pass it off to 
     // commonSidePanel.setSelectionPatientIds.
     // List length should match legend.counts[i].
+    let clickedLabel = Legend.clickedPidsFromLegendItem(legend, i);
 
-    if (legend.decorator  // && legend.display != 'not------DISCRETE' 
-    && legend.decorator.pidsByLabel != null) {
-      let countExpected = legend.counts[i] ? legend.counts[i] : 0;
-      let labelExpected = legend.labels[i];
-      let clickedColorValue:string = legend.values[i];
-      let clickedLabel = legend.decorator.pidsByLabel.find(v => v.label == clickedColorValue);
-      if(!clickedLabel){
-        let a:THREE.Color = new THREE.Color(clickedColorValue);
-        let colorInt = a.getHex();
-        // let r = Math.round(a.r * 255);
-        // let g = Math.round(a.g * 255);
-        // let b = Math.round(a.b * 255);
-        // let colorInt = (r << 16) + (g << 8) + (b);
-////////////////        clickedLabelVals = legend.decorator.pidsByLabel[colorInt];
-        clickedLabel = legend.decorator.pidsByLabel.find(v => v.label == colorInt.toString());
-      }
-      if(clickedLabel) {
-        let mouseEvent:any = event;
-        let selectionModifiers:SelectionModifiers = new SelectionModifiers();
-        selectionModifiers.extend = mouseEvent.shiftKey;
-        selectionModifiers.inverse = mouseEvent.altKey;
+    if(clickedLabel) {
+      let mouseEvent:any = event;
+      let selectionModifiers:SelectionModifiers = new SelectionModifiers();
+      selectionModifiers.extend = mouseEvent.shiftKey;
+      selectionModifiers.inverse = mouseEvent.altKey;
 
-        let patientIds = clickedLabel.pids;
-        window.setTimeout(() => {
-          OncoData.instance.currentCommonSidePanel.setSelectionPatientIds(patientIds, 
-            "Legend", selectionModifiers);
-        }, 20);            
-        OncoData.instance.currentCommonSidePanel.drawWidgets();
-      } else {
-        console.log('Click on label did not resolve by color.');
-      }
-      
+      let patientIds = clickedLabel.pids;
+      window.setTimeout(() => {
+        OncoData.instance.currentCommonSidePanel.setSelectionPatientIds(patientIds, 
+          "Legend", selectionModifiers);
+      }, 20);            
+      OncoData.instance.currentCommonSidePanel.drawWidgets();
+    } else {
+      console.log('Click on label did not resolve by color.');
     }
 
     // // from commonsidepanel...
