@@ -268,7 +268,7 @@ export class ChartScene {
     this._needToPrerender = true;
   }
 
-  render = () => {
+  public render = () => {
     let view;
     this.renderer.clear();
 

@@ -7,6 +7,7 @@ precision mediump float;
 varying vec3 vColor;
 varying float vShape;
 varying float vSelected;
+varying float vVisibility;
 
 void circle(vec3 vColor, float vAlpha, float vSelected) {
   float r = 0.0, delta = 0.0, alpha = 1.0;
@@ -98,37 +99,41 @@ void kaleido(int loops, vec3 vColor, float vAlpha, float vSelected) {
 
 void main() {
   float defaultAlpha = 0.75;
+  if (vVisibility < 0.5) {
+    discard;
+  } else {
 
-  if (vShape == 0.0) {
-    circle(vColor, defaultAlpha, vSelected);
-  }
-  else if (vShape == 1.0) {
-    poly(3, vColor, defaultAlpha, vSelected);
-  }
-  else if (vShape == 2.0) {
-    poly(4, vColor, defaultAlpha, vSelected);
-  }
-  else if (vShape == 3.0) {
-    poly(5,vColor, defaultAlpha, vSelected);
-  }
-  else if (vShape == 4.0) {
-    kaleido(3,vColor, defaultAlpha, vSelected);
-  }
-  else if (vShape == 5.0) {
-    kaleido(4,vColor, defaultAlpha, vSelected);
-  }
-  else if (vShape == 6.0) {
-    kaleido(5,vColor, defaultAlpha, vSelected);
-  }
-  else if (vShape == 7.0) {
-    kaleido(6, vColor, defaultAlpha, vSelected);
-  }
-  else if (vShape == 8.0) {
-    kaleido(7,vColor, defaultAlpha, vSelected);
-  }
-  else {
-    kaleido(8,vColor, defaultAlpha, vSelected);
-  }
+    if (vShape == 0.0) {
+      circle(vColor, defaultAlpha, vSelected);
+    }
+    else if (vShape == 1.0) {
+      poly(3, vColor, defaultAlpha, vSelected);
+    }
+    else if (vShape == 2.0) {
+      poly(4, vColor, defaultAlpha, vSelected);
+    }
+    else if (vShape == 3.0) {
+      poly(5,vColor, defaultAlpha, vSelected);
+    }
+    else if (vShape == 4.0) {
+      kaleido(3,vColor, defaultAlpha, vSelected);
+    }
+    else if (vShape == 5.0) {
+      kaleido(4,vColor, defaultAlpha, vSelected);
+    }
+    else if (vShape == 6.0) {
+      kaleido(5,vColor, defaultAlpha, vSelected);
+    }
+    else if (vShape == 7.0) {
+      kaleido(6, vColor, defaultAlpha, vSelected);
+    }
+    else if (vShape == 8.0) {
+      kaleido(7,vColor, defaultAlpha, vSelected);
+    }
+    else {
+      kaleido(8,vColor, defaultAlpha, vSelected);
+    }
 
-  if ( gl_FragColor.a < ALPHATEST ) discard;
+    if ( gl_FragColor.a < ALPHATEST ) discard;
+  }
 }

@@ -125,12 +125,12 @@ export class CopynumberWidgetComponent extends WidgetComponent {
   async drawCopynumbers(): Promise<any> {
     let self = this;
 
-    let debugCNAkey = OncoData.instance.dataLoadedAction.dataset + '_hasShownSkipCNA';
-    if(window[debugCNAkey] == null) {
-      window.alert("******** SKIP drawCopynumbers *****");
-    }
-    window[debugCNAkey]=true;
-    return;
+    // let debugCNAkey = OncoData.instance.dataLoadedAction.dataset + '_hasShownSkipCNA';
+    // if(window[debugCNAkey] == null) {
+    //   window.alert("******** SKIP drawCopynumbers *****");
+    // }
+    // window[debugCNAkey]=true;
+    // return;
 
 
 

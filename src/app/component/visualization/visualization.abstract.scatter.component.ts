@@ -215,8 +215,6 @@ export class AbstractScatterVisualization extends AbstractVisualization {
   recalculateLegendTotals() {
     // Update decorators[x].legend.counts, based on _lastSelectionPatientIds.
     let self = this;
-    console.log("----recalculateLegendTotals-----");
-
     this.decorators.forEach(dec => {
       if (dec.type == DataDecoratorTypeEnum.COLOR) { //} || dec.type == DataDecoratorTypeEnum.SHAPE ) {
 
@@ -315,8 +313,16 @@ export class AbstractScatterVisualization extends AbstractVisualization {
   }
   
   updateDecorator(config: GraphConfig, decorators: DataDecorator[]) {
+    console.warn('==update decorator==');
+
     super.updateDecorator(config, decorators);
     let self = this;
+
+    let visibilityLevels:Float32Array = new Float32Array(this.ids.length);
+    this.ids.forEach((id, index) => {
+      visibilityLevels[index] = 1.0;
+    });
+    this.pointsGeometry.setAttribute('gVisibility', new THREE.BufferAttribute(visibilityLevels, 1));
 
     // No SELECT decorators, so unhighlight all points.
     if (this.decorators.filter(d => d.type === DataDecoratorTypeEnum.SELECT).length === 0) {
@@ -365,6 +371,32 @@ export class AbstractScatterVisualization extends AbstractVisualization {
 
     const propertyId = this._config.entity === EntityTypeEnum.GENE ? 'mid' : 'sid';
     decorators.forEach(decorator => {
+      // 1. For each decorator, hide if visibility in legend is 0.
+
+      if(decorator.legend) {
+
+        decorator.legend.visibility.map((v, legendItemIndex) => {
+          if(v < 0.5){
+            // visibilityLevels:Float32Array = new Float32Array(this.ids.lengt
+            let pidsToHide = decorator.pidsByLabel[legendItemIndex].pids;
+            pidsToHide.map((pid, pidIndex) => {
+              let sid = OncoData.instance.currentCommonSidePanel.commonSidePanelModel.patientMap[pid];
+              if(sid) {
+                let scatterIdIndex = this.ids.findIndex(v => v === sid);
+                visibilityLevels[scatterIdIndex] = 0;
+              }
+              //.sampleMap[sampleId];
+
+            })
+          }
+        });
+
+        this.pointsGeometry.setAttribute('gVisibility', new THREE.BufferAttribute(visibilityLevels, 1));
+        self.pointsGeometry.attributes.gVisibility.needsUpdate = true;
+
+      }
+
+      // 2. Decorator specific
       switch (decorator.type) {
         case DataDecoratorTypeEnum.SELECT:
           this.notifyEdgeGraphOfSelectionChange(decorator.values.length == 0);

@@ -155,7 +155,7 @@ export class TooltipController extends AbstractMouseController  {
                                         let pd = OncoData.instance.currentCommonSidePanel.commonSidePanelModel.patientData;
                                         let patientKeyValue = pd.find(p => p.p == pid)[f.name];
                                         if(patientKeyValue) {
-                                            if(f.excludedValues.indexOf(patientKeyValue) == -1){
+                                            if(f.excludedValues && f.excludedValues.indexOf(patientKeyValue) == -1){
                                                 let newField = {key: f.title, val: patientKeyValue};
                                                 tooltipFields.push(newField);
                                             }

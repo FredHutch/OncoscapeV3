@@ -19,6 +19,8 @@ import * as THREE from 'three';
 import { CommonSidePanelComponent } from '../common-side-panel/common-side-panel.component';
 import { SelectionModifiers } from 'app/component/visualization/visualization.abstract.scatter.component';
 import { OncoData } from 'app/oncoData';
+import { ChartScene } from '../chart/chart.scene';
+import { VisualizationView } from '../../../model/chart-view.model';
 
 @Component({
   selector: 'app-workspace-legend-item',
@@ -33,10 +35,7 @@ export class LegendItemComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {}
 
   ngOnInit() {
-    console.log('handle legend in ngOnInit'); // object here
-
     this.visibleEyeLevel = this.legend.visibility[this.i];
-    console.log(`--ngOnInit i=${this.i} ${this.visibleEyeLevel}  @${Date.now()}`);
   }
   
   ngOnDestroy() {}
@@ -48,7 +47,6 @@ export class LegendItemComponent implements AfterViewInit, OnDestroy {
 
   checkVisibleEyeFlag():boolean{
     let returnVal = this.visibleEyeLevel == 1;
-    console.log(`--checkvisibleEyeFlag i=${this.i} ${this.visibleEyeLevel} *${returnVal}*  @${Date.now()}`);
     return returnVal;
   }
 
@@ -57,6 +55,7 @@ export class LegendItemComponent implements AfterViewInit, OnDestroy {
     let clickedLabel = Legend.clickedPidsFromLegendItem(legend, i);
     if(clickedLabel){
       console.log('Yes, visclick success . ' + i);
+      console.dir(event);
 
       if(this.visibleEyeLevel == 1) {
         this.visibleEyeLevel = 0;
@@ -65,6 +64,13 @@ export class LegendItemComponent implements AfterViewInit, OnDestroy {
         this.visibleEyeLevel = 1;
         this.legend.visibility[this.i] = 1;
       }
+
+      console.warn('== Assuming view 0 in legendItemEyeClick ==');
+      let view:VisualizationView = ChartScene.instance.views[0];
+      view.chart.updateDecorator(view.config, view.chart.decorators);
+      console.warn('==would like to render==');
+      ChartScene.instance.render();
+      OncoData.instance.currentCommonSidePanel.drawWidgets();
     }
   }
 

@@ -47,5 +47,6 @@ export interface ChartObjectInterface {
   notifiedOfVariantChanges(reason: string); // Gives Genome.Graph a chance to update itself after data is read in. Unlike updateData, this happens only once, after loading dataset.
   create(entity:EntityTypeEnum, labels: HTMLElement, events: ChartEvents, view: VisualizationView): ChartObjectInterface;
   destroy();
+
   preRender(views: Array<VisualizationView>, layout: WorkspaceLayoutEnum, renderer: THREE.Renderer): void;
 }

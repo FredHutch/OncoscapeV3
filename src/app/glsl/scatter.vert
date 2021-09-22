@@ -4,11 +4,13 @@ attribute vec3 gColor;
 attribute float gShape;
 attribute float gSelected;
 attribute float gMarkerScale;
+attribute float gVisibility; // 1 = visible, 0 = invisible
 
 
 varying vec3 vColor;
 varying float vShape;
 varying float vSelected;
+varying float vVisibility;
 
 uniform float uAnimationPos;
 uniform float uMarkerBaseSize;
@@ -17,7 +19,8 @@ void main() {
   vColor = gColor;
   vShape = gShape;
   vSelected = gSelected;
-
+  vVisibility = gVisibility;
+  
   vec4 mvPosition = modelViewMatrix * vec4(gPositionFrom * (1.0 - uAnimationPos) +position * uAnimationPos, 1.0);
   gl_Position = projectionMatrix * mvPosition;
   float size = uMarkerBaseSize * 6.5; // 65.0;  // default for size "3" of 8 bins.
