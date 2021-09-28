@@ -23,7 +23,7 @@
           ></app-workspace-legend-item>            
           </td>
           <td><span class='swatch2' (click)="customizeColor(legend, i)"   [style.background-color]='legend.values[i]'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td>
-          <td><span (click)="legendItemClick(legend, i)" style="{cursor:pointer; }">{{label}}{{legend.counts && legend.counts[i]?'&nbsp;&nbsp;&nbsp;('+legend.counts[i]+')':''}}</span></td>
+          <td><span id="ocLegendItem_{{label}}" (click)="legendItemClick(legend, i)" style="{cursor:pointer; }">{{label}}{{legend.counts && legend.counts[i]?'&nbsp;&nbsp;&nbsp;('+legend.counts[i]+')':''}}</span></td>
         </tr></table>
 
 

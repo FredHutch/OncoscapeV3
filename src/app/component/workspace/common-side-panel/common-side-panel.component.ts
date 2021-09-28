@@ -16,6 +16,8 @@ import {
 import * as d3 from 'd3';
  
 import * as _ from 'lodash';
+import introJs from 'intro.js';
+
 import { GraphConfig } from './../../../model/graph-config.model';
 import { DataDecorator } from './../../../model/data-map.model';
 import { Legend } from './../../../model/legend.model';
@@ -595,7 +597,9 @@ export class CommonSidePanelComponent implements AfterViewInit, OnChanges, OnDes
   ngAfterViewInit(): void {
     console.warn('commonside ngAfterViewInit');
     this.wireCspToWidgets();
+
   }
+
   wireCspToWidgets(){
     if(this.newSurvivalWidget){
       this.newSurvivalWidget.commonSidePanelModel = CommonSidePanelComponent.instance.commonSidePanelModel;
@@ -619,6 +623,49 @@ export class CommonSidePanelComponent implements AfterViewInit, OnChanges, OnDes
     this.commonSidePanelModel.datasetDescription = this.datasetDescription;
     console.log('datasetDescription updated');
     this.wireCspToWidgets();
+
+    if(window["tourSeen_"+ this.commonSidePanelModel.graphConfig.database] == null) {
+      let self = this;
+      window.setTimeout(
+        self.startTour, 100);
+      window["tourSeen_"+ this.commonSidePanelModel.graphConfig.database] = true;
+    }
+  }
+
+  public startTour(){
+
+    console.log("== tour in startTour bypassed  ==");
+    return;
+
+    
+    introJs().addHints();
+
+    introJs().setOptions({
+      steps: [{
+        title: 'Welcome to Oncoscape',
+        intro: "Let's start"
+      },
+      {
+        element: document.querySelector('#ocLegendItem_tcga-gbm'),
+        intro: 'The blue dots are TCGA Glioblastoma patients. Click the text to select the patients.'
+      },
+      {
+        element: document.querySelector('.infoPanel'),
+        position: "left",
+        intro: 'Click and drag to rotate. Right-click and drag to move points. Use scroll wheel or finger pinch to zoom'
+      },
+      {
+        element: document.querySelector('#svgContainer_Survival'),
+        intro: 'When you select points, their survival information appears as a new plot line.'
+      },
+      {
+        title: 'Now Explore',
+        element: document.querySelector('#takeTourBtn'),
+        intro: 'If you want to start this tour again, click this link.'
+      }]
+    }).onbeforeexit(function () {
+      return confirm("To restart the tour, click 'Take A Tour' on the blue menu bar. Are you sure you want to stop the tour?");
+    }).start();    
   }
 
   public update(): void {

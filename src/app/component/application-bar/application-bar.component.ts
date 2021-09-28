@@ -22,6 +22,7 @@ import { CbioService } from 'app/service/datasource/cbio.service';
 import { ChartComponent } from '../workspace/chart/chart.component';
 import { AbstractVisualization } from './../visualization/visualization.abstract.component';
 import { AbstractScatterVisualization } from '../visualization/visualization.abstract.scatter.component';
+import { CommonSidePanelComponent } from '../workspace/common-side-panel/common-side-panel.component';
 
 declare var $: any;
 
@@ -123,6 +124,9 @@ export class ApplicationBarComponent implements OnInit, OnDestroy {
     }
   }
 
+  takeTour(){
+    CommonSidePanelComponent.instance.startTour();
+  }
 
   undoFromMenu(): void {
     console.log('undoFromMenu called');
