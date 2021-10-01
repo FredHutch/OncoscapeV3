@@ -406,7 +406,14 @@ export class TooltipController extends AbstractMouseController  {
         if (this.mouseIsInside){
             // console.log('within tooltip');
         } else {
-            const intersects = this.getIntersects(this._view, e.mouse, this._targets);
+            const rawIntersects = this.getIntersects(this._view, e.mouse, this._targets);
+            let intersects = rawIntersects.filter(v => {
+                if(v.object.constructor.name == "Points") {
+                    return v.object["geometry"].attributes.gVisibility.array[v.index] > 0.5;
+                } else {
+                    return true;
+                }
+            })
 
             let targetCount = 0;
             this._targets.map(v => {

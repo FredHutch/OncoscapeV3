@@ -36,6 +36,7 @@ import { AbstractScatterVisualization } from 'app/component/visualization/visual
 import { AbstractVisualization } from 'app/component/visualization/visualization.abstract.component';
 import { ɵngrx_modules_store_devtools_store_devtools_f } from '@ngrx/store-devtools';
 import { Event } from 'aws-sdk/clients/s3';
+import { ComponentFactoryResolver } from '@angular/core';
 declare var $: any;
 
 declare var THREE;
@@ -458,6 +459,7 @@ export class ScatterSelectionLassoController extends AbstractScatterSelectionCon
         console.warn('MJ Never gets here? ===== 6544');
 
         let selectionArray = self.points.geometry['attributes']['gSelected'].array;
+        let visibilityArray = self.points.geometry['attributes']['gVisibility'].array;
         let positionArray = self.points.geometry['attributes']['gPositionFrom'].array;
         let originalPos:Vector3 = null;
         let pointAlreadySelected:boolean = selectionArray[self._lastMouseDownIntersect.index] == 1;
@@ -485,7 +487,7 @@ export class ScatterSelectionLassoController extends AbstractScatterSelectionCon
 
         self._currentSelectedPointsAsIndices = [];
         selectionArray.forEach((s,i) => {
-          if (selectionArray[i] == 1) {
+          if (selectionArray[i] == 1 && visibilityArray[i] > 0.5) {
             originalPos = positionArray.slice(i*3, (i+1)*3);
             // console.log('MJ set newpos from originalpos');
             let newPos = positionArray.slice(i*3, (i+1)*3); // qqq mj {...originalPos}; // copy}
@@ -776,9 +778,15 @@ export class ScatterSelectionLassoController extends AbstractScatterSelectionCon
             console.error('three.js expected layers. MJ');
           }
           if(intersects.length > 0) {
-            document.body.style.cursor = "pointer";
-            this._lastHoveredIntersect = intersects[0];
-            // console.warn(`MJ set lastHoveredIntersect=${intersects[0].index}.`);
+            //console.log("=== is intersects visible? ===");
+            let vis = self.points.geometry['attributes']['gVisibility'].array[intersects[0].index]
+            //console.log(vis);
+            if (vis > 0.5) {
+              //console.log(self)
+              document.body.style.cursor = "pointer";
+              this._lastHoveredIntersect = intersects[0];
+              // console.warn(`MJ set lastHoveredIntersect=${intersects[0].index}.`);
+            }
           } else {
             document.body.style.cursor = "default";
             this._lastHoveredIntersect = null;
@@ -875,13 +883,20 @@ export class ScatterSelectionLassoController extends AbstractScatterSelectionCon
     const pts = this.points.geometry['attributes'].position.array;
     const ptsCount = pts.length / 3;
     const ptsVec3 = new Array(ptsCount);
+
+
     for (let i = 0; i < ptsCount; i++) {
       const vec3 = new Vector3(pts[i * 3], pts[i * 3 + 1], pts[i * 3 + 2]).project(this.view.camera);
       ptsVec3[i] = [vec3.x, vec3.y];
     }
+    const vis = this.points.geometry['attributes'].gVisibility.array;
     const hits = ptsVec3.reduce((p, c, i) => {
-      if (this.pointInPoly(c, poly)) {
-        p.push(i * 3);
+      if(vis[i] > 0.5){
+        if (this.pointInPoly(c, poly)) {
+          p.push(i * 3);
+        }
+      } else {
+        console.log('hidden, no select')
       }
       return p;
     }, []);

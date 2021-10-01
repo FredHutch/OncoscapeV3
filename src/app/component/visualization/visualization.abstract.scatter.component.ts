@@ -22,6 +22,7 @@ import { start } from 'repl';
 import { CommonSidePanelComponent } from '../workspace/common-side-panel/common-side-panel.component';
 import { OncoData } from 'app/oncoData';
 import { EdgesGraph } from './edges/edges.graph';
+import { markViewDirty } from '@angular/core/src/render3/instructions';
 
 
 const fragShader = require('raw-loader!glslify-loader!app/glsl/scatter.frag');
@@ -60,6 +61,8 @@ export class AbstractScatterVisualization extends AbstractVisualization {
     } 
 
   }
+
+  public isBasedOnAbstractScatter = true; // A quick test for this or descendants.
 
   public getDataItemCount () {
     if (this.entity == EntityTypeEnum.SAMPLE) {
@@ -159,6 +162,74 @@ export class AbstractScatterVisualization extends AbstractVisualization {
     window.setTimeout(() => self.signalCommonSidePanel(this._lastSelectionPatientIds, source, EntityTypeEnum.SAMPLE), 50);
   }
 
+
+  setVisibilityBasedOnLegends(config: GraphConfig, decorators: DataDecorator[]) {
+    let self=this;
+    let visibilityLevels:Float32Array = new Float32Array(this.ids.length);
+    self.ids.forEach((id, index) => {
+      visibilityLevels[index] = 1.0;
+    });
+    self.pointsGeometry.setAttribute('gVisibility', new THREE.BufferAttribute(visibilityLevels, 1));
+
+    // For each decorator, hide points if visibility in legend is 0.
+    decorators.forEach(decorator => {
+      if(decorator.legend) {
+
+        decorator.legend.visibility.map((legendItemVisibility, legendItemIndex) => {
+          if(legendItemVisibility < 0.5){
+            // visibilityLevels:Float32Array = new Float32Array(this.ids.lengt
+            let pidsToHide = decorator.pidsByLabel[legendItemIndex].pids;
+            pidsToHide.map((pid, pidIndex) => {
+              let sid = OncoData.instance.currentCommonSidePanel.commonSidePanelModel.patientMap[pid];
+              if(sid) {
+                let scatterIdIndex = self.ids.findIndex(v => v === sid);
+                visibilityLevels[scatterIdIndex] = 0;
+              }
+              //.sampleMap[sampleId];
+
+            })
+          }
+        });
+
+        self.pointsGeometry.setAttribute('gVisibility', new THREE.BufferAttribute(visibilityLevels, 1));
+        self.pointsGeometry.attributes.gVisibility.needsUpdate = true;
+
+      }
+    });
+  }
+
+
+  public removeInvisiblesFromSelection(config: GraphConfig, decorators: DataDecorator[]) {
+    let self = this;
+    console.log('in removeInvisiblesFromSelection ###');
+
+    this.setVisibilityBasedOnLegends(config, decorators);
+
+    // Create an updated selection (without invisibles) and emit it.
+    let source = 'Selection';
+    let newHighlightIndexArray = Array.from(this.selectionController.highlightIndexes);// .delete(d.index * 3);
+    let newHighlightIndexSet = new Set();
+
+    let gVis = self.pointsGeometry.attributes.gVisibility;
+    let newSelectionIds: Array<string> = [];
+    newHighlightIndexArray.map(v => {
+      let pointIndex = v/3;
+      if (gVis.array[pointIndex] > 0.5) {
+        //newHighlightIndexSet.add(v*3);
+        newSelectionIds.push(self.ids[pointIndex])
+      }
+    })
+
+    this._lastSelectionPatientIds = newSelectionIds; //ids.map(v => self._data.pid[v/3]);
+
+
+    this.recalculateLegendTotals(); // Needed here?
+    self.pointsGeometry.attributes.gSelected.needsUpdate = true;
+    ChartScene.instance.render();
+
+    window.setTimeout(() => self.signalCommonSidePanel(this._lastSelectionPatientIds, source, EntityTypeEnum.SAMPLE), 50);
+  }
+
   public notifyEdgeGraphOfSelectionChange(weKnowNothingIsInSelection:boolean) {
       let edgesGraph = (ChartScene.instance.views[2].chart as EdgesGraph);
       if(edgesGraph){
@@ -177,7 +248,7 @@ export class AbstractScatterVisualization extends AbstractVisualization {
     this.selectionController.enable = true;
     this.selectSubscription = this.selectionController.onSelect.subscribe((data) => {
       let ids: Array<number> = data.ids; // ids are 3 times bigger than real index. We'll divide by 3.
-      let source: any = data.source; // we EXPECT this isalways "Selection", not "Cohort".
+      let source: any = data.source; // we EXPECT this is always "Selection", not "Cohort".
       const values: Array<DataDecoratorValue> = ids
         .map(v => v / 3)
         .map(v => {
@@ -313,16 +384,17 @@ export class AbstractScatterVisualization extends AbstractVisualization {
   }
   
   updateDecorator(config: GraphConfig, decorators: DataDecorator[]) {
-    console.warn('==update decorator==');
+      console.warn('==update decorator==');
 
     super.updateDecorator(config, decorators);
     let self = this;
 
-    let visibilityLevels:Float32Array = new Float32Array(this.ids.length);
-    this.ids.forEach((id, index) => {
-      visibilityLevels[index] = 1.0;
-    });
-    this.pointsGeometry.setAttribute('gVisibility', new THREE.BufferAttribute(visibilityLevels, 1));
+    // let visibilityLevels:Float32Array = new Float32Array(this.ids.length);
+    // this.ids.forEach((id, index) => {
+    //   visibilityLevels[index] = 1.0;
+    // });
+    // this.pointsGeometry.setAttribute('gVisibility', new THREE.BufferAttribute(visibilityLevels, 1));
+    this.setVisibilityBasedOnLegends(config, decorators);
 
     // No SELECT decorators, so unhighlight all points.
     if (this.decorators.filter(d => d.type === DataDecoratorTypeEnum.SELECT).length === 0) {
@@ -369,36 +441,39 @@ export class AbstractScatterVisualization extends AbstractVisualization {
       this.pointsGeometry.setAttribute('gMarkerScale', new THREE.BufferAttribute(markerScales, 1));
     }
 
+
     const propertyId = this._config.entity === EntityTypeEnum.GENE ? 'mid' : 'sid';
     decorators.forEach(decorator => {
-      // 1. For each decorator, hide if visibility in legend is 0.
+      // // 1. Among other things, for each decorator, hide if visibility in legend is 0.
 
-      if(decorator.legend) {
+      // if(decorator.legend) {
 
-        decorator.legend.visibility.map((v, legendItemIndex) => {
-          if(v < 0.5){
-            // visibilityLevels:Float32Array = new Float32Array(this.ids.lengt
-            let pidsToHide = decorator.pidsByLabel[legendItemIndex].pids;
-            pidsToHide.map((pid, pidIndex) => {
-              let sid = OncoData.instance.currentCommonSidePanel.commonSidePanelModel.patientMap[pid];
-              if(sid) {
-                let scatterIdIndex = this.ids.findIndex(v => v === sid);
-                visibilityLevels[scatterIdIndex] = 0;
-              }
-              //.sampleMap[sampleId];
+      //   decorator.legend.visibility.map((legendItemVisibility, legendItemIndex) => {
+      //     if(legendItemVisibility < 0.5){
+      //       // visibilityLevels:Float32Array = new Float32Array(this.ids.lengt
+      //       let pidsToHide = decorator.pidsByLabel[legendItemIndex].pids;
+      //       pidsToHide.map((pid, pidIndex) => {
+      //         let sid = OncoData.instance.currentCommonSidePanel.commonSidePanelModel.patientMap[pid];
+      //         if(sid) {
+      //           let scatterIdIndex = this.ids.findIndex(v => v === sid);
+      //           visibilityLevels[scatterIdIndex] = 0;
+      //         }
+      //         //.sampleMap[sampleId];
 
-            })
-          }
-        });
+      //       })
+      //     }
+      //   });
 
-        this.pointsGeometry.setAttribute('gVisibility', new THREE.BufferAttribute(visibilityLevels, 1));
-        self.pointsGeometry.attributes.gVisibility.needsUpdate = true;
+      //   this.pointsGeometry.setAttribute('gVisibility', new THREE.BufferAttribute(visibilityLevels, 1));
+      //   self.pointsGeometry.attributes.gVisibility.needsUpdate = true;
 
-      }
+      // }
 
-      // 2. Decorator specific
+
+      //  Decorator specific
       switch (decorator.type) {
         case DataDecoratorTypeEnum.SELECT:
+          console.warn("update SELECT dec");
           this.notifyEdgeGraphOfSelectionChange(decorator.values.length == 0);
 
           if (this._config.entity === EntityTypeEnum.SAMPLE) {
@@ -407,14 +482,17 @@ export class AbstractScatterVisualization extends AbstractVisualization {
             });
             //const arr = this.pointsGeometry.attributes.gSelected.array;
             const gSel = this.pointsGeometry.attributes.gSelected;
+
             // zero it out
             let l = gSel.array.length;
             for(let i=0; i < l; i++){
               gSel.setX(i, 0);
             }
+            console.log('== updateDecorator, set selected only if visible');
             indices.forEach(v => {
               gSel.setX(v, 1);
             });
+
             self.pointsGeometry.attributes.gSelected.needsUpdate = true;
             ChartScene.instance.render();
           }
@@ -438,6 +516,7 @@ export class AbstractScatterVisualization extends AbstractVisualization {
           ChartScene.instance.render();
           break;
           case DataDecoratorTypeEnum.COLOR:
+            console.warn("update COLOR dec");
             self.updateDecoratorBasedOnStoredColors(decorator);
             const colorsMap = decorator.values.reduce((p, c) => {
               const color = new THREE.Color();

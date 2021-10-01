@@ -27,6 +27,7 @@ export class AbstractMouseController {
         pos: { x: number, y: number, xs: number, ys: number },
         objects: Array<THREE.Object3D> ): Array<THREE.Intersection> {
         this._raycaster.setFromCamera(pos, view.camera);
+        // console.log('= getIntersects in abstractMouseController');
         return this._raycaster.intersectObjects(objects, false);
     }
     public get enable(): boolean { return this._enabled; }

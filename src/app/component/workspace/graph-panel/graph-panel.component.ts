@@ -174,6 +174,9 @@ export class GraphPanelComponent implements AfterViewInit, OnDestroy {
   methodSummary = '';
   workspaceLayoutOptions = [WorkspaceLayoutEnum.HORIZONTAL, WorkspaceLayoutEnum.VERTICAL, WorkspaceLayoutEnum.OVERLAY];
   workspaceEdgeOptions: Array<DataField> = [];
+  get getGraphId() {
+    return this.config.graph;
+  }
 
   get decoratorsWithLegends(): Array<DataDecorator> {
     const edges = this.edgeDecorators.filter(v => v.legend);

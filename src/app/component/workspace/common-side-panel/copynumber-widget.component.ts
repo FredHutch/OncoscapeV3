@@ -292,7 +292,6 @@ export class CopynumberWidgetComponent extends WidgetComponent {
 
   // Pass in either self.sidGainPixelLists or self.sidLossPixelLists.
   private computePixelPercents(sidPixelLists:any){
-    console.warn('check self in computePixelPercents');
     
     let self = this;
     // return like this: [[28,55], [72,40], [73,38], [114,89], [113,88], [74,20]];

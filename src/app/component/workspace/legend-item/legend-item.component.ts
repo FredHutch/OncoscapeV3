@@ -21,6 +21,7 @@ import { SelectionModifiers } from 'app/component/visualization/visualization.ab
 import { OncoData } from 'app/oncoData';
 import { ChartScene } from '../chart/chart.scene';
 import { VisualizationView } from '../../../model/chart-view.model';
+import { AbstractScatterVisualization } from '../../visualization/visualization.abstract.scatter.component';
 
 @Component({
   selector: 'app-workspace-legend-item',
@@ -51,12 +52,8 @@ export class LegendItemComponent implements AfterViewInit, OnDestroy {
   }
 
   legendItemEyeClick(event, legend: Legend, i:number){
-    console.log('visClick');
     let clickedLabel = Legend.clickedPidsFromLegendItem(legend, i);
     if(clickedLabel){
-      console.log('Yes, visclick success . ' + i);
-      console.dir(event);
-
       if(this.visibleEyeLevel == 1) {
         this.visibleEyeLevel = 0;
         this.legend.visibility[this.i] = 0;
@@ -67,7 +64,14 @@ export class LegendItemComponent implements AfterViewInit, OnDestroy {
 
       console.warn('== Assuming view 0 in legendItemEyeClick ==');
       let view:VisualizationView = ChartScene.instance.views[0];
-      view.chart.updateDecorator(view.config, view.chart.decorators);
+      let thisScatterGraph  = view.chart as AbstractScatterVisualization;
+      if(thisScatterGraph && thisScatterGraph.isBasedOnAbstractScatter){
+        thisScatterGraph.removeInvisiblesFromSelection(view.config, view.chart.decorators);
+      } else {
+        console.warn('This vis does not support removeInvisiblesFromSelection.');
+      }
+
+      //  view.chart.updateDecorator(view.config, view.chart.decorators);
       console.warn('==would like to render==');
       ChartScene.instance.render();
       OncoData.instance.currentCommonSidePanel.drawWidgets();

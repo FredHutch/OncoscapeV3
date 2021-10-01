@@ -60,6 +60,7 @@ export class DragSelectionControl {
         pos: { x: number, y: number, xs: number, ys: number },
         objects: Array<THREE.Object3D>): Array<THREE.Intersection> {
         this._raycaster.setFromCamera(pos, view.camera);
+        console.log('= getIntersects in dragSelection');
         return this._raycaster.intersectObjects(objects, false);
     }
 
