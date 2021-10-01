@@ -173,7 +173,7 @@ export class AbstractScatterVisualization extends AbstractVisualization {
 
     // For each decorator, hide points if visibility in legend is 0.
     decorators.forEach(decorator => {
-      if(decorator.legend) {
+      if(decorator.legend && decorator.legend.visibility) {
 
         decorator.legend.visibility.map((legendItemVisibility, legendItemIndex) => {
           if(legendItemVisibility < 0.5){

@@ -5,6 +5,8 @@ import {
   Component,
   Input,
   OnDestroy,
+  QueryList,
+  ViewChildren,
   ViewEncapsulation,
   EventEmitter
 } from '@angular/core';
@@ -20,6 +22,10 @@ import { SelectionModifiers } from 'app/component/visualization/visualization.ab
 import { OncoData } from 'app/oncoData';
 import { debug } from 'console';
 import { AnalyticsProvider } from 'aws-amplify';
+import { ChartScene } from '../chart/chart.scene';
+import { VisualizationView } from '../../../model/chart-view.model';
+import { AbstractScatterVisualization } from '../../visualization/visualization.abstract.scatter.component';
+import { LegendItemComponent } from '../legend-item/legend-item.component';
 
 @Component({
   selector: 'app-workspace-legend-panel',
@@ -29,7 +35,8 @@ import { AnalyticsProvider } from 'aws-amplify';
   encapsulation: ViewEncapsulation.None
 })
 export class LegendPanelComponent implements AfterViewInit, OnDestroy {
-  // TEMP DEL ME
+
+  @ViewChildren(LegendItemComponent) legendItems: QueryList<LegendItemComponent>
 
   public static setLegends = new EventEmitter<{
     legend: Array<Legend>;
@@ -94,6 +101,50 @@ export class LegendPanelComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+
+  private setLegendItemVisibility(li:LegendItemComponent, i:number, beVisible:boolean){
+      li.visibleEyeLevel = beVisible ? 1 : 0
+      li.legend.visibility[i] = beVisible ? 1 : 0;
+  }
+
+  eyeClickItem(activity: any) { // i, legend, event
+    console.warn('In eyeClickItem, in legend panel.');
+    console.dir(activity)
+
+    //let clickedLabel = Legend.clickedPidsFromLegendItem(legend, i);
+  //if(clickedLabel){
+
+    // Get current vis of clicked item.
+    let currentEyeVis = true;
+    this.legendItems.forEach( (li, i) => {
+      if(i == activity.i){
+        currentEyeVis = li.visibleEyeLevel == 1
+      }
+    });
+
+    this.legendItems.forEach( (li, i) => {
+      if(i == activity.i){
+        this.setLegendItemVisibility(li, i, currentEyeVis == false)
+      } else {
+        if((activity.event as MouseEvent).ctrlKey){
+          this.setLegendItemVisibility(li, i, currentEyeVis) // e.g., if item was true, all others now become true.
+        }
+      }
+    });
+
+    console.warn('== Assuming view 0 in legendItemEyeClick ==');
+    let view:VisualizationView = ChartScene.instance.views[0];
+    let thisScatterGraph  = view.chart as AbstractScatterVisualization;
+    if(thisScatterGraph && thisScatterGraph.isBasedOnAbstractScatter){
+      thisScatterGraph.removeInvisiblesFromSelection(view.config, view.chart.decorators);
+    } else {
+      console.warn('This vis does not support removeInvisiblesFromSelection.');
+    }
+    ChartScene.instance.render();
+    OncoData.instance.currentCommonSidePanel.drawWidgets();
+
+  //}
+  }
 
 
   legendItemClick(legend: Legend, i:number): void {

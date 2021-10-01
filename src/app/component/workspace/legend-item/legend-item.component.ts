@@ -6,6 +6,7 @@ import {
   Input,
   OnDestroy,
   OnInit,
+  Output,
   ViewEncapsulation,
   EventEmitter
 } from '@angular/core';
@@ -51,31 +52,10 @@ export class LegendItemComponent implements AfterViewInit, OnDestroy {
     return returnVal;
   }
 
+  @Output() eyeClickItemEvent = new EventEmitter<any>();
+
   legendItemEyeClick(event, legend: Legend, i:number){
-    let clickedLabel = Legend.clickedPidsFromLegendItem(legend, i);
-    if(clickedLabel){
-      if(this.visibleEyeLevel == 1) {
-        this.visibleEyeLevel = 0;
-        this.legend.visibility[this.i] = 0;
-      } else {
-        this.visibleEyeLevel = 1;
-        this.legend.visibility[this.i] = 1;
-      }
-
-      console.warn('== Assuming view 0 in legendItemEyeClick ==');
-      let view:VisualizationView = ChartScene.instance.views[0];
-      let thisScatterGraph  = view.chart as AbstractScatterVisualization;
-      if(thisScatterGraph && thisScatterGraph.isBasedOnAbstractScatter){
-        thisScatterGraph.removeInvisiblesFromSelection(view.config, view.chart.decorators);
-      } else {
-        console.warn('This vis does not support removeInvisiblesFromSelection.');
-      }
-
-      //  view.chart.updateDecorator(view.config, view.chart.decorators);
-      console.warn('==would like to render==');
-      ChartScene.instance.render();
-      OncoData.instance.currentCommonSidePanel.drawWidgets();
-    }
+      this.eyeClickItemEvent.emit({legend: legend, i: i, event: event});
   }
 
 

@@ -1,3 +1,4 @@
+
 <div>
   <!-- <div class='legendHeader' style='padding-bottom: 0px;font-weight: 300p;'>Data Set: {{config.database}} </div> -->
   <div *ngFor='let legend of allLegends' style='border-bottom-width: 1px;'>
@@ -18,6 +19,7 @@
       <div *ngFor='let label of legend.labels; let i = index; ' class='legendItem'>
         <table><tr>
           <td><app-workspace-legend-item
+            (eyeClickItemEvent)="eyeClickItem($event)"
             [legend]="legend"
             [i]="i"
           ></app-workspace-legend-item>            

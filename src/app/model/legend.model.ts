@@ -57,9 +57,13 @@ export class Legend {
         let colorInt = a.getHex();
         clickedPids = legend.decorator.pidsByLabel.find(v => v.label == colorInt.toString());
       }
-      console.log(`clickedPids.length = ${clickedPids.pids.length}.`)
-      console.dir(clickedPids);
-      return clickedPids;
+      if (clickedPids){
+        console.log(`clickedPids.length = ${clickedPids.pids.length}.`)
+        console.dir(clickedPids);
+        return clickedPids;
+      } else {
+        return null;
+      }
     }   else {
       return null;
     }
