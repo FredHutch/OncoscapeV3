@@ -126,7 +126,7 @@ export class LegendPanelComponent implements AfterViewInit, OnDestroy {
       if(i == activity.i){
         this.setLegendItemVisibility(li, i, currentEyeVis == false)
       } else {
-        if((activity.event as MouseEvent).ctrlKey){
+        if((activity.event as MouseEvent).altKey){
           this.setLegendItemVisibility(li, i, currentEyeVis) // e.g., if item was true, all others now become true.
         }
       }
