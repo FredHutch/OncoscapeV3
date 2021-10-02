@@ -185,8 +185,6 @@ export class AbstractScatterVisualization extends AbstractVisualization {
                 let scatterIdIndex = self.ids.findIndex(v => v === sid);
                 visibilityLevels[scatterIdIndex] = 0;
               }
-              //.sampleMap[sampleId];
-
             })
           }
         });
@@ -202,21 +200,22 @@ export class AbstractScatterVisualization extends AbstractVisualization {
   public removeInvisiblesFromSelection(config: GraphConfig, decorators: DataDecorator[]) {
     let self = this;
     console.log('in removeInvisiblesFromSelection ###');
-
     this.setVisibilityBasedOnLegends(config, decorators);
 
     // Create an updated selection (without invisibles) and emit it.
     let source = 'Selection';
     let newHighlightIndexArray = Array.from(this.selectionController.highlightIndexes);// .delete(d.index * 3);
-    let newHighlightIndexSet = new Set();
 
+    let gSel = self.pointsGeometry.attributes.gSelected;
     let gVis = self.pointsGeometry.attributes.gVisibility;
     let newSelectionIds: Array<string> = [];
     newHighlightIndexArray.map(v => {
       let pointIndex = v/3;
       if (gVis.array[pointIndex] > 0.5) {
         //newHighlightIndexSet.add(v*3);
-        newSelectionIds.push(self.ids[pointIndex])
+        newSelectionIds.push(self.ids[pointIndex]);
+      } else {
+        gSel.setX(pointIndex, 0);
       }
     })
 
