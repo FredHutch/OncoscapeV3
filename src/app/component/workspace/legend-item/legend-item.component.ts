@@ -37,12 +37,18 @@ export class LegendItemComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {}
 
   ngOnInit() {
-    this.visibleEyeLevel = this.legend.visibility[this.i];
+  if(this.legend && this.legend.visibility){
+    try {
+      this.visibleEyeLevel = this.legend.visibility[this.i];
+     } catch (err) {
+        console.warn('CAUGHT: ' + err) 
+      }
+    }
   }
   
   ngOnDestroy() {}
   
-  public visibleEyeLevel: number; // 1=visible, 0=invisible.
+  public visibleEyeLevel: number = 1; // 1=visible, 0=invisible.
 
   @Input() legend: Legend;
   @Input() i: number;

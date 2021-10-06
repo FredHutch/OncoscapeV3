@@ -18,7 +18,7 @@
     <div *ngIf='legend.type === "COLOR"'>
       <div *ngFor='let label of legend.labels; let i = index; ' class='legendItem'>
         <table><tr>
-          <td><app-workspace-legend-item
+          <td><app-workspace-legend-item *ngIf='config.isScatterVisualization'
             (eyeClickItemEvent)="eyeClickItem($event)"
             [legend]="legend"
             [i]="i"

@@ -111,6 +111,11 @@ export class LegendPanelComponent implements AfterViewInit, OnDestroy {
     console.warn('In eyeClickItem, in legend panel.');
     console.dir(activity)
 
+    if(this.config.isScatterVisualization == false) {
+      console.warn('In eyeClickItem, clicking non-scatter vis. Not yet supported..');
+      return;
+    }
+
     //let clickedLabel = Legend.clickedPidsFromLegendItem(legend, i);
   //if(clickedLabel){
 
