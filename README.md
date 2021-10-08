@@ -12,7 +12,7 @@ New features include:
 * New tools for selection and cohort creation
 * Print-quality output
 
-Documentation: [To be linked.]
+Documentation: [Updated documentation to be linked. See Contact info below for now.]
 
 This is code for the most current version of Oncoscape, currently called V3. If you are looking for the older version, Oncoscape V2, see https://github.com/FredHutch/Oncoscape .
 
