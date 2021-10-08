@@ -632,19 +632,39 @@ export class CommonSidePanelComponent implements AfterViewInit, OnChanges, OnDes
     }
   }
 
+  introJsFunction:any;
+
   public startTour(){
+    // TBD: why is "this" the window object now?
+    let startTourSelf = CommonSidePanelComponent.instance; // this;
 
-    console.log("== tour in startTour bypassed  ==");
-    return;
-
-    
     introJs().addHints();
 
-    introJs().setOptions({
-      steps: [{
-        title: 'Welcome to Oncoscape',
-        intro: "Let's start"
+    let steps:Array<any> = [
+      {
+        title: 'Navigation',
+        intro: `This tour highlights our tools for exploring molecular and clinical data. <br>
+        <br>
+        First, navigating a scatter plot:<br><br>
+          <!-- <ul>
+          <li>Click &amp; drag to rotate.</li>
+          <li>Right-click &amp; drag to shift the whole plot.</li>
+          <li>Use scroll wheel or finger pinch to zoom.</li>
+
+          </ul>-->
+<img width="232" src="/assets/videos/OncoTour_ScatterMovements.gif" />
+`
       },
+      {
+        title: 'Selecting Points',
+        intro: `
+        <ul>
+        <li>To select points, hold Shift, then click-drag like a lasso.</li>
+        <li>To deselect all points, click on the background.</li>
+        </ul>`
+
+      },
+      //         
       {
         element: document.querySelector('#ocLegendItem_tcga-gbm'),
         intro: 'The blue dots are TCGA Glioblastoma patients. Click the text to select the patients.'
@@ -657,15 +677,55 @@ export class CommonSidePanelComponent implements AfterViewInit, OnChanges, OnDes
       {
         element: document.querySelector('#svgContainer_Survival'),
         intro: 'When you select points, their survival information appears as a new plot line.'
-      },
+      }
+    ];
+
+    this.introJsFunction = introJs().setOptions({
+      steps: steps
+    }).onexit(function () {
+      console.log("...currentstep??");
+      window.setTimeout(function(){
+        console.log('... about to call startTourReminder');
+        startTourSelf.startTourReminder();
+      }, 50);
+      // try introJS()._currentstep
+      //return confirm("To restart the tour, click 'Take A Tour' on the blue menu bar. Are you sure you want to stop the tour?");
+    }).onafterchange(function(targetEl:HTMLElement){
+      
+      // // check if it's a floating tooltip (not attached to an element)
+      // if(targetEl.classList.contains('introjsFloatingElement')){
+      //     // adjust the position of these elements
+      //     //  element.setAttribute("style", "color:red; border: 1px solid blue;");
+      //     jQuery('.introjs-tooltipReferenceLayer').offset({top : 120});
+      //     jQuery('.introjs-tooltip').css({
+      //         opacity: 1,
+      //         display: 'block',
+      //         left: '50%',
+      //         top: '50%',
+      //         'margin-left': '-186px',
+      //         'margin-top': '-91px'
+      //     });
+      //     jQuery('.introjs-helperNumberLayer').css({
+      //         opacity: 1,
+      //         left: '-204px',
+      //         top: '-109px'
+      //     });
+      //}
+    }).start();    
+  }
+
+  private startTourReminder(){
+    console.log('... inside startTourReminder');
+    let steps:Array<any> = [
       {
         title: 'Now Explore',
         element: document.querySelector('#takeTourBtn'),
         intro: 'If you want to start this tour again, click this link.'
-      }]
-    }).onbeforeexit(function () {
-      return confirm("To restart the tour, click 'Take A Tour' on the blue menu bar. Are you sure you want to stop the tour?");
-    }).start();    
+      }
+    ];
+    this.introJsFunction = introJs().setOptions({
+      steps: steps
+    }).start();
   }
 
   public update(): void {
