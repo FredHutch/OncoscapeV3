@@ -35,6 +35,16 @@ export class FilePanelComponent {
   datasets = [];
   filter = '';
 
+  public goToFeaturedDataset(){
+    let protocol = window.location.protocol.replace(':','');
+    let host = window.location.hostname;
+    let project = "brainumap3";
+    let port = window.location.port == "80" ? "" : ":" + window.location.port;
+    host = host+port;
+    let href = `https://oncoscape.v3.sttrcancer.org/redirect4.html?protocol=${protocol}&server=${host}&project=${project}`;
+    window.location.href = href;
+  }
+
   public onSelectedTabChange(e: MatTabChangeEvent): void {
     switch (e.tab.textLabel) {
       case 'Genomic Data Commons':
