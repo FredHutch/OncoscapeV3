@@ -1,9 +1,11 @@
 # Oncoscape V3
+Try our current Beta at https://beta.oncoscape.sttrcancer.org/ 
+
 __Code Base Note:__ On September 14, 2021, two years of internal code changes were merged in to the main code base. This includes private data upload and numerous UX enhancements.
 
 ![oncoscapeLanding](https://user-images.githubusercontent.com/68349241/133341925-2c10337b-4836-48b7-994a-8e7477df4e84.png)
 
-Oncoscape is an Open Source tool for visualization and hypothesis generation. It allows viewing and manipulation of molecular (genetic, proteomic, etc.) and clinical data, with the goal of revealing patterns among cancers or other diseases. Try our current Beta at https://beta.oncoscape.sttrcancer.org/
+Oncoscape is an Open Source tool for visualization and hypothesis generation. It allows viewing and manipulation of molecular (genetic, proteomic, etc.) and clinical data, with the goal of revealing patterns among cancers or other diseases. 
 
 New features include:
 
