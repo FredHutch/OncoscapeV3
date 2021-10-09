@@ -85,7 +85,7 @@
         <div class="panel-button-link" *ngFor="let dataset of datasets; let i = index">
           <a class="panel-button-image " (click)="this.loadPublic.emit(dataset)">
             <div class="disease-img disease-img{{dataset.img}}"></div>
-            <span>{{ dataset.name == "Glioma" ? "Glioma (MDS w/ SNV + CNV)" : dataset.name}}</span>
+            <span id="{{ 'dataset_link_'+dataset.name }}">{{ dataset.name == "Glioma" ? "Glioma (MDS w/ SNV + CNV)." : dataset.name}}</span>
             <!-- <mat-icon *ngIf='dataset.isTested'>done</mat-icon> -->
           </a>
         </div>
@@ -99,7 +99,7 @@
       <tr>
         <td><a (click)="goToFeaturedDataset()"><img src="/assets/icons/brainumap3.jpg" /></a></td>
         <td>&nbsp;&nbsp;&nbsp;</td>
-        <td>3,100+ brain samples, with a default visualization of RNA seq in UMAP. <a href="javascript:void(0)" (click)="goToFeaturedDataset()">Explore it</a></td>
+        <td>RNA seq dataset of normal and neoplastic brain using UMAP. <a href="javascript:void(0)" (click)="goToFeaturedDataset()">Explore it</a></td>
       </tr>
     </table>
   </div>

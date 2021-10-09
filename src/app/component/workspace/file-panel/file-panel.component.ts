@@ -1,5 +1,6 @@
 import { DataService } from 'app/service/data.service';
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
@@ -11,6 +12,7 @@ import { PanelEnum } from '../../../model/enum.model';
 import { DataHubService } from './../../../service/datahub.service';
 import { MatTabChangeEvent } from '@angular/material';
 import tippy from 'tippy.js';
+import introJs from 'intro.js';
 
 @Component({
   selector: 'app-workspace-file-panel',
@@ -74,6 +76,19 @@ export class FilePanelComponent {
         return;
         break;
     }
+  }
+
+  ngAfterViewInit(): void {
+    console.log('going to look for id dataset_link_Glioma');
+    let gliomaEl:HTMLElement = (document.getElementById("dataset_link_Glioma") as unknown) as HTMLElement;
+    gliomaEl.setAttribute("data-hint", "This interesting data set combines Single Nucleotide Variant and Copy Number Variant, which nicely clusters the gliomas by diagnosis. Click it to explore.");
+    gliomaEl.setAttribute("data-hintPosition", "bottom-right");
+    window.setTimeout(this.setHints, 300);
+  }
+ 
+  setHints() {
+    introJs().addHints();
+
   }
 
   setDatasetsOncoscape(): void {
