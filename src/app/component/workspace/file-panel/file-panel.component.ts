@@ -79,11 +79,11 @@ export class FilePanelComponent {
   }
 
   ngAfterViewInit(): void {
-    console.log('going to look for id dataset_link_Glioma');
-    let gliomaEl:HTMLElement = (document.getElementById("dataset_link_Glioma") as unknown) as HTMLElement;
-    gliomaEl.setAttribute("data-hint", "This interesting data set combines Single Nucleotide Variant and Copy Number Variant, which nicely clusters the gliomas by diagnosis. Click it to explore.");
-    gliomaEl.setAttribute("data-hintPosition", "bottom-right");
-    window.setTimeout(this.setHints, 300);
+    // console.log('going to look for id dataset_link_Glioma');
+    // let gliomaEl:HTMLElement = (document.getElementById("dataset_link_Glioma") as unknown) as HTMLElement;
+    // gliomaEl.setAttribute("data-hint", "This interesting data set combines Single Nucleotide Variant and Copy Number Variant, which nicely clusters the gliomas by diagnosis. Click it to explore.");
+    // gliomaEl.setAttribute("data-hintPosition", "bottom-right");
+    // window.setTimeout(this.setHints, 300);
   }
  
   setHints() {
