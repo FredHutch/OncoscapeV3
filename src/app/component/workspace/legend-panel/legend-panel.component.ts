@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import * as _ from 'lodash';
 import { GraphConfig } from '../../../model/graph-config.model';
-import { DataDecorator } from './../../../model/data-map.model';
+import { DataDecorator, LegendFilter } from './../../../model/data-map.model';
 import { Legend } from './../../../model/legend.model';
 import { ChartFactory } from '../chart/chart.factory';
 import { count } from 'rxjs/operators';
@@ -83,6 +83,22 @@ export class LegendPanelComponent implements AfterViewInit, OnDestroy {
     this.updateLegend();
   }
 
+  public _legendFilters: Array<LegendFilter> = [];
+  @Input()
+  public set legendFilters(value: Array<LegendFilter>) {
+    if (value === null) {
+      console.log(`TEMPNOTE: Input legendFilters for legend-panel was null.`);
+      return;
+    }
+    console.log('setting legendFilters in legendPanel');
+    this._legendFilters = value;
+    this.updateLegendFilters();
+  }
+
+  updateLegendFilters(){
+    console.warn('## updateLegendFilters NYI ##');
+  }
+
   public select(): void {}
 
   public deselect(): void {}
@@ -117,7 +133,6 @@ export class LegendPanelComponent implements AfterViewInit, OnDestroy {
     }
 
     //let clickedLabel = Legend.clickedPidsFromLegendItem(legend, i);
-  //if(clickedLabel){
 
     // Get current vis of clicked item.
     let currentEyeVis = true;
@@ -147,8 +162,6 @@ export class LegendPanelComponent implements AfterViewInit, OnDestroy {
     }
     ChartScene.instance.render();
     OncoData.instance.currentCommonSidePanel.drawWidgets();
-
-  //}
   }
 
 

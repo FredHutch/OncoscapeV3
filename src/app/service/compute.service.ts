@@ -382,9 +382,13 @@ export class ComputeService {
           let legends:Array<Legend> = dataToUse.data.legends;
           let legend:Legend = legends.find(l => l.name=='Cohorts' && l.display=='DISCRETE' && l.type=='COLOR');
           if (legend) { // We found the compute fn's default color legend for cohorts, so now use proper colors.
-            legend.labels.map(function(v,i) {
-              legend.values[i] = OncoData.instance.currentCommonSidePanel.colorOfSavedCohortByName(v);
-            });
+            if( OncoData.instance && OncoData.instance.currentCommonSidePanel) {
+              legend.labels.map(function(v,i) {
+                legend.values[i] = OncoData.instance.currentCommonSidePanel.colorOfSavedCohortByName(v);
+              });
+            } else {
+              console.warn('currentCommonSidePanel not ready in handling compute message.');
+            }
           }
         }
 

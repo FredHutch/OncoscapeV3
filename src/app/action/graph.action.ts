@@ -1,6 +1,6 @@
 import { SelectionToolConfig } from 'app/model/selection-config.model';
 import { GraphConfig } from './../model/graph-config.model';
-import { DataDecorator } from './../model/data-map.model';
+import { DataDecorator, LegendFilter } from './../model/data-map.model';
 import { WorkspaceConfigModel } from './../model/workspace.model';
 import {
   PcaConfigModel,
@@ -32,6 +32,11 @@ export const DATA_DECORATOR_CREATE = '[GRAPH] Data Decorator Create';
 export const DATA_DECORATOR_DEL_ALL = '[GRAPH] Data Decorator Remove All';
 export const SELECTION_TOOL_CHANGE = '[GRAPH] Selection Tool Change';
 export const THREED_RENDER_OPTION = '[GRAPH] 3D Render Option';
+
+export const LEGEND_FILTER_CREATE = '[GRAPH] Legend Filter Create';
+export const LEGEND_FILTER_ADD = '[GRAPH] Legend Filter Add';
+export const LEGEND_FILTER_DEL = '[GRAPH] Legend Filter Remove';
+export const LEGEND_FILTER_DEL_ALL = '[GRAPH] Legend Filter Remove All';
 
 // Action Classes
 export class WorkspaceConfigAction implements Action {
@@ -89,6 +94,30 @@ export class DataDecoratorAddAction implements Action {
   ) {}
 }
 
+// LegendFilters.
+export class LegendFilterCreateAction implements Action {
+  readonly type: string = LEGEND_FILTER_CREATE;
+  constructor(
+    public payload: { config: GraphConfig; legendFilter: LegendFilter }
+  ) {}
+}
+export class LegendFilterDelAction implements Action {
+  readonly type: string = LEGEND_FILTER_DEL;
+  constructor(
+    public payload: { config: GraphConfig; legendFilter: LegendFilter }
+  ) {}
+}
+export class LegendFilterDelAllAction implements Action {
+  readonly type: string = LEGEND_FILTER_DEL_ALL;
+  constructor(public payload: { config: GraphConfig }) {}
+}
+export class LegendFilterAddAction implements Action {
+  readonly type: string = LEGEND_FILTER_ADD;
+  constructor(
+    public payload: { config: GraphConfig; legendFilter: LegendFilter }
+  ) {}
+}
+
 export class ThreeDRenderOptionAction implements Action {
   readonly type: string = THREED_RENDER_OPTION;
   constructor(
@@ -107,5 +136,8 @@ export type Actions =
   | DataDecoratorAddAction
   | DataDecoratorDelAction
   | DataDecoratorDelAllAction
+  | LegendFilterAddAction
+  | LegendFilterDelAllAction
+  | LegendFilterDelAction
   | SelectionToolChangeAction
   | ThreeDRenderOptionAction;

@@ -1,6 +1,7 @@
 import { DatasetService } from './../../service/dataset.service';
 import Dexie from 'dexie';
 import { GraphEnum } from 'app/model/enum.model';
+import { ChartScene } from 'app/component/workspace/chart/chart.scene';
 import { Preprocessing } from './../../model/preprocessing.model';
 import { SelectionToolConfig } from './../../model/selection-config.model';
 import { ScatterConfigModel } from './../visualization/scatter/scatter.model';
@@ -43,6 +44,10 @@ import {
   DataDecoratorCreateAction,
   DataDecoratorDelAction,
   DataDecoratorDelAllAction,
+  LegendFilterCreateAction,
+  LegendFilterAddAction,
+  LegendFilterDelAction,
+  LegendFilterDelAllAction,
   WorkspaceConfigAction,
   SelectionToolChangeAction,
   ThreeDRenderOptionAction
@@ -52,7 +57,7 @@ import { GraphPanelToggleAction, LoaderShowAction, ModalPanelAction } from './..
 import { ChartSelection } from './../../model/chart-selection.model';
 import { Cohort } from './../../model/cohort.model';
 import { DataTable } from './../../model/data-field.model';
-import { DataDecorator } from './../../model/data-map.model';
+import { DataDecorator, LegendFilter } from './../../model/data-map.model';
 import { EntityTypeEnum } from './../../model/enum.model';
 import { GeneSet } from './../../model/gene-set.model';
 import { GraphConfig } from './../../model/graph-config.model';
@@ -103,6 +108,7 @@ import { stringToKeyValue } from '@angular/flex-layout/extended/typings/style/st
 import { OncoData, LoadedTable } from 'app/oncoData';
 import { TableLoaderConfigModel } from '../visualization/tableLoader/tableLoader';
 import { DatasetUpdates } from 'app/model/dataset-updates.model';
+import { AbstractScatterVisualization } from '../visualization/visualization.abstract.scatter.component';
 
 
 @Component({
@@ -144,6 +150,9 @@ export class WorkspaceComponent implements OnInit {
   graphBData: Observable<any>;
   graphADecorators: Observable<Array<DataDecorator>>;
   graphBDecorators: Observable<Array<DataDecorator>>;
+
+  graphALegendFilters: Observable<Array<LegendFilter>>;
+
   graphASelectionToolConfig: Observable<SelectionToolConfig>;
   graphBSelectionToolConfig: Observable<SelectionToolConfig>;
   edgeDecorators: Observable<Array<DataDecorator>>;
@@ -210,6 +219,8 @@ export class WorkspaceComponent implements OnInit {
     this.graphBDecorators = store.select(fromRoot.getGraphBDecorators);
     this.edgeDecorators = store.select(fromRoot.getEdgeDecorators);
     this.datasetDescription = store.select(fromRoot.getDatasetDescription);
+
+    this.graphALegendFilters = store.select(fromRoot.getGraphALegendFilters);
 
     this.selectVisible = store.select(fromRoot.getSelectVisible);
     this.selectSelection = store.select(fromRoot.getSelectSelection);
@@ -768,6 +779,35 @@ export class WorkspaceComponent implements OnInit {
   graphPanelDelAllDecorators(e: { config: GraphConfig }): void {
     this.store.dispatch(new DataDecoratorDelAllAction({ config: e.config }));
   }
+
+  graphPanelAddLegendFilter(e: { config: GraphConfig; legendFilter: LegendFilter }): void {
+    console.log('in graphPanelAddLegendFilter');
+    let scatterChart = ChartScene.instance.views[0].chart as AbstractScatterVisualization;
+    if (scatterChart ) {
+      console.dir(ChartScene.instance.views[0].chart);
+
+      scatterChart.addLegendFilter(e.legendFilter);
+    } else {
+      console.log('NOT scatter');
+    }
+
+    //Create legend filter based on current settings? Of which legend?
+
+    this.store.dispatch(
+      new LegendFilterCreateAction({
+        config: e.config,
+        legendFilter: e.legendFilter
+      })
+    );
+  }
+  graphPanelDelLegendFilter(e: { config: GraphConfig; legendFilter: LegendFilter }): void {
+    this.store.dispatch(new LegendFilterDelAction({ config: e.config, legendFilter: e.legendFilter }));
+  }
+  graphPanelDelAllLegendFilters(e: { config: GraphConfig }): void {
+    this.store.dispatch(new LegendFilterDelAllAction({ config: e.config }));
+  }
+  
+  
   addPathway(value: { database: string; pathway: Pathway }): void {
     this.store.dispatch(new DataAddPathwayAction(value));
   }

@@ -26,7 +26,9 @@ import { Pathway } from '../model/pathway.model';
 import { ChartFactory } from './../component/workspace/chart/chart.factory';
 import { Cohort } from './../model/cohort.model';
 import { DataField, DataTable } from './../model/data-field.model';
-import { DataDecorator, DataDecoratorTypeEnum } from './../model/data-map.model';
+import { 
+  DataDecorator, DataDecoratorTypeEnum,
+  LegendFilter } from './../model/data-map.model';
 import { GeneSet } from './../model/gene-set.model';
 import { Preprocessing, PreprocessingStep } from './../model/preprocessing.model';
 import { SavedPointsWrapper } from './../component/visualization/savedpoints/savedpoints.model';
@@ -830,6 +832,15 @@ export class DataService {
       return this.createMolecularDataDecorator(config, decorator);
     }
     return this.createSampleDataDecorator(config, decorator);
+  }
+
+  createLegendFilter(config: GraphConfig, legendFilter: LegendFilter): Observable<any> {
+    console.warn("***TBD: creatleLegendFilter in data service ***");
+      return observableFrom(
+      new Promise(resolve => {
+        resolve(legendFilter);
+      })
+    );
   }
 
   getGeneMap(): Observable<any> {

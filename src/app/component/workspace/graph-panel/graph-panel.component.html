@@ -43,6 +43,7 @@
         [config]="config"
         [legends]="data.legends"
         [decorators]="decoratorsWithLegends"
+        [legendFilters]="legendFilters"
       ></app-workspace-legend-panel>
       <span class="legendHeader">Configure Color, Shapes &amp; Labels</span>
       <app-graph-panel-visualization
@@ -53,6 +54,8 @@
         (showPanel)="showPanel.emit($event)"
         (decoratorAdd)="decoratorAdd.emit($event)"
         (decoratorDel)="decoratorDel.emit($event)"
+        (legendFilterAdd)="legendFilterAdd.emit($event)"
+        (legendFilterDel)="legendFilterDel.emit($event)"
         (threeDOption)="threeDOption.emit($event)"
       ></app-graph-panel-visualization>
     </mat-tab>

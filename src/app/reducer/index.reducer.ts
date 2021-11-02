@@ -103,6 +103,10 @@ export const getGraphADecorators = createSelector(
   getGraphAState,
   (state: fromGraph.State) => state.decorators
 );
+export const getGraphALegendFilters = createSelector(
+  getGraphAState,
+  (state: fromGraph.State) => state.legendFilters
+);
 
 export const getGraphBState = (state: State) => state.graphB;
 export const getGraphBVisibility = createSelector(

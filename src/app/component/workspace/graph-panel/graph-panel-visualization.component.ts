@@ -12,7 +12,7 @@ import { MatSelect, MatSelectChange } from '@angular/material';
 import { DataTable } from 'app/model/data-field.model';
 import { GraphConfig } from 'app/model/graph-config.model';
 import { DataField, DataFieldFactory } from './../../../model/data-field.model';
-import { DataDecorator, DataDecoratorTypeEnum } from './../../../model/data-map.model';
+import { DataDecorator, DataDecoratorTypeEnum, LegendFilter } from './../../../model/data-map.model';
 import { EntityTypeEnum, PanelEnum, DataTypeEnum, CollectionTypeEnum, GraphEnum } from './../../../model/enum.model';
 import { MatSliderChange } from '@angular/material/slider';
 import { WorkspaceComponent } from 'app/component/workspace/workspace.component';
@@ -139,6 +139,18 @@ export class GraphPanelVisualizationComponent {
   decoratorDel: EventEmitter<{
     config: GraphConfig;
     decorator: DataDecorator;
+  }> = new EventEmitter();
+
+  @Output()
+  legendFilterAdd: EventEmitter<{
+    config: GraphConfig;
+    legendFilter: LegendFilter;
+  }> = new EventEmitter();
+
+  @Output()
+  legendFilterDel: EventEmitter<{
+    config: GraphConfig;
+    legendFilter: LegendFilter;
   }> = new EventEmitter();
 
   public genesetOptions = [];
@@ -342,7 +354,50 @@ export class GraphPanelVisualizationComponent {
     });
   }
 
+  findColorDecorator(){
+    let dec = ChartScene.instance.views[0].chart.decorators
+      .filter(v => v.type == DataDecoratorTypeEnum.COLOR);
+    if (dec.length > 0) { 
+      return dec[0];
+    } else {
+      return null;
+    }
+  }
+
+  colorDecoratorHasInvisibles(){
+    let dec = this.findColorDecorator();
+    if (dec) {
+      return (dec.legend.visibility.filter(v => v < 0.5).length > 0)
+    } else {
+      return false;
+    }
+  }
+
   setColorOption(event: MatSelectChange): void {
+    console.log('setColorOption');
+    let colorDec = this.findColorDecorator();
+    console.dir(colorDec);
+
+    // Save a LegendFilter if desired. These add/stack,
+    // so we don't delete currrent one before adding a new one.
+    if (this.colorDecoratorHasInvisibles()) {
+      let p = window.confirm(`Do you want to save your "${colorDec.field.label}" filter?" `)
+      if(p){
+
+        let lf:LegendFilter = {
+        legend: null,
+        excludedValues: [],
+        excludedItemIndexes: []
+        }
+
+        this.legendFilterAdd.emit({
+          config: this.config,
+          legendFilter: lf
+        });
+
+      }
+    }
+
     this.colorSelected = event.value;
     if (this.colorSelected.key === 'None') {
       this.decoratorDel.emit({

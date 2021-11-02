@@ -39,3 +39,12 @@ export interface VariantCheckbox {
   color: string;
   subtasks?: VariantCheckbox[];
 }
+
+// Filter results based on legend it visibility.
+// For example, hide all but GTEX, or show only Cerebellum.
+// TBD: Do we need both kinds, pos and neg?
+export interface LegendFilter {
+  legend: Legend;
+  excludedValues: string[];
+  excludedItemIndexes: number[];
+}

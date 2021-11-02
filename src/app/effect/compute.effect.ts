@@ -65,7 +65,12 @@ import {
   OneClassSVMCompleteAction,
   SVRCompleteAction
 } from './../action/compute.action';
-import { DataDecoratorAddAction, DataDecoratorCreateAction } from './../action/graph.action';
+import { 
+  DataDecoratorAddAction, 
+  DataDecoratorCreateAction,
+  LegendFilterAddAction,
+  LegendFilterCreateAction
+ } from './../action/graph.action';
 import { LoaderHideAction } from './../action/layout.action';
 import { UnsafeAction } from './../action/unsafe.action';
 import { GraphData } from './../model/graph-data.model';
@@ -1193,6 +1198,28 @@ export class ComputeEffect {
             new DataDecoratorAddAction({
               config: payload.config,
               decorator: result
+            }),
+            new LoaderHideAction()
+          ];
+        })
+      );
+    })
+  );
+
+  @Effect()
+  addLegendFilter: Observable<any> = this.actions$.pipe(ofType(graph.LEGEND_FILTER_CREATE)).pipe(
+    map((action: LegendFilterCreateAction) => action.payload),
+    switchMap(payload => { 
+      console.warn("*** TBD: addLegendFilter switchMap ***");
+
+      
+      return this.dataService.createLegendFilter(payload.config, payload.legendFilter).pipe(
+        mergeMap(result => {
+          console.log('mergemap in addLegendFilter');
+          return [
+            new LegendFilterAddAction({
+              config: payload.config,
+              legendFilter: result
             }),
             new LoaderHideAction()
           ];

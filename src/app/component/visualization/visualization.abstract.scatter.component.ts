@@ -11,7 +11,7 @@ import { Subscription } from 'rxjs';
 import { Vector3, Color } from 'three';
 import { LabelController, LabelOptions } from '../../controller/label/label.controller';
 import { ChartObjectInterface } from '../../model/chart.object.interface';
-import { DataDecorator, DataDecoratorTypeEnum, DataDecoratorValue } from '../../model/data-map.model';
+import { DataDecorator, DataDecoratorTypeEnum, DataDecoratorValue, LegendFilter } from '../../model/data-map.model';
 import { EntityTypeEnum, DirtyEnum } from '../../model/enum.model';
 import { ChartEvents } from '../workspace/chart/chart.events';
 import { ChartSelection } from './../../model/chart-selection.model';
@@ -23,6 +23,7 @@ import { CommonSidePanelComponent } from '../workspace/common-side-panel/common-
 import { OncoData } from 'app/oncoData';
 import { EdgesGraph } from './edges/edges.graph';
 import { markViewDirty } from '@angular/core/src/render3/instructions';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 
 
 const fragShader = require('raw-loader!glslify-loader!app/glsl/scatter.frag');
@@ -139,6 +140,10 @@ export class AbstractScatterVisualization extends AbstractVisualization {
     return pts;
   }
 
+  public getGVisibility() {
+    return this.pointsGeometry.attributes.gVisibility;
+  }
+
   private _lastSelectionPatientIds:Array<string> = [];
 
   public removeIntersectFromSelection(d) {
@@ -163,12 +168,33 @@ export class AbstractScatterVisualization extends AbstractVisualization {
   }
 
 
+  // Temporary kludge until LegendFilters really work.
+  public previousPointVisibilities: Float32Array = new Float32Array(0);  
+
+  public addLegendFilter(legendFilter: LegendFilter){
+      let foo = this.pointsGeometry.attributes.gVisibility;
+      console.log('foo');
+      console.dir(foo);
+      let thePoints:Float32Array = foo.array as Float32Array;
+      // foo.array is float32Array of everyone
+
+      this.previousPointVisibilities =  thePoints;
+
+  }
+  
   setVisibilityBasedOnLegends(config: GraphConfig, decorators: DataDecorator[]) {
     let self=this;
     let visibilityLevels:Float32Array = new Float32Array(this.ids.length);
-    self.ids.forEach((id, index) => {
-      visibilityLevels[index] = 1.0;
-    });
+    if(self.previousPointVisibilities.length == this.ids.length){
+      // We already filtered on something, use it a starting point.
+      self.ids.forEach((id, index) => {
+        visibilityLevels[index] = self.previousPointVisibilities[index];
+      });
+    } else {
+      self.ids.forEach((id, index) => {
+        visibilityLevels[index] = 1.0;
+      });
+    }
     self.pointsGeometry.setAttribute('gVisibility', new THREE.BufferAttribute(visibilityLevels, 1));
 
     // For each decorator, hide points if visibility in legend is 0.
@@ -179,6 +205,11 @@ export class AbstractScatterVisualization extends AbstractVisualization {
           if(legendItemVisibility < 0.5){
             // visibilityLevels:Float32Array = new Float32Array(this.ids.lengt
             let pidsToHide = decorator.pidsByLabel[legendItemIndex].pids;
+            if(pidsToHide == null) {
+              console.warn('pidsToHide is null.');
+
+            }
+
             pidsToHide.map((pid, pidIndex) => {
               let sid = OncoData.instance.currentCommonSidePanel.commonSidePanelModel.patientMap[pid];
               if(sid) {

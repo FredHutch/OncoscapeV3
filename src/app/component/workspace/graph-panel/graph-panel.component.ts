@@ -27,7 +27,8 @@ import { DataService } from 'app/service/data.service';
 import { WorkspaceConfigModel } from '../../../model/workspace.model';
 import { HistogramConfigModel } from '../../visualization/histogram/histogram.model';
 import { DataTable } from './../../../model/data-field.model';
-import { DataDecorator, DataDecoratorTypeEnum, DataDecoratorValue } from './../../../model/data-map.model';
+import { DataDecorator, DataDecoratorTypeEnum, DataDecoratorValue,
+  LegendFilter } from './../../../model/data-map.model';
 import { EntityTypeEnum, PanelEnum, WorkspaceLayoutEnum } from './../../../model/enum.model';
 import { GraphConfig } from './../../../model/graph-config.model';
 import { ModalService } from './../../../service/modal-service';
@@ -149,6 +150,7 @@ export class GraphPanelComponent implements AfterViewInit, OnDestroy {
     option: string;
     value: any;
   }> = new EventEmitter();
+  
   @Output()
   decoratorAdd: EventEmitter<{
     config: GraphConfig;
@@ -161,6 +163,20 @@ export class GraphPanelComponent implements AfterViewInit, OnDestroy {
   }> = new EventEmitter();
   @Output()
   decoratorDelAll: EventEmitter<{ config: GraphConfig }> = new EventEmitter();
+  @Output()
+
+  @Output()
+  legendFilterAdd: EventEmitter<{
+    config: GraphConfig;
+    legendFilter: LegendFilter;
+  }> = new EventEmitter();
+  legendFilterDel: EventEmitter<{
+    config: GraphConfig;
+    legendFilter: LegendFilter;
+  }> = new EventEmitter();
+  @Output()
+  legendFilterDelAll: EventEmitter<{ config: GraphConfig }> = new EventEmitter();
+
   @Output()
   workspaceConfigChange: EventEmitter<{
     config: WorkspaceConfigModel;
@@ -194,6 +210,8 @@ export class GraphPanelComponent implements AfterViewInit, OnDestroy {
   @Input()
   edgeDecorators: Array<DataDecorator> = [];
   @Input()
+  legendFilters: Array<LegendFilter>;
+  @Input()
   data: GraphData;
   @Input()
   genesets: Array<any>;
@@ -223,6 +241,9 @@ export class GraphPanelComponent implements AfterViewInit, OnDestroy {
 
     // Update Help
     if (this._config === null || this._config.visualization !== value.visualization) {
+      console.log('disabled legend emit');
+      //this.legendFilterDelAll.emit({ config: this._config });
+
       this.dataService.getHelpInfo(value).then(v => {
         this.methodName = v.method;
         this.methodSummary = v.summary;
@@ -234,6 +255,8 @@ export class GraphPanelComponent implements AfterViewInit, OnDestroy {
     if (this._config !== null) {
       if (this._config.database !== value.database) {
         this.decoratorDelAll.emit({ config: this._config });
+        console.log('disabled legend emit');
+        // this.legendFilterDelAll.emit({ config: this._config });
       }
     }
 
@@ -242,6 +265,8 @@ export class GraphPanelComponent implements AfterViewInit, OnDestroy {
       if (this._config.entity !== value.entity) {
         if (this._config.entity === EntityTypeEnum.GENE || value.entity === EntityTypeEnum.GENE) {
           this.decoratorDelAll.emit({ config: this._config });
+          console.log('disabled legend emit');
+          // this.legendFilterDelAll.emit({ config: this._config });
         }
       }
     }
@@ -282,6 +307,8 @@ export class GraphPanelComponent implements AfterViewInit, OnDestroy {
 
   onVisualizationChange($event: Event) {
     if ($event instanceof CustomEvent) {
+      console.log('disabled legend emit');
+      // this.legendFilterDelAll.emit({ config: this._config });
       const el = $event.target as HTMLSelectElement;
       const visualizationEnumValue = parseInt(el.value, 10);
       this.setVisualization(visualizationEnumValue);

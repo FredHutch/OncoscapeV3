@@ -56,7 +56,7 @@ import {
 } from './../action/compute.action';
 import { UnsafeAction } from './../action/unsafe.action';
 import { DataCollection } from './../model/data-collection.model';
-import { DataDecorator } from './../model/data-map.model';
+import { DataDecorator, LegendFilter } from './../model/data-map.model';
 import { DataSet } from './../model/data-set.model';
 import { GraphConfig } from './../model/graph-config.model';
 import { SelectionToolConfig } from 'app/model/selection-config.model';
@@ -71,6 +71,7 @@ export interface State {
   selectionToolConfig: SelectionToolConfig;
   config: GraphConfig;
   decorators: Array<DataDecorator>;
+  legendFilters: Array<LegendFilter>;
   depth: e.DepthEnum;
   visibility: e.VisibilityEnum;
   data: any;
@@ -86,6 +87,7 @@ const initialState: State = {
   visibility: e.VisibilityEnum.HIDE,
   config: null,
   decorators: [],
+  legendFilters: [],
   data: null,
   threeDOptions: {}
 };
@@ -206,6 +208,8 @@ function processAction(action: UnsafeAction, state: State): State {
       return Object.assign({}, state, { visualization: action.payload.data });
     case graph.VISUALIZATION_COMPLETE:
       return Object.assign({}, state, { chartObject: action.payload.data });
+
+      // --- DataDecorators ---
     case graph.DATA_DECORATOR_ADD:
       console.log('==GraphReducer adding decorator. ');
       console.dir(action.payload.decorator);
@@ -220,6 +224,25 @@ function processAction(action: UnsafeAction, state: State): State {
       });
     case graph.DATA_DECORATOR_DEL_ALL:
       return Object.assign({}, state, { decorators: [] });
+
+      // --- LegendFilters ---
+      case graph.LEGEND_FILTER_ADD:
+      console.log('==GraphReducer adding legendFilter. ');
+      console.dir(action.payload.legendFilter);
+      const legendFilter = action.payload.legendFilter as LegendFilter;
+      const legendFilters = state.legendFilters; // *** MJ: Can currently have multi filters on one aspect, so hide this:  .filter(v => v.legend.type !== decorator.type);
+      legendFilters.push(legendFilter);
+      return Object.assign({}, state, { legendFilters: legendFilters });
+    case graph.LEGEND_FILTER_DEL:
+      return Object.assign({}, state, {
+        // We always will delete in reverse order of creation.
+        // So, hide this: legendFilters: state.legendFilters.filter(v => v.legend.type !== action.payload.legend.type)
+        // Return all but last one.
+        legendFilters: state.legendFilters.slice(0, -1)
+      });
+    case graph.LEGEND_FILTER_DEL_ALL:
+      return Object.assign({}, state, { legendFilters: [] });
+        
     case graph.THREED_RENDER_OPTION:
       const currentThreeDOptions = state.threeDOptions;
       currentThreeDOptions[action.payload.option] = action.payload.value;

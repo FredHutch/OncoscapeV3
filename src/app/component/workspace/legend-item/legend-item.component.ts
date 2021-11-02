@@ -88,7 +88,5 @@ export class LegendItemComponent implements AfterViewInit, OnDestroy {
 
   constructor(public cd: ChangeDetectorRef) {
     // LegendItemComponent.setLegends.subscribe(this.onSetLegends.bind(this));
-    console.warn('--setting to FALSE in constructor--------');
-    
   }
 }
