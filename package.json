@@ -17,6 +17,7 @@
   "scripts": {
     "fix-memory-limit": "cross-env LIMIT=8192 increase-memory-limit",
     "ng": "ng",
+    "ng-high-memory-build": "node --max_old_space_size=8000 ./node_modules/@angular/cli/bin/ng build --configuration=test",
     "start": "ng serve",
     "build": "ng build --prod --aot",
     "test": "ng test",
