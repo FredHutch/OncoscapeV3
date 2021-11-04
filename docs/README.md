@@ -4,4 +4,4 @@ General documentation from V2 can be seen at https://oncoscape.sttrcancer.org/do
 
 # Uploading Private Datasets
 
-See [here](../upload.txt)
+See [here](./upload.txt)
