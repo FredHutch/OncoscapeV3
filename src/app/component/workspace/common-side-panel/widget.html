@@ -1,7 +1,34 @@
 <div class="common-widget" ><!-- widget -->
-  &nbsp;<b>{{ getName() }}</b>
+  <!--<md-icon *ngIf="!getExpanded">play_arrow</md-icon>
+  <md-icon *ngIf="getExpanded">arrow_drop_down</md-icon>-->
+  <!--<button mat-icon-button  (click)='toggleHidden()'> -->
+    <mat-icon (click)='toggleHidden()' class="widget-icon" *ngIf="getExpanded()">expand_more</mat-icon>
+    <mat-icon (click)='toggleHidden()' class="widget-icon" *ngIf="!getExpanded()">expand_less</mat-icon>
+  <!--</button>-->
+  <b>{{ getName() }}</b>
   <div [id]="getSvgName()"  #mysvgdiv class="common-widget common-widget-svgdiv">
 
-    
+
+<!--
+    <md-expansion-panel  class="custom-header" hideToggle="true" #example>
+      <md-expansion-panel-header>
+        <span>
+          Personal data
+        </span>
+        <md-panel-description>
+          Type your name and age
+
+        </md-panel-description>
+      </md-expansion-panel-header>
+  
+      <md-form-field>
+        <input mdInput placeholder="First name">
+      </md-form-field>
+  
+      <md-form-field>
+        <input mdInput placeholder="Age">
+      </md-form-field>
+    </md-expansion-panel> -->
+
   </div>
 </div>

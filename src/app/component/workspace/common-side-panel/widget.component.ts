@@ -17,6 +17,7 @@ import {
 import * as d3 from 'd3';
  
 import * as _ from 'lodash';
+
 import { GraphConfig } from '../../../model/graph-config.model';
 import { DataDecorator } from '../../../model/data-map.model';
 import { Legend } from '../../../model/legend.model';
@@ -49,6 +50,7 @@ import {
   CohortCondition,
   CohortField
 } from './../../../model/cohort.model';
+import { truncate } from 'fs';
 //import { CommonSidePanelModel } from './commonSidePanelModel';
 
 @Component({
@@ -152,6 +154,24 @@ export class WidgetComponent implements OnInit, AfterViewInit, OnDestroy {
 
   getSvgName() {
     return "svgContainer_" + this.model.name.replace(' ','_');
+  }
+
+  private _hidden = false;
+  toggleHidden() {
+    this._hidden = !(this._hidden);
+    //let svg =     d3.select(this.svgdiv.nativeElement).select("svg").;
+    let widgetName = this.model.name.replace(" ", "_")
+    let el = document.querySelector('#svgContainer_'+widgetName) as HTMLElement;
+    // let svg = d3.select(el.getElementsByTagName('svg')[0]);
+    if (this._hidden) {
+      el.style.display = "none";
+    } else {
+      el.style.display = "block";
+    }
+  }
+
+  getExpanded() {
+    return (this._hidden == false);
   }
 
   svgNode:HTMLElement;
