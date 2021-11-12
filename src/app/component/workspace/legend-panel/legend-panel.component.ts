@@ -164,6 +164,11 @@ export class LegendPanelComponent implements AfterViewInit, OnDestroy {
     OncoData.instance.currentCommonSidePanel.drawWidgets();
   }
 
+  countAttempt(lf:LegendFilter){
+    console.warn('in countAttempt');
+    console.dir(lf)
+    return 0;
+  }
 
   legendItemClick(legend: Legend, i:number): void {
     console.log(`MJ click on legend item [${i}] text itself`);

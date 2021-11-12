@@ -98,7 +98,7 @@ import { WorkspaceComponent } from '../workspace.component';
       href="#"
       xPosition="after"
       (click)="select.emit(32)"
-      *ngIf="datasetDescription.hasMatrixFields"
+      *ngIf="datasetDescription.hasHeatmappableFields"
       >Heatmap</a
     >
     <div class="analysisTitle" *ngIf="datasetDescription.hasSurvival || datasetDescription.hasEvents">Clinical</div>

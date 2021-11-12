@@ -511,7 +511,15 @@ export class ComputeService {
   }
 
   heatmap(config: HeatmapConfigModel): Observable<any> {
-    return this.execute(config, this.heatmap$);
+    let configCopy = {...config}; 
+    if(configCopy.table.tbl == 'gsva'){
+      console.log('GSVA table in heatmap, remove marker list.');
+      configCopy.markerFilter = [];
+    }
+    if(configCopy.markerFilter.length > 4000) {
+      configCopy.markerFilter = configCopy.markerFilter.slice(0,4000) 
+    }
+    return this.execute(configCopy, this.heatmap$);
   }
 
   dendogram(config: DendogramConfigModel): Observable<any> {

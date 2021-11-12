@@ -238,6 +238,7 @@ export class DataPanelComponent implements AfterViewInit {
       return;
     }
 
+    console.log('data-panel loadTable');
     let self = this;
     this.openDatabase().then(() => {
       switch (table.ctype) {

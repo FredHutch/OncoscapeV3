@@ -42,7 +42,7 @@ import { HeatmapConfigModel, HeatmapDistance, HeatmapMethod } from './heatmap.mo
 export class HeatmapFormComponent {
   @Input()
   set tables(tables: Array<DataTable>) {
-    this.dataOptions = tables.filter(v => (v.ctype & CollectionTypeEnum.MOLECULAR) > 0);
+    this.dataOptions = tables.filter(v => (v.ctype & CollectionTypeEnum.HEATMAPPABLE) > 0);
   }
 
   @Input()

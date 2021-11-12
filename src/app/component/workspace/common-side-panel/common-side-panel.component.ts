@@ -465,41 +465,50 @@ export class CommonSidePanelComponent implements AfterViewInit, OnChanges, OnDes
 
   async drawDiffexp(): Promise<any> {
     let self = this;
-    let HANDCODEDRNATABLENAME = "rna";
-    let firstRnaTable = OncoData.instance.dataLoadedAction.tables.find(v => v.ctype == CollectionTypeEnum.MRNA);
-    if(firstRnaTable == null) {
-      console.warn('Need to ensure all mRNA tables import as MRNA, not MATRIX.');
-      firstRnaTable = OncoData.instance.dataLoadedAction.tables.find(v => v.ctype == CollectionTypeEnum.MATRIX);
-    }
-    if (firstRnaTable){
-      HANDCODEDRNATABLENAME = firstRnaTable.tbl;
-    }
-
-
-    let debugRnaLoadKey = OncoData.instance.dataLoadedAction.dataset + '_hasShownSkipLoadRna';
-    // if(window[debugRnaLoadKey] == null) {
-    //   window.alert("******** SKIP LOADING RNA *****");
+    let HandcodedDifferentiableTableName = "rna";
+    let firstDifferentiableMatrixTable = OncoData.instance.dataLoadedAction.tables.find(v => v.ctype == CollectionTypeEnum.MRNA || v.ctype == CollectionTypeEnum.RNA);
+    // if(firstDifferentiableMatrixTable == null) {
+    //   console.warn('Try for GSVA.');
+    //   firstDifferentiableMatrixTable = OncoData.instance.dataLoadedAction.tables.find(v => v.ctype == CollectionTypeEnum.GENESET_SCORE);
     // }
-    // window[debugRnaLoadKey]=true;
-
-    // 262144 is CollectionTypeEnum.MATRIX. Use that if we don't have
-    // a window.reachableOncoData.dataLoadedAction.tables with ctype == CollectionTypeEnum.MRNA
-    if(WorkspaceComponent.instance.hasLoadedTable(HANDCODEDRNATABLENAME) == false){
-      WorkspaceComponent.instance.requestLoadedTable(HANDCODEDRNATABLENAME);
-      window.setTimeout(() => this.drawDiffexp(), 50);  
-      return null;
+    // if(firstDifferentiableMatrixTable == null) {
+    //   console.warn('Try for CNA.');
+    //   firstDifferentiableMatrixTable = OncoData.instance.dataLoadedAction.tables.find(v => v.ctype == CollectionTypeEnum.GISTIC || v.ctype == CollectionTypeEnum.GISTIC_THRESHOLD );
+    // }
+    if(firstDifferentiableMatrixTable == null) {
+      console.warn('Need to ensure all mRNA tables import as MRNA, not MATRIX.');
+      firstDifferentiableMatrixTable = OncoData.instance.dataLoadedAction.tables.find(v => v.ctype == CollectionTypeEnum.MATRIX);
     }
-    
-    if(true) { // =======this.commonSidePanelModel.tableNameUsedForCopynumber) {         
-      // continue
+    if (firstDifferentiableMatrixTable){
+      HandcodedDifferentiableTableName = firstDifferentiableMatrixTable.tbl;
+
+      // if(window[debugRnaLoadKey] == null) {
+      //   window.alert("******** SKIP LOADING RNA *****");
+      // }
+      // window[debugRnaLoadKey]=true;
+
+      // 262144 is CollectionTypeEnum.MATRIX. Use that if we don't have
+      // a window.reachableOncoData.dataLoadedAction.tables with ctype == CollectionTypeEnum.MRNA
+      if(WorkspaceComponent.instance.hasLoadedTable(HandcodedDifferentiableTableName) == false){
+        WorkspaceComponent.instance.requestLoadedTable(HandcodedDifferentiableTableName);
+        window.setTimeout(() => this.drawDiffexp(), 200);  
+        return null;
+      }
+      
+      if(true) { // =======this.commonSidePanelModel.tableNameUsedForCopynumber) {         
+        // continue
+      } else {
+        console.log('Not drawing diffexp widget, because config.table is not of type required.');
+        return;
+      }
+
+      let el = document.querySelector('#svgContainer_Differential_Expression');
+      let   svg:any = d3.select(el.getElementsByTagName('svg')[0]);
+      this.newDiffexpWidget.drawSvg(svg, {tableName:HandcodedDifferentiableTableName}); 
+
     } else {
-      console.log('Not drawing diffexp widget, because config.table is not of type required.');
-      return;
+      console.warn("In drawDiffexp, should show error in newDiffexpWidget, because no usable table really exists.");
     }
-
-    let el = document.querySelector('#svgContainer_Differential_Expression');
-    let   svg:any = d3.select(el.getElementsByTagName('svg')[0]);
-    this.newDiffexpWidget.drawSvg(svg, {tableName:HANDCODEDRNATABLENAME}); 
   }
 
 

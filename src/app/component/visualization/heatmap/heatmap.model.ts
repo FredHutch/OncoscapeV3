@@ -46,7 +46,6 @@ export class HeatmapConfigModel extends GraphConfig {
     this.label = 'Heatmap';
     this.enableSupplemental = false;
   }
-
   order = false;
   removeWhitespace = false;
   method = HeatmapMethod.WARD.value;

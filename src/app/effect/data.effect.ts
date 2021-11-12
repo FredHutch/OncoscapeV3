@@ -312,7 +312,8 @@ export class DataEffect {
       console.log(`MJ - dsd events length =  ${args[0].events.length}.`);
       dsd.hasPatientFields = args[0].fields.filter(v => v.tbl === 'patient').length > 0;
       dsd.hasSampleFields = args[0].fields.filter(v => v.tbl === 'sample').length > 0;
-      dsd.hasMatrixFields = args[0].tables.filter(v => v.ctype & CollectionTypeEnum.MOLECULAR).length > 0;
+      dsd.hasMatrixFields = args[0].tables.filter(v => v.ctype & CollectionTypeEnum.MOLECULAR_FOR_SCATTER).length > 0;
+      dsd.hasHeatmappableFields = args[0].tables.filter(v => v.ctype & CollectionTypeEnum.HEATMAPPABLE).length > 0;
       dsd.hasMutations = args[5] > 1;
       dsd.hasCopyNumber = args[0].tables.filter(v => (v.ctype & CollectionTypeEnum.GISTIC) 
       || (v.ctype & CollectionTypeEnum.GISTIC_THRESHOLD)

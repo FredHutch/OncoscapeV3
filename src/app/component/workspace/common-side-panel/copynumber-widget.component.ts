@@ -486,6 +486,8 @@ export class CopynumberWidgetComponent extends WidgetComponent {
           let sidGainPixelLists = {}; // key is sid, then posPixels=[123,456,etc] for genes we are above threshold on.
           let sidLossPixelLists = {}; 
           let startTime = Date.now();
+          let noRowFoundCount = 0;
+
           self.cnaFilteredGenes.map(function(filteredGene){
             let geneName = filteredGene[0];
             let genePixel:number = self.cnaPixelatedGeneDict[geneName].pixel;
@@ -517,7 +519,10 @@ export class CopynumberWidgetComponent extends WidgetComponent {
                 });
 
               } else {
-                console.error(`No row in cnaData found for gene [${geneName}].`)
+                if(noRowFoundCount < 10) {
+                  console.error(`No row in cnaData found for gene [${geneName}].`);
+                }
+                noRowFoundCount++;
               }
             }
           });

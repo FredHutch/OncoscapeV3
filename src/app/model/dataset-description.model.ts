@@ -3,6 +3,7 @@ export class DatasetDescription {
   public hasPatientFields = false;
   public hasSampleFields = false;
   public hasMatrixFields = false;
+  public hasHeatmappableFields = false;
   public hasMutations = false;
   public hasSurvival = false;
   public hasPrecomputed = false;

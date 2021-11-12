@@ -309,7 +309,9 @@ export class DatasetService {
                               tbl: name,
                               map: name + 'Map',
                               label: name,
-                              ctype: CollectionTypeEnum.MATRIX
+                              ctype: 
+                                name == 'cna' ? CollectionTypeEnum.GISTIC_THRESHOLD 
+                                : (name == 'gsva' ? CollectionTypeEnum.GENESET_SCORE : CollectionTypeEnum.MATRIX)
                             };
                         }
                       })
@@ -452,42 +454,49 @@ export class DatasetService {
                             label: name,
                             ctype: CollectionTypeEnum.EVENT
                           }
-                          : dt === 'matrix'
+                          : (dt === 'matrix' && name == "cna") // TBD: Support this in import
+                            ? {
+                              tbl: name,
+                              map: name + 'Map',
+                              label: name,
+                              ctype: CollectionTypeEnum.GISTIC_THRESHOLD
+                            }
+                            : dt === 'matrix'
                             ? {
                               tbl: name,
                               map: name + 'Map',
                               label: name,
                               ctype: CollectionTypeEnum.MATRIX
                             }
-                            : dt === 'gistic'
-                              ? {
-                                tbl: name,
-                                map: name + 'Map',
-                                label: name,
-                                ctype: CollectionTypeEnum.GISTIC
-                              }
-                              : dt === 'gistic_threshold'
+                              : dt === 'gistic'
                                 ? {
                                   tbl: name,
                                   map: name + 'Map',
                                   label: name,
-                                  ctype: CollectionTypeEnum.GISTIC_THRESHOLD
+                                  ctype: CollectionTypeEnum.GISTIC
                                 }
-                                : dt === 'mut'
+                                : dt === 'gistic_threshold'
                                   ? {
                                     tbl: name,
                                     map: name + 'Map',
                                     label: name,
-                                    ctype: CollectionTypeEnum.MUTATION
+                                    ctype: CollectionTypeEnum.GISTIC_THRESHOLD
                                   }
-                                  : dt === 'rna'
+                                  : dt === 'mut'
                                     ? {
                                       tbl: name,
                                       map: name + 'Map',
                                       label: name,
-                                      ctype: CollectionTypeEnum.RNA
+                                      ctype: CollectionTypeEnum.MUTATION
                                     }
-                                    : null;
+                                    : dt === 'rna'
+                                      ? {
+                                        tbl: name,
+                                        map: name + 'Map',
+                                        label: name,
+                                        ctype: CollectionTypeEnum.RNA
+                                      }
+                                      : null;
                     })
                     .filter(v => v);
 

@@ -138,7 +138,6 @@ export class SavedPointsFormComponent extends AbstractScatterForm {
           console.log('Error in num columns. ' + cols.length);
           errorStr = 'Wrong number of columns. Saw ' + cols.length + ' but expected four (id, x, y, z).';
         } else {
-          console.log('sampleID='+cols[0]);
           let sid = cols[0].toLowerCase(); // Look it up to validate
 
           let x = parseFloat(cols[1]);

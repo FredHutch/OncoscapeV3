@@ -176,6 +176,7 @@ export const enum CollectionTypeEnum {
   TAD = 1 << 16,
   GENE_NAME = 1 << 17,
   MATRIX = 1 << 18,
+  GENESET_SCORE = 1 << 19,
   // tslint:disable-next-line:no-bitwise
   EXP = CollectionTypeEnum.PROTEIN | CollectionTypeEnum.MIRNA | CollectionTypeEnum.MRNA,
   // Molec Data Field Tables (use to determine the color options and decorators)
@@ -189,6 +190,14 @@ export const enum CollectionTypeEnum {
   MOLECULAR = CollectionTypeEnum.CNV |
     CollectionTypeEnum.GISTIC |
     CollectionTypeEnum.GISTIC_THRESHOLD |
+    CollectionTypeEnum.MIRNA |
+    CollectionTypeEnum.MRNA |
+    CollectionTypeEnum.EXP |
+    CollectionTypeEnum.METH |
+    CollectionTypeEnum.RNA |
+    CollectionTypeEnum.MATRIX,
+  HEATMAPPABLE = MOLECULAR | CollectionTypeEnum.GENESET_SCORE,
+  MOLECULAR_FOR_SCATTER =
     CollectionTypeEnum.MIRNA |
     CollectionTypeEnum.MRNA |
     CollectionTypeEnum.EXP |
