@@ -3,7 +3,7 @@ import define1 from "./e93997d5089d7165@2303.js";
 export default function define(runtime, observer) {
   const main = runtime.module();
   main.variable(observer()).define(["md"], function(md){return(
-md`# Timeline Conversion  build 0196`
+md`# Timeline Conversion  build 0201`
 )});
   main.variable(observer("miniButtonStyle")).define("miniButtonStyle", ["html"], function(html)
 { return html`
@@ -85,10 +85,6 @@ d3.brushX()
     .extent([[0, 0], [rightSideWidth , brushHeight]])  // was [0,0]  // x was width.
     .on('brush end', brushedHorizontal)
 )});
-  main.variable(observer("viewof stretcher")).define("viewof stretcher", ["html"], function(html){return(
-html`<input id="stretcher" type="range" min="0.01" max="4" step="0.01"  value="1.0"></input>`
-)});
-  main.variable(observer("stretcher")).define("stretcher", ["Generators", "viewof stretcher"], (G, _) => G.input(_));
   main.variable(observer("viewof dynamicTrackHeight")).define("viewof dynamicTrackHeight", ["html"], function(html){return(
 html`<input id="stretcher" type="range" min="0.01" max="40" step="0.01" value="16"></input>`
 )});
@@ -107,6 +103,71 @@ use_logscale
 html`<input type=checkbox>`
 )});
   main.variable(observer("use_logscale")).define("use_logscale", ["Generators", "viewof use_logscale"], (G, _) => G.input(_));
+  main.define("initial rowSelectionChangedCounter", function(){return(
+0
+)});
+  main.variable(observer("mutable rowSelectionChangedCounter")).define("mutable rowSelectionChangedCounter", ["Mutable", "initial rowSelectionChangedCounter"], (M, _) => new M(_));
+  main.variable(observer("rowSelectionChangedCounter")).define("rowSelectionChangedCounter", ["mutable rowSelectionChangedCounter"], _ => _.generator);
+  main.variable(observer("currentSelectionLinkedToCounter")).define("currentSelectionLinkedToCounter", ["d3"], function(d3)
+{
+  // let rr = mutable rowSelectionChangedCounter;
+  let selection = [];
+  d3.selectAll(".timeline-svg-id-rect.timeline-svg-id-rect-selected")
+    .filter((d) => {
+      selection.push(d.id);
+    });
+  selection.sort();
+  /*
+  console.log(`sel@${Date.now()} len=${selection.length}...`);
+  console.dir(selection); 
+  */
+  return selection;
+}
+);
+  main.variable(observer("onOncoscapeEventClicked")).define("onOncoscapeEventClicked", function(){return(
+function(event) {
+    console.log("=================");
+    console.log('EMITTED oncoscapeEventClicked for PID=' +event.detail.pid);
+      console.dir(event.detail);
+  }
+)});
+  main.variable(observer("onOncoscapeRowSelectionChanged")).define("onOncoscapeRowSelectionChanged", function(){return(
+function(event) {
+    console.log("=================");
+    console.log('EMITTED oncoscapeRowSelectionChanged.');
+}
+)});
+  main.variable(observer("onOncoscapeIdGroupClicked")).define("onOncoscapeIdGroupClicked", function(){return(
+function(event) {
+    console.log("=================");
+    console.log('EMITTED onOncoscapeIdGroupClicked.');
+    console.dir(event.detail);
+}
+)});
+  main.variable(observer("onOncoscapeCreateCohortFromTimelineSelection")).define("onOncoscapeCreateCohortFromTimelineSelection", function(){return(
+function(event) {
+    console.log("=================");
+    console.log('EMITTED onOncoscapeCreateCohortFromTimelineSelection.');
+    console.dir(event.detail);
+}
+)});
+  main.variable(observer("setupEventPlaceholders")).define("setupEventPlaceholders", ["onOncoscapeEventClicked","onOncoscapeRowSelectionChanged","onOncoscapeIdGroupClicked","onOncoscapeCreateCohortFromTimelineSelection"], function(onOncoscapeEventClicked,onOncoscapeRowSelectionChanged,onOncoscapeIdGroupClicked,onOncoscapeCreateCohortFromTimelineSelection){return(
+function(caller) {
+    console.log("oncoscapeEventClicked caller...")
+    let shmee = caller;
+    
+    console.dir(shmee);
+    //oncoscapeRowSelectionChanged
+    caller.addEventListener("oncoscapeEventClicked", onOncoscapeEventClicked); 
+    caller.addEventListener("oncoscapeRowSelectionChanged", onOncoscapeRowSelectionChanged); 
+    caller.addEventListener("oncoscapeIdGroupClicked", onOncoscapeIdGroupClicked); 
+    caller.addEventListener("oncoscapeCreateCohortFromTimelineSelection", onOncoscapeCreateCohortFromTimelineSelection); 
+  }
+)});
+  main.variable(observer("viewof stretcher")).define("viewof stretcher", ["html"], function(html){return(
+html`<input id="stretcher" type="range" min="0.01" max="4" step="0.01"  value="1.0"></input>`
+)});
+  main.variable(observer("stretcher")).define("stretcher", ["Generators", "viewof stretcher"], (G, _) => G.input(_));
   main.variable(observer("viewof sortTools")).define("viewof sortTools", ["eventTypes","eventTypeForDiagnosis","html","generateAlignOptions","eventTypeForDeath","d3","processSort","processAlignment","generateGroupingOptions","dlaGroupableFields","processGrouping"], function(eventTypes,eventTypeForDiagnosis,html,generateAlignOptions,eventTypeForDeath,d3,processSort,processAlignment,generateGroupingOptions,dlaGroupableFields,processGrouping)
 {
   let eventTypesWithDay0IfNoDiagnosis = [ ...eventTypes];
@@ -251,206 +312,11 @@ ${sortByToDiv}
 }
 );
   main.variable(observer("sortTools")).define("sortTools", ["Generators", "viewof sortTools"], (G, _) => G.input(_));
-  main.variable(observer("processSort")).define("processSort", ["d3","barHeight"], function(d3,barHeight){return(
-function(){
-  let measure = document.getElementById("measure").value.toLowerCase(); 
-  /*
-none
-start of
-interval from start of
-end of
-interval from end of
-duration TBD
-count TBD
-*/
-  // In sort test, first check d["_groupByIdx"].
-
-  let action = document.getElementById("sortBy").value;
-  //console.log(`process sort value ${action}.`);
-  let actionTo = document.getElementById("sortByTo").value;
-  //console.log(`process sortTo value ${actionTo}.`);
-
-  let allRightRows = d3.selectAll("#rightSvgTimeline .timeline-svg-row") ; 
-  let theType = action.split(":")[0];
-  let theSubtype = action.split(":")[1]; // undefined if theType is None.
-  let theToType = actionTo.split(":")[0];
-  let theToSubtype = actionTo.split(":")[1]; // undefined if theType is None.
-  
-  // d.originalOrderPos holds the order it came out of timeline compute.
-  allRightRows.attr("sortPos", (d,i) => {
-
-    if (measure != "none") {  
-      let matchingEventsInThisPatient = d.events
-      // .filter(v=>v.type == theType)
-      .filter(v=> v.type == theType)
-      .filter(v=> v.subtype == theSubtype)
-      .sort(function(a, b) {
-          return a.start - b.start;
-        });
-      
-      if (measure != "none") {
-        // Looking for INTERVAL to the second event type.
-        if(theType == "Day 0" || matchingEventsInThisPatient.length > 0) { 
-          let firstOfFirstType = {start:0, end:0};
-          if (matchingEventsInThisPatient.length>0) {firstOfFirstType = matchingEventsInThisPatient[0];}
-          
-          let useStartAndNotEnd = measure.includes("start");
-          // console.log(`useStartAndNotEnd = ${useStartAndNotEnd} [${measure}]`);
-          let startOrEndOfFirstOfFirstType = useStartAndNotEnd ? firstOfFirstType.start : firstOfFirstType.end;
-
-          //console.log("INTERVAL A. theTotype=["+theToType+"]");
-          
-          let matchingToEventsInThisPatient = d.events
-          .filter(v=>v.type == theToType)
-          .filter(v=>v.subtype == theToSubtype)
-          .sort(function(a, b) {
-            return a.start - b.start;
-          });
-          
-          if(matchingToEventsInThisPatient.length > 0) {
-            let firstOfSecondType = matchingToEventsInThisPatient[0];
-
-            let startOfFirstOfSecondType = firstOfSecondType.start;
-            // e.g., from start of radiation to start of death event.    
-            let diff = startOfFirstOfSecondType - startOrEndOfFirstOfFirstType;
-            if (diff < 0) {
-              d.sortPos = 1100000 + diff;
-            } else {
-              d.sortPos = diff;
-            }
-            // console.log(`${d.id} sort=${d.sortPos}. 1=${startOrEndOfFirstOfFirstType} 2=${startOfFirstOfSecondType}`);
-
-          } else {
-            //console.log("INTERVAL Fail1");
-            return d.sortPos = 10000000; // no events of the second type
-          }
-        } else {
-          //console.log("INTERVAL Fail2");
-          d.sortPos = 10000000; // no events of theType for this patient.
-        }
-
-      } else {
-        // Normal, just sort by start date.  First event of type theType.    
-        matchingEventsInThisPatient.sort(function(a, b) {
-          return a.start - b.start;
-        });
-
-      
-        if (matchingEventsInThisPatient.length > 0 ){
-          d.sortPos = matchingEventsInThisPatient[0].start;
-        } else {
-          d.sortPos = 10000000;
-        }
-      }
-      
-    } else {
-      d.sortPos = d.originalOrderPos;
-    }
-    return d.sortPos;
-  });
-
-  // Add 10 million to each group, so we can group first and sort within groups.
-  allRightRows.each((d,i) => {
-    if(d._groupByIdx){
-      d.sortPos = d.sortPos + 10000000 * d._groupByIdx;
-    }
-  });
-
-  let sortedAllRightRows = allRightRows.sort(function(x, y){
-    return d3.ascending(x.sortPos, y.sortPos);
-  });
-
-  let pidYLookup = new Map();
-
-  // Now fix their y in transform.
-  sortedAllRightRows.attr("transform", function(d,i) {
-    let newY = i * barHeight;
-    pidYLookup.set(d.id, newY);
-    let t = d3.select(this).attr("transform");
-    let tParts = t.split(",");
-    return tParts[0] + `, ${newY})`;
-  })
-
-  
-  // Use pidYLookup set in a sort function for ID column.
-  let allLeftRows = d3.selectAll("#svgFirstLeftGroup .timeline-svg-row") ; 
-  let sortedAllLeftRows = allLeftRows.sort(function(x, y){
-    let xPos = pidYLookup.get(x.id);
-    let yPos = pidYLookup.get(y.id);
-    return d3.ascending(xPos, yPos);
-  });
-  // Now fix ID rows y in transform.
-  sortedAllLeftRows.attr("transform", function(d,i) {
-    let newY = i * barHeight;
-    pidYLookup.set(d.id, newY);
-    let t = d3.select(this).attr("transform");
-    let tParts = t.split(",");
-    return tParts[0] + `, ${newY})`;
-  })
-  console.log('TBD move by sortedAllLeftRows');
-
-  const anSvg = document.getElementById('timelineSvgMasterTable');
-  anSvg.dispatchEvent(new CustomEvent("input"));
-}
-)});
-  main.define("initial rowSelectionChangedCounter", function(){return(
-0
-)});
-  main.variable(observer("mutable rowSelectionChangedCounter")).define("mutable rowSelectionChangedCounter", ["Mutable", "initial rowSelectionChangedCounter"], (M, _) => new M(_));
-  main.variable(observer("rowSelectionChangedCounter")).define("rowSelectionChangedCounter", ["mutable rowSelectionChangedCounter"], _ => _.generator);
-  main.variable(observer("currentSelectionLinkedToCounter")).define("currentSelectionLinkedToCounter", ["d3"], function(d3)
-{
-  // let rr = mutable rowSelectionChangedCounter;
-  let selection = [];
-  d3.selectAll(".timeline-svg-id-rect.timeline-svg-id-rect-selected")
-    .filter((d) => {
-      selection.push(d.id);
-    });
-  selection.sort();
-  /*
-  console.log(`sel@${Date.now()} len=${selection.length}...`);
-  console.dir(selection); 
-  */
-  return selection;
-}
-);
   main.define("initial tooltip", function(){return(
 "empty"
 )});
   main.variable(observer("mutable tooltip")).define("mutable tooltip", ["Mutable", "initial tooltip"], (M, _) => new M(_));
   main.variable(observer("tooltip")).define("tooltip", ["mutable tooltip"], _ => _.generator);
-  main.variable(observer("onOncoscapeEventClicked")).define("onOncoscapeEventClicked", function(){return(
-function(event) {
-    console.log("=================");
-    console.log('EMITTED oncoscapeEventClicked for PID=' +event.detail.pid);
-      console.dir(event.detail);
-  }
-)});
-  main.variable(observer("onOncoscapeRowSelectionChanged")).define("onOncoscapeRowSelectionChanged", function(){return(
-function(event) {
-    console.log("=================");
-    console.log('EMITTED oncoscapeRowSelectionChanged.');
-}
-)});
-  main.variable(observer("onOncoscapeIdGroupClicked")).define("onOncoscapeIdGroupClicked", function(){return(
-function(event) {
-    console.log("=================");
-    console.log('EMITTED onOncoscapeIdGroupClicked.');
-    console.dir(event.detail);
-}
-)});
-  main.variable(observer("setupEventPlaceholders")).define("setupEventPlaceholders", ["onOncoscapeEventClicked","onOncoscapeRowSelectionChanged","onOncoscapeIdGroupClicked"], function(onOncoscapeEventClicked,onOncoscapeRowSelectionChanged,onOncoscapeIdGroupClicked){return(
-function(caller) {
-    console.log("oncoscapeEventClicked caller...")
-    let shmee = caller;
-    
-    console.dir(shmee);
-    //oncoscapeRowSelectionChanged
-    caller.addEventListener("oncoscapeEventClicked", onOncoscapeEventClicked); 
-    caller.addEventListener("oncoscapeRowSelectionChanged", onOncoscapeRowSelectionChanged); 
-    caller.addEventListener("oncoscapeIdGroupClicked", onOncoscapeIdGroupClicked); 
-  }
-)});
   main.variable(observer("svgTable")).define("svgTable", ["d3","html","miniBtnView","createLeftSVG","createRightSVG","createLowerRightSVG","createUpperRightSVG","createOuterSvgEventHandlers","stretcher","getData","barHeight","mousemoveEventSpaceBackground","mouseoverEventSpaceBackground","mouseoutEventSpaceBackground","clickIdGroup","smartPixelScale","numTracks","trackHeight","createEventElementGroups","addVerticalCrosshair","recalcVertScrollbarDiv","processSort","setupEventPlaceholders"], function(d3,html,miniBtnView,createLeftSVG,createRightSVG,createLowerRightSVG,createUpperRightSVG,createOuterSvgEventHandlers,stretcher,getData,barHeight,mousemoveEventSpaceBackground,mouseoverEventSpaceBackground,mouseoutEventSpaceBackground,clickIdGroup,smartPixelScale,numTracks,trackHeight,createEventElementGroups,addVerticalCrosshair,recalcVertScrollbarDiv,processSort,setupEventPlaceholders)
 {    
   const tbl = d3.select(html`
@@ -603,6 +469,154 @@ width:0px;
   return tbl.node();
 }
 );
+  main.variable(observer("processSort")).define("processSort", ["d3","barHeight"], function(d3,barHeight){return(
+function(){
+  let measure = document.getElementById("measure").value.toLowerCase(); 
+  /*
+none
+start of
+interval from start of
+end of
+interval from end of
+duration TBD
+count TBD
+*/
+  // In sort test, first check d["_groupByIdx"].
+
+  let action = document.getElementById("sortBy").value;
+  console.log(`process sort value ${action}.`);
+  let actionTo = document.getElementById("sortByTo").value;
+  //console.log(`process sortTo value ${actionTo}.`);
+
+  let allRightRows = d3.selectAll("#rightSvgTimeline .timeline-svg-row") ; 
+  let theType = action.split(":")[0];
+  let theSubtype = action.split(":")[1]; // undefined if theType is None.
+  let theToType = actionTo.split(":")[0];
+  let theToSubtype = actionTo.split(":")[1]; // undefined if theType is None.
+  
+  // d.originalOrderPos holds the order it came out of timeline compute.
+  allRightRows.attr("sortPos", (d,i) => {
+    // console.log("BEFORE #"+String(i)+" CHECK ID="+String(d.id));
+    if (measure != "none") {  
+      let matchingEventsInThisPatient = d.events
+      // .filter(v=>v.type == theType)
+      .filter(v=> v.type == theType)
+      .filter(v=> v.subtype == theSubtype)
+      .sort(function(a, b) {
+          return a.start - b.start;
+        });
+      
+      // Look for INTERVAL to a second event type.
+      if (measure.toLowerCase().startsWith("interval")) {     // was (measure != "none") {
+        if(theType == "Day 0" || matchingEventsInThisPatient.length > 0) { 
+          let firstOfFirstType = {start:0, end:0};
+          if (matchingEventsInThisPatient.length>0) {firstOfFirstType = matchingEventsInThisPatient[0];}
+          
+          let useStartAndNotEnd = measure.includes("start");
+          // console.log(`useStartAndNotEnd = ${useStartAndNotEnd} [${measure}]`);
+          let startOrEndOfFirstOfFirstType = useStartAndNotEnd ? firstOfFirstType.start : firstOfFirstType.end;
+
+          let matchingToEventsInThisPatient = d.events
+          .filter(v=>v.type == theToType)
+          .filter(v=>v.subtype == theToSubtype)
+          .sort(function(a, b) {
+            return a.start - b.start;
+          });
+          
+          if(matchingToEventsInThisPatient.length > 0) {
+            let firstOfSecondType = matchingToEventsInThisPatient[0];
+
+            let startOfFirstOfSecondType = firstOfSecondType.start;
+            // e.g., from start of radiation to start of death event.    
+            let diff = startOfFirstOfSecondType - startOrEndOfFirstOfFirstType;
+            if (diff < 0) {
+              d.sortPos = 1100000 + diff; // ?? why? Negative values not always bogus! TBD
+            } else {
+              d.sortPos = diff;
+            }
+            // console.log(`${d.id} sort=${d.sortPos}. 1=${startOrEndOfFirstOfFirstType} 2=${startOfFirstOfSecondType}`);
+
+          } else {
+            d.sortPos = 10000000; // no events of the second type # was RETURN
+          }
+        } else {
+          d.sortPos = 10000000; // no events of theType for this patient.
+        }
+
+      } else {
+        // Normal, just sort by start date.  First event of type theType.    
+        matchingEventsInThisPatient.sort(function(a, b) {
+          return a.start - b.start;
+        });
+
+      
+        if (matchingEventsInThisPatient.length > 0 ){
+          d.sortPos = matchingEventsInThisPatient[0].start;
+        } else {
+          d.sortPos = 10000000;
+        }
+      }
+      
+    } else {
+      d.sortPos = d.originalOrderPos;
+    }
+    return d.sortPos;
+  });
+
+  // Add 10 million to each group, so we can group first and sort within groups.
+  allRightRows.each((d,i) => {
+    if(d._groupByIdx){
+      d.sortPos = d.sortPos + 10000000 * d._groupByIdx;
+    }
+  });
+
+  let sortedAllRightRows = allRightRows.sort(function(x, y){
+    return d3.ascending(x.sortPos, y.sortPos);
+  });
+
+  let pidYLookup = new Map();
+
+  // Now fix their y in transform.
+  sortedAllRightRows.attr("transform", function(d,i) {
+    let newY = i * barHeight;
+    pidYLookup.set(d.id, newY);
+    let t = d3.select(this).attr("transform");
+    let tParts = t.split(",");
+    return tParts[0] + `, ${newY})`;
+  })
+
+  // Now color the rows dim if they are "fail" cases.
+  /*
+    sortedAllRightRows.each((d,i) => {
+    if(d.sortPos = 10000000){
+      console.log('FAIL ' + d.id);
+    } else {
+      console.log('SUCCESS ' + d.id);
+    }
+  });
+  */
+  
+  // Use pidYLookup set in a sort function for ID column.
+  let allLeftRows = d3.selectAll("#svgFirstLeftGroup .timeline-svg-row") ; 
+  let sortedAllLeftRows = allLeftRows.sort(function(x, y){
+    let xPos = pidYLookup.get(x.id);
+    let yPos = pidYLookup.get(y.id);
+    return d3.ascending(xPos, yPos);
+  });
+  // Now fix ID rows y in transform.
+  sortedAllLeftRows.attr("transform", function(d,i) {
+    let newY = i * barHeight;
+    pidYLookup.set(d.id, newY);
+    let t = d3.select(this).attr("transform");
+    let tParts = t.split(",");
+    return tParts[0] + `, ${newY})`;
+  })
+  console.log('TBD move by sortedAllLeftRows');
+
+  const anSvg = document.getElementById('timelineSvgMasterTable');
+  anSvg.dispatchEvent(new CustomEvent("input"));
+}
+)});
   main.variable(observer("arrayIdsToSelect")).define("arrayIdsToSelect", function(){return(
 []
 )});
@@ -700,10 +714,17 @@ function(action){
     }
 </style>`}
 );
-  main.variable(observer("miniBtnView")).define("miniBtnView", ["html","miniBtnCmds","d3","pbcopy","selectAllRows","updateRowSelectionChangedCounter"], function(html,miniBtnCmds,d3,pbcopy,selectAllRows,updateRowSelectionChangedCounter){return(
+  main.variable(observer("miniBtnView")).define("miniBtnView", ["html","miniBtnCmds","d3","pbcopy","selectAllRows","updateRowSelectionChangedCounter","requestCreateCohortFromTimelineSelection"], function(html,miniBtnCmds,d3,pbcopy,selectAllRows,updateRowSelectionChangedCounter,requestCreateCohortFromTimelineSelection){return(
 html`${miniBtnCmds.map((v, i) => {
+    const iconToTooltipDict = {
+      copy: "Copy IDs of Selected Patients",
+      plus: "Select All Patients",
+      minus: "Deselect All Patients",
+      asterisk: "Create a Cohort From Selected Patients"
+    }
+    
     // const div = html`<div style="display:inline-block;width:26px;height:26px;margin-right:4px;"></div>`;
-    const div = html`<button class="timeline-mini-btn"><i class="fa fa-${v}"></i></button> `;
+    const div = html`<button title="${iconToTooltipDict[v]}" class="timeline-mini-btn"><i class="fa fa-${v}"></i></button> `;
     div.onclick = (q) => {
       console.dir(v);
       switch(v) {
@@ -735,6 +756,18 @@ html`${miniBtnCmds.map((v, i) => {
           // Should invert selection
           console.log('NYI');
           break;
+        case 'asterisk': // create cohort
+          let selectdIdsForCohort = [];
+          d3.selectAll("g.timeline-svg-row > rect.timeline-svg-id-rect-selected")
+            .each(function (p, j) { 
+              //console.log(p.id);
+              selectdIdsForCohort.push(p.id);
+            }); 
+          console.log('*** IDs for cohort...');
+          console.dir(selectdIdsForCohort);
+          requestCreateCohortFromTimelineSelection(selectdIdsForCohort);
+          break;
+
         default:
           // code block
       }
@@ -744,7 +777,7 @@ html`${miniBtnCmds.map((v, i) => {
   })}`
 )});
   main.variable(observer("miniBtnCmds")).define("miniBtnCmds", function(){return(
-['copy', 'plus','minus']
+['asterisk', 'copy', 'plus','minus']
 )});
   main.variable(observer("pbcopy")).define("pbcopy", function(){return(
 function pbcopy(text) {
@@ -829,6 +862,19 @@ function(){
   console.log(`new rowSelectionChangedCounter ${$0.value}!`);
   
   const event = new CustomEvent('oncoscapeRowSelectionChanged', { detail: {} });
+  const timelineTable = document.getElementById('timelineSvgMasterTable');
+  timelineTable.dispatchEvent(event);
+ 
+}
+)});
+  main.variable(observer("requestCreateCohortFromTimelineSelection")).define("requestCreateCohortFromTimelineSelection", function(){return(
+function(pids){
+  console.log(`Calling requestCreateCohortFromTimelineSelection.`);
+  
+  const event = new CustomEvent('oncoscapeCreateCohortFromTimelineSelection', { detail: {
+    selectionType: "patient",
+    ids: pids} 
+  });
   const timelineTable = document.getElementById('timelineSvgMasterTable');
   timelineTable.dispatchEvent(event);
  

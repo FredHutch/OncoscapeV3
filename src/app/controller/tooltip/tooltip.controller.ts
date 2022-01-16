@@ -100,7 +100,7 @@ export class TooltipController extends AbstractMouseController  {
         // "view" is not available within widgets. TBD: handle widgets.
 
         let result = '';
-        if (tooltipObject.userData.tooltip == null || tooltipObject.userData.tooltip == '') {
+        if (tooltipObject.userData.tooltip == null || tooltipObject.userData.tooltip === '') {
             return result;
         }
         let tooltipString:string = tooltipObject.userData.tooltip.toString();
@@ -320,8 +320,8 @@ export class TooltipController extends AbstractMouseController  {
         entityIconPath = this.getEntityIconPath(entityTypeToUse);
         let detailsHtml:string = this.generateDetailsHtml(view, chartEntity, tooltipObject);
         let title = this.getTooltipTitle(chartEntity, tooltipObject.userData.tooltip);
-        if(title.length > 13){
-            let shortTitle = title.substring(0,12) +'…';
+        if(title.length > 40){
+            let shortTitle = title.substring(0,39) +'…';
             title = `<a class="no-decorate-unhovered-tooltip" href="#" onclick="alert('ID: ${title}');">${shortTitle}</a>`
         }        
         const html = `
