@@ -3,7 +3,7 @@ import define1 from "./e93997d5089d7165@2303.js";
 export default function define(runtime, observer) {
   const main = runtime.module();
   main.variable(observer()).define(["md"], function(md){return(
-md`# Timeline Conversion  build 0201`
+md`# Timeline Conversion  build 0204`
 )});
   main.variable(observer("miniButtonStyle")).define("miniButtonStyle", ["html"], function(html)
 { return html`
@@ -176,6 +176,49 @@ html`<input id="stretcher" type="range" min="0.01" max="4" step="0.01"  value="1
     eventTypesWithDay0IfNoDiagnosis.unshift("Day 0");
   }
 
+  // For each change in "Type:", and at end of list, add "[All]" version
+  //console.log("=============================")
+  //console.log("==lastTypeNameWithColon==")
+  let newEventList = []
+  let lastTypeNamePrefix= null
+  for (let index = 0; index < eventTypesWithDay0IfNoDiagnosis.length; ++index) {
+    let currentEventType = eventTypesWithDay0IfNoDiagnosis[index]
+    let currentEventTypeParts = currentEventType.split(":")
+    let thisTypePrefix = currentEventTypeParts[0]
+    //console.log("==currentEventType="+currentEventType+"!")
+    if (lastTypeNamePrefix){ 
+      //console.log("lastTypeNamePrefix true")
+      if (lastTypeNamePrefix != thisTypePrefix){
+        //console.log("change in prefix")
+        // A list of event types under lastTypeNamePrefix has ended. Add "{All]"
+        newEventList.push(lastTypeNamePrefix+":[All]")
+        if (currentEventTypeParts.length > 1) {
+          // We have switched to a new type with subtypes.
+          lastTypeNamePrefix = thisTypePrefix
+        } else {
+          // We have switched to a type without subtypes.
+          lastTypeNamePrefix = null
+        }
+      }
+      newEventList.push(currentEventType)
+
+    } else {
+        newEventList.push(currentEventType)
+        if (currentEventTypeParts.length > 1) {
+          // We have switched to a new type with subtypes.
+          lastTypeNamePrefix = thisTypePrefix
+        }
+    }
+    if(lastTypeNamePrefix){
+      if(index == eventTypesWithDay0IfNoDiagnosis.length-1 && currentEventTypeParts.length > 1){
+        // last row, and an active type with subtypes. Add "[All]"
+        newEventList.push(lastTypeNamePrefix+":[All]")
+      }
+    }
+  }
+  eventTypesWithDay0IfNoDiagnosis = newEventList
+  console.dir(newEventList)
+  console.log("====end newEventList==")
   
   const sortByDiv = html`
 <label for="measure">Sort by </label>
@@ -317,6 +360,9 @@ ${sortByToDiv}
 )});
   main.variable(observer("mutable tooltip")).define("mutable tooltip", ["Mutable", "initial tooltip"], (M, _) => new M(_));
   main.variable(observer("tooltip")).define("tooltip", ["mutable tooltip"], _ => _.generator);
+  main.variable(observer()).define(["transformData"], function(transformData){return(
+transformData.map(v => v.events).flat(Infinity).filter(v => v.subtype=="Radiation").map(v => v.p+"_"+v.start)
+)});
   main.variable(observer("svgTable")).define("svgTable", ["d3","html","miniBtnView","createLeftSVG","createRightSVG","createLowerRightSVG","createUpperRightSVG","createOuterSvgEventHandlers","stretcher","getData","barHeight","mousemoveEventSpaceBackground","mouseoverEventSpaceBackground","mouseoutEventSpaceBackground","clickIdGroup","smartPixelScale","numTracks","trackHeight","createEventElementGroups","addVerticalCrosshair","recalcVertScrollbarDiv","processSort","setupEventPlaceholders"], function(d3,html,miniBtnView,createLeftSVG,createRightSVG,createLowerRightSVG,createUpperRightSVG,createOuterSvgEventHandlers,stretcher,getData,barHeight,mousemoveEventSpaceBackground,mouseoverEventSpaceBackground,mouseoutEventSpaceBackground,clickIdGroup,smartPixelScale,numTracks,trackHeight,createEventElementGroups,addVerticalCrosshair,recalcVertScrollbarDiv,processSort,setupEventPlaceholders)
 {    
   const tbl = d3.select(html`
@@ -471,7 +517,7 @@ width:0px;
 );
   main.variable(observer("processSort")).define("processSort", ["d3","barHeight"], function(d3,barHeight){return(
 function(){
-  let measure = document.getElementById("measure").value.toLowerCase(); 
+  let measure = document.getElementById("measure").value.toLowerCase();   
   /*
 none
 start of
@@ -490,18 +536,21 @@ count TBD
 
   let allRightRows = d3.selectAll("#rightSvgTimeline .timeline-svg-row") ; 
   let theType = action.split(":")[0];
-  let theSubtype = action.split(":")[1]; // undefined if theType is None.
+  let theSubtype = action.split(":")[1]; // undefined if theType is None. '[All]' for all subtypes
+  console.log("SUBTYPE====["+theSubtype+"]")
   let theToType = actionTo.split(":")[0];
   let theToSubtype = actionTo.split(":")[1]; // undefined if theType is None.
+  console.log("MEASURE=["+measure+"]. actionTo=["+actionTo+"]")
   
   // d.originalOrderPos holds the order it came out of timeline compute.
   allRightRows.attr("sortPos", (d,i) => {
     // console.log("BEFORE #"+String(i)+" CHECK ID="+String(d.id));
+    
     if (measure != "none") {  
       let matchingEventsInThisPatient = d.events
       // .filter(v=>v.type == theType)
       .filter(v=> v.type == theType)
-      .filter(v=> v.subtype == theSubtype)
+      .filter(v=> v.subtype == theSubtype || theSubtype == "[All]")
       .sort(function(a, b) {
           return a.start - b.start;
         });
@@ -537,14 +586,17 @@ count TBD
             // console.log(`${d.id} sort=${d.sortPos}. 1=${startOrEndOfFirstOfFirstType} 2=${startOfFirstOfSecondType}`);
 
           } else {
+            //console.log("INTERVAL Fail1");
             d.sortPos = 10000000; // no events of the second type # was RETURN
           }
         } else {
+          //console.log("INTERVAL Fail2");
           d.sortPos = 10000000; // no events of theType for this patient.
         }
 
       } else {
         // Normal, just sort by start date.  First event of type theType.    
+        //console.log("00A BEFORE #"+String(i)+" CHECK ID="+String(d.id));
         matchingEventsInThisPatient.sort(function(a, b) {
           return a.start - b.start;
         });
@@ -558,15 +610,17 @@ count TBD
       }
       
     } else {
+      //console.log("00C ORiG #"+String(i)+" CHECK ID="+String(d.id));
       d.sortPos = d.originalOrderPos;
     }
+    //console.log("ID="+String(d.id)+", POS=["+String(d.sortPos)+"]")
     return d.sortPos;
   });
 
-  // Add 10 million to each group, so we can group first and sort within groups.
+  // Add 20 million to each group, so we can group first and sort within groups.
   allRightRows.each((d,i) => {
     if(d._groupByIdx){
-      d.sortPos = d.sortPos + 10000000 * d._groupByIdx;
+      d.sortPos = d.sortPos + 20000000 * d._groupByIdx;
     }
   });
 
@@ -574,6 +628,12 @@ count TBD
     return d3.ascending(x.sortPos, y.sortPos);
   });
 
+  /* 
+  console.log("===RESULT OF SORT===")
+  let qq=[];sortedAllRightRows.each(e => qq.push(e.sortPos));
+  console.log(qq)
+  */
+  
   let pidYLookup = new Map();
 
   // Now fix their y in transform.
@@ -4023,7 +4083,7 @@ JSON.parse(`
         }
     ],
     "events": [{
-            "type": "Medicine",
+            "type": "Treatment",
             "subtype": "Drug"
         }, {
             "type": "Status",
@@ -10812,16 +10872,6 @@ JSON.parse(reallyRawPatient1).concat(JSON.parse(reallyRawPatient2))
 ]
 `
 )});
-  main.variable(observer()).define(["rawEventsFromJson"], function(rawEventsFromJson){return(
-JSON.parse(rawEventsFromJson).patients[2]
-)});
-  main.variable(observer("rawEventsFromJson")).define("rawEventsFromJson", ["tinyEventData"], function(tinyEventData)
-{
-    // let loadedJson = await d3.json("https://cors-anywhere.herokuapp.com/https://oncoscape-sites-dev.s3-us-west-2.amazonaws.com/TcgaGliomaPatients.json");   
-  let loadedJson = tinyEventData  
-  return loadedJson;
-}
-);
   main.variable(observer("tinyEventData")).define("tinyEventData", function(){return(
 `{
   "minMax": {
@@ -12163,8 +12213,8 @@ JSON.parse(rawEventsFromJson).patients[2]
       },
       {
         "p": "14-1037",
-        "start": 0,
-        "end": null,
+        "start": 310,
+        "end": 322,
         "data": {
           "response": "",
           "type": "Hormone Therapy",
