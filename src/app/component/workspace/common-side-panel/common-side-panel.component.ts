@@ -716,6 +716,23 @@ export class CommonSidePanelComponent implements AfterViewInit, OnChanges, OnDes
     ];
     this.introJsFunction = introJs().setOptions({
       steps: steps
+    }).onexit(function () {
+      console.log("...currentstep??");
+      window.setTimeout(function(){
+        console.log('=== === === === ===')
+        console.log('(final cleanup in startTourReminder onexit.)');
+        console.log('=== === === === ===')
+        let ijElList = document.getElementsByClassName("introjs-overlay")
+        if(ijElList.length > 0){
+          ijElList[0].remove();
+        }
+        ijElList = document.getElementsByClassName("introjs-helperLayer")
+        if(ijElList.length > 0){
+          ijElList[0].remove();
+        }
+      }, 150);
+      // try introJS()._currentstep
+      //return confirm("To restart the tour, click 'Take A Tour' on the blue menu bar. Are you sure you want to stop the tour?");
     }).start();
   }
 
