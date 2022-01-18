@@ -168,11 +168,11 @@ export class DashboardPanelComponent implements AfterViewInit, OnDestroy {
             .attr('width', xScale.bandwidth())
             .attr('y', height)
 
-            .transition('bars')
-            .delay(function(d, i) {
-              return i * 50;
-            })
-            .duration(1000)
+            // .transition('bars')
+            // .delay(function(d, i) {
+            //   return i * 50;
+            // })
+            // .duration(1000)
             .attr('y', d => yScale(d.myvalue))
             .attr('height', d => height - yScale(d.myvalue));
 
@@ -184,11 +184,11 @@ export class DashboardPanelComponent implements AfterViewInit, OnDestroy {
             .append('text')
             .attr('x', d => xScale(d.mylabel) + xScale.bandwidth() / 2)
             .attr('y', height)
-            .transition('label')
-            .delay(function(d, i) {
-              return i * 50;
-            })
-            .duration(1000)
+            // .transition('label')
+            // .delay(function(d, i) {
+            //   return i * 50;
+            // })
+            // .duration(1000)
             .attr('class', 'xAxisLabels')
             .attr('y', d => yScale(d.myvalue) - 4)
             .attr('text-anchor', 'middle')

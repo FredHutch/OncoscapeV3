@@ -126,7 +126,7 @@ export class ApplicationBarComponent implements OnInit, OnDestroy {
 
   takeTour(){
     if(CommonSidePanelComponent.instance != null ){
-    CommonSidePanelComponent.instance.startTour();
+      CommonSidePanelComponent.instance.startTour();
     } else {
       alert("To take a tour, first choose a data set.")
     }
