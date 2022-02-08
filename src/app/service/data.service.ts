@@ -3060,10 +3060,10 @@ export class DataService {
     // });
   }
 
-  // dataInterfacesAndEnums
-  getUserDatasets(user:string, token: string): Promise<any> {
+  // "source" is "owner" for your own, or "access" for datasets shared with  you
+  getUserDatasets(user:string, token: string, source: string): Promise<any> {
     let uri = `https://jwjvsfcl6c.execute-api.us-west-2.amazonaws.com/${environment.envName.toLocaleUpperCase()}/onco-private-dev-getsets` +
-      `?user=${encodeURIComponent(user)}&environment=${environment.envName}&fromOnco=yes&zager=${token}`;
+      `?user=${encodeURIComponent(user)}&environment=${environment.envName}&source=${source}&fromOnco=yes&zager=${token}`;
     console.log(`In getUserDatasets, URI = '${uri}'.`);
     let parsed = null;
     return new Promise((resolve, reject) => {
@@ -3077,6 +3077,14 @@ export class DataService {
           parsed = JSON.parse(value);
           let newDatasets = [];
           parsed.sets.Items
+          .map(rawItem => {
+            let item = rawItem;
+            if(parsed.source=="access"){
+              item = rawItem.details
+              item.user = rawItem.owner_itemid.split('/')[0];  // Copy owner into the "user" field
+            }
+            return item
+          })
           .filter(item => item.lastError == "none" && item.statusCode == "converted")
           .map(item => {
             let dataSet:iDataSet = {

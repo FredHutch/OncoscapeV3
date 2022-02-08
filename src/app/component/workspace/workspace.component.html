@@ -213,6 +213,7 @@
   *ngIf="(modalPanel | async) === 2048"
   (hide)="setPanel(1)"
   class="modal-panel"
+  [cohorts]="cohorts | async"
   [config]="graphAConfig | async"
 ></app-workspace-dashboard-panel>
 <app-workspace-data-panel

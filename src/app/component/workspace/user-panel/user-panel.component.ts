@@ -26,7 +26,8 @@ import tippy from 'tippy.js';
 })
 export class UserPanelComponent {
   // Public variables that can be referenced in the template
-  public datasets: Array<any>;
+  public myDatasets: Array<any>;
+  public sharedDatasets: Array<any>;
   public user: any;
   public activeForm = UserPanelFormEnum.BLANK.toString();
   public errorMessage = '';
@@ -45,14 +46,14 @@ export class UserPanelComponent {
   @Output()
   loadPrivate = new EventEmitter<{ bucket: string; env: string }>();
 
-  
+
   ngAfterViewInit(): void {
-    
+
     if (DataService.cognitoSessionTimeLeft() > 120) {
       this.fetchDatasetsAndShowThem();
     }
   }
-  
+
   // Call this method to change the form
   setForm(form: UserPanelFormEnum): void {
     this.activeForm = form.toString();
@@ -74,17 +75,17 @@ export class UserPanelComponent {
     });
   }
 
-  fetchDatasetsAndShowThem(){
+  fetchDatasetsAndShowThem() {
 
     // console.log('MJ starting fetchDatasetsAndShowThem...');
-    let email = window['storedAuthBits'].email; 
+    let email = window['storedAuthBits'].email;
     let zagerToken = window['storedAuthBits'].idToken.getJwtToken();
     self["zagerToken"] = zagerToken; // MJ window
     this.fetchDatasets(email, zagerToken);
     // this.setForm(UserPanelFormEnum.PROJECT_LIST);
     this.activeForm = UserPanelFormEnum.PROJECT_LIST;
     // console.log('MJ finished fetchDatasetsAndShowThem.');
-}
+  }
 
   signInIfNeeded(): void {
     console.log(`TEMPNOTE:L signInIfNeeded.`);
@@ -99,7 +100,7 @@ export class UserPanelComponent {
       return;
     }
 
-    let storedAuthBits:any = {};
+    let storedAuthBits: any = {};
     window['storedAuthBits'] = storedAuthBits;
 
     Auth.signIn(form.get('email').value, form.get('password').value)
@@ -262,28 +263,37 @@ export class UserPanelComponent {
       });
   }
 
+  getMyUserId() {
+    let email = window['storedAuthBits'].email; 
+    return email;
+  }
 
-  composeDatasetTooltip(option):string {
-    let infoStr:string = 'unknown';
+  composeDatasetTooltip(option): string {
+    let infoStr: string = 'unknown';
     if (option.studyDetails.studyFileStructure == null) {
       infoStr = '[Missing studyFileStructure]'
     } else {
-      let numPatients:number = option.studyDetails.numPatients ? option.studyDetails.numPatients : 0;
-      let numSamples:number = option.studyDetails.numSamples ? option.studyDetails.numSamples : 0;
-      let numEvents:number = option.studyDetails.numEvents ? option.studyDetails.numEvents : 0;
-      let name:string = option.studyDetails.studyFileStructure.study.name;
-      if (option.datasetAnnotations) { name = option.datasetAnnotations.name;}
-      let description:string = option.studyDetails.studyFileStructure.study.description;
-      if (option.datasetAnnotations) { description = option.datasetAnnotations.description;}
-      infoStr = 
-    `<b>Name:</b> ${name}<br />` +
-    `<b>Patients:</b> ${numPatients}, <b>Samples:</b> ${numSamples},  <b>Clinical Events:</b> ${numEvents}.` +
-    `<hr>` +
-//    `<b>Description:</b> ${option.studyDetails.studyFileStructure.study.description}` +
-    `<b>Description:</b> ${description}` +
-    `<hr>` +
-    `<b>Uploaded File:</b> ${option.project.split('|')[0]}` +
-    '';
+      let numPatients: number = option.studyDetails.numPatients ? option.studyDetails.numPatients : 0;
+      let numSamples: number = option.studyDetails.numSamples ? option.studyDetails.numSamples : 0;
+      let numEvents: number = option.studyDetails.numEvents ? option.studyDetails.numEvents : 0;
+      let name: string = option.studyDetails.studyFileStructure.study.name;
+      if (option.datasetAnnotations) { name = option.datasetAnnotations.name; }
+      let description: string = option.studyDetails.studyFileStructure.study.description;
+      if (option.datasetAnnotations) { description = option.datasetAnnotations.description; }
+      let ownerFromProject = option.project.split('|')[1];  // project is "Filename.zip|joe@company.com"
+      let ownerBlurb ='';
+      if(ownerFromProject != this.getMyUserId()){
+        ownerBlurb =`<b>Owner:</b> ${ownerFromProject}<br />`;
+      }
+      infoStr = ownerBlurb +
+        `<b>Name:</b> ${name}<br />` +
+        `<b>Patients:</b> ${numPatients}, <b>Samples:</b> ${numSamples},  <b>Clinical Events:</b> ${numEvents}.` +
+        `<hr>` +
+        //    `<b>Description:</b> ${option.studyDetails.studyFileStructure.study.description}` +
+        `<b>Description:</b> ${description}` +
+        `<hr>` +
+        `<b>Uploaded File:</b> ${option.project.split('|')[0]}` +
+        '';
     }
     // `Patients: ${option.studyDetails.numPatients}, Samples: ${option.studyDetails.numSamples}.  ` +
     // ` ${option.studyDetails.studyFileStructure.study.description}`;
@@ -292,15 +302,21 @@ export class UserPanelComponent {
   }
 
   showInfoDataset(option): void {
-    let infoStr:string = 
-    `<b>Name:</b> ${option.datasetAnnotations.name ? option.datasetAnnotations.name : option.studyDetails.studyFileStructure.name}` +
-    `Patients: ${option.studyDetails.numPatients}, Samples: ${option.studyDetails.numSamples}.\n` +
-    `----------------\n` +
-//    `Description: ${option.studyDetails.studyFileStructure.study.description}\n` +
-    `Description: ${option.datasetAnnotations.description ? option.datasetAnnotations.description : option.studyDetails.studyFileStructure.description}\n` +
-    `----------------\n` +
-    `Uploaded File: ${option.project.split('|')[0]}\n` +
-    '';
+    let ownerBlurb = '';
+    let ownerFromProject = option.project.split('|')[1];  // project is "Filename.zip|joe@company.com"
+    if(ownerFromProject != this.getMyUserId()){
+      ownerBlurb =`<b>Owner:</b> ${ownerFromProject}<br />`;
+    }
+
+    let infoStr: string = ownerBlurb +
+      `<b>Name:</b> ${option.datasetAnnotations.name ? option.datasetAnnotations.name : option.studyDetails.studyFileStructure.name}` +
+      `Patients: ${option.studyDetails.numPatients}, Samples: ${option.studyDetails.numSamples}.\n` +
+      `----------------\n` +
+      //    `Description: ${option.studyDetails.studyFileStructure.study.description}\n` +
+      `Description: ${option.datasetAnnotations.description ? option.datasetAnnotations.description : option.studyDetails.studyFileStructure.description}\n` +
+      `----------------\n` +
+      `Uploaded File: ${option.project.split('|')[0]}\n` +
+      '';
     alert(infoStr);
     console.log(`MJ show info ${JSON.stringify(option)}`);
   }
@@ -310,8 +326,9 @@ export class UserPanelComponent {
     const env = this.env;
     //  MJ old:   this.loadPrivate.emit({ bucket: 'zbd' + bucket, token: token });
     const user = option.project.split('|')[1]; // Michael was using this field to hold 'ADMIN'
-    this.loadPrivate.emit({ 
-      bucket: `${user}/${itemId}`, env: env });
+    this.loadPrivate.emit({
+      bucket: `${user}/${itemId}`, env: env
+    });
   }
 
   deleteDataset(option): void {
@@ -321,24 +338,27 @@ export class UserPanelComponent {
     alert('Deleting a dataset is not yet supported. Please email contact@oncoscape.org so we can manually delete your dataset.');
   }
 
-  fetchDatasets(user:string, token:string): void {
-    // MJ Simple env hack for now.
-    console.log(`About to fetchDatasets from environment '${environment.envName}' with token='${JSON.stringify(token).substring(0,12)+'...'}'.`)
+  fetchDatasets(user: string, token: string): void {
+    console.log(`About to fetchDatasets from environment '${environment.envName}' with token='${JSON.stringify(token).substring(0, 12) + '...'}'.`)
     let self = this;
-    self.dataService.getUserDatasets(user, token).then(v => {
+    let source = "access"
+    self.dataService.getUserDatasets(user, token, source).then(v => {
       self.env = v.env;
-      self.datasets = v.datasets; //.datasets;
+      self.sharedDatasets = v.datasets;
 
-      self.cd.detectChanges();
-      setTimeout(v => {
-        tippy('.private-dataset-hastip', {
-          theme: 'light-border',
-          arrow: true,
-          placement: "right" //,
-          // appendTo: document.body,
-          // interactive: true
-        });
+      source = "owner";
+      self.dataService.getUserDatasets(user, token, source).then(v => {
+        self.myDatasets = v.datasets;
+        
+        self.cd.detectChanges();
+        setTimeout(v => {
+          tippy('.private-dataset-hastip', {
+            theme: 'light-border',
+            arrow: true,
+            placement: "right" //,
+          });
         }, 100);
+      });
     });
   }
 
@@ -409,7 +429,7 @@ export class UserPanelComponent {
       ]
     });
 
-//    this.activeForm = UserPanelFormEnum.SIGN_IN;
+    //    this.activeForm = UserPanelFormEnum.SIGN_IN;
     let authedSecondsLeft = DataService.cognitoSessionTimeLeft();
     if (authedSecondsLeft < 120) {
       this.activeForm = UserPanelFormEnum.SIGN_IN;

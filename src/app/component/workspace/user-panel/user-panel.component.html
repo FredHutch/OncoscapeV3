@@ -24,13 +24,8 @@
         <button mat-raised-button type="submit" color="primary" style="vertical-align: text-bottom;margin-right:10px;">
           Sign In
         </button>
-        <button
-          (click)="setForm('SIGN_UP')"
-          mat-raised-button
-          type="submit"
-          color="primary"
-          style="vertical-align: text-bottom;margin-right:10px;"
-        >
+        <button (click)="setForm('SIGN_UP')" mat-raised-button type="submit" color="primary"
+          style="vertical-align: text-bottom;margin-right:10px;">
           Sign Up
         </button>
       </div>
@@ -74,15 +69,13 @@
       <div>
         <mat-form-field class="example-full-width">
           <input matInput placeholder="Password" formControlName="password" type="password" autocomplete="off" />
-          <mat-error *ngIf="formGroupSignUp.controls['password'].hasError('pattern')"
-            >See Password Requirements</mat-error
-          >
+          <mat-error *ngIf="formGroupSignUp.controls['password'].hasError('pattern')">See Password Requirements
+          </mat-error>
         </mat-form-field>
       </div>
       <div class="user-panel-button">
-        <mat-checkbox color="primary" class="uploadPanelCbx" formControlName="mailinglist"
-          >Join Oncoscape Mailing List</mat-checkbox
-        >
+        <mat-checkbox color="primary" class="uploadPanelCbx" formControlName="mailinglist">Join Oncoscape Mailing List
+        </mat-checkbox>
       </div>
       <div class="user-panel-button">
         <button mat-raised-button type="submit" color="primary" style="margin-right:10px;">Sign Up</button>
@@ -109,9 +102,8 @@
       <div>
         <mat-form-field class="example-full-width">
           <input matInput placeholder="Email" formControlName="email" autocomplete="email" />
-          <mat-error *ngIf="formGroupForgotPassword.controls['email'].hasError('required')"
-            >Valid Email Required</mat-error
-          >
+          <mat-error *ngIf="formGroupForgotPassword.controls['email'].hasError('required')">Valid Email Required
+          </mat-error>
         </mat-form-field>
       </div>
       <div class="user-panel-button">
@@ -133,23 +125,21 @@
       <div>
         <mat-form-field class="example-full-width">
           <input matInput placeholder="Email" formControlName="email" autocomplete="email" />
-          <mat-error *ngIf="formGroupUpdatePassword.controls['email'].hasError('required')"
-            >Valid Email Required</mat-error
-          >
+          <mat-error *ngIf="formGroupUpdatePassword.controls['email'].hasError('required')">Valid Email Required
+          </mat-error>
         </mat-form-field>
       </div>
       <div>
-        <mat-form-field class="example-full-width"
-          ><input matInput placeholder="Code" formControlName="code" autocomplete="off" />
+        <mat-form-field class="example-full-width"><input matInput placeholder="Code" formControlName="code"
+            autocomplete="off" />
           <mat-error *ngIf="formGroupUpdatePassword.controls['code'].hasError('required')">Required</mat-error>
         </mat-form-field>
       </div>
       <div>
         <mat-form-field class="example-full-width">
           <input matInput placeholder="New Password" formControlName="password" type="password" autocomplete="off" />
-          <mat-error *ngIf="formGroupUpdatePassword.controls['password'].hasError('pattern')"
-            >See Password Requirements</mat-error
-          >
+          <mat-error *ngIf="formGroupUpdatePassword.controls['password'].hasError('pattern')">See Password Requirements
+          </mat-error>
         </mat-form-field>
       </div>
       <div class="user-panel-button">
@@ -165,27 +155,28 @@
 
   <!-- IS THIS BEING USED?? -->
   <!-- Sign Up Confirmation -->
-    <div *ngIf="activeForm === 'SIGN_UP_CONFIRM'">
-      <div>Please check your email and enter the code below.</div>
-      <form [formGroup]="formGroupSignUpConfirm" (submit)="signUpConfirm()">
-        <div>
-          <mat-form-field class="example-full-width">
-            <input matInput placeholder="Email" formControlName="email" autocomplete="email" />
-          </mat-form-field>
-        </div>
-        <div>
-          <mat-form-field class="example-full-width"> <input matInput placeholder="Code" formControlName="code"
-              autocomplete="off" />
-          </mat-form-field>
-        </div>
-        <div>
-          <button mat-raised-button type="submit" color="primary">Verify Code</button>
-        </div>
-        <div class="user-panel-links">
-          <div class="user-panel-link"><a class="os-link" href="#" (click)="setForm('FORGOT_PASSWORD')">Forgot Password</a></div>
-        </div>
-      </form>
-    </div>
+  <div *ngIf="activeForm === 'SIGN_UP_CONFIRM'">
+    <div>Please check your email and enter the code below.</div>
+    <form [formGroup]="formGroupSignUpConfirm" (submit)="signUpConfirm()">
+      <div>
+        <mat-form-field class="example-full-width">
+          <input matInput placeholder="Email" formControlName="email" autocomplete="email" />
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field class="example-full-width"> <input matInput placeholder="Code" formControlName="code"
+            autocomplete="off" />
+        </mat-form-field>
+      </div>
+      <div>
+        <button mat-raised-button type="submit" color="primary">Verify Code</button>
+      </div>
+      <div class="user-panel-links">
+        <div class="user-panel-link"><a class="os-link" href="#" (click)="setForm('FORGOT_PASSWORD')">Forgot
+            Password</a></div>
+      </div>
+    </form>
+  </div>
 
 
   <!-- Resend Code -->
@@ -211,20 +202,42 @@
   </div>
 
   <!-- Add Data Set -->
-  <div  id="privateDataProjectListId" *ngIf="activeForm === 'PROJECT_LIST'">
-    <div *ngFor="let option of datasets" class="panel-config-row-del-dataset-list" >
-      <i class="private-dataset-delete-icon material-icons md-18"   attr.data-tippy-content="Delete?" (click)="deleteDataset(option)">delete_forever</i>
-      <i class="private-dataset-hastip material-icons md-18" attr.data-tippy-content="{{composeDatasetTooltip(option)}}" (click)="showInfoDataset(option)">info_outline</i>
-      <div class="private-dataset-hastip private-dataset-list-item" attr.data-tippy-content="{{composeDatasetTooltip(option)}}" (click)="loadDataset(option)">{{ option.content.name }}</div>
+  <div id="privateDataProjectListId" *ngIf="activeForm === 'PROJECT_LIST'">
+    <div id="sharedProjectListId" *ngIf="sharedDatasets.length > 0">
+      <h2>Datasets Shared With Me</h2>
+      <div *ngFor="let option of sharedDatasets" class="panel-config-row-del-dataset-list">
+        <i class="private-dataset-delete-icon material-icons md-18" attr.data-tippy-content="Delete?"
+          (click)="deleteDataset(option)">delete_forever</i>
+        <i class="private-dataset-hastip material-icons md-18"
+          attr.data-tippy-content="{{composeDatasetTooltip(option)}}" (click)="showInfoDataset(option)">info_outline</i>
+        <div class="private-dataset-hastip private-dataset-list-item"
+          attr.data-tippy-content="{{composeDatasetTooltip(option)}}" (click)="loadDataset(option)">{{
+          option.content.name
+          }}</div>
+      </div>
+      <hr /><br />
     </div>
+
+    <h2>My Datasets</h2>
+    <div *ngFor="let option of myDatasets" class="panel-config-row-del-dataset-list">
+      <i class="private-dataset-delete-icon material-icons md-18" attr.data-tippy-content="Delete?"
+        (click)="deleteDataset(option)">delete_forever</i>
+      <i class="private-dataset-hastip material-icons md-18" attr.data-tippy-content="{{composeDatasetTooltip(option)}}"
+        (click)="showInfoDataset(option)">info_outline</i>
+      <div class="private-dataset-hastip private-dataset-list-item"
+        attr.data-tippy-content="{{composeDatasetTooltip(option)}}" (click)="loadDataset(option)">{{
+        option.content.name }}</div>
+    </div>
+
     <button mat-raised-button type="submit" color="primary" (click)="addDataSet()" style="margin-bottom:20px;">
       Add My Own Data Set
     </button>
   </div>
   <br /><br />
-  Once you have an account and are signed in, you can upload your own private data set. See this video for a walkthrough...<br />
+  Once you have an account and are signed in, you can upload your own private data set. See this video for a
+  walkthrough...<br />
   <br /><br />
-  <video  height="300" controls>
+  <video height="300" controls>
     <source src="/assets/videos/upload_dataset.mp4" type="video/mp4">
   </video>
 </div>
