@@ -5,6 +5,7 @@ import { Observable } from 'rxjs/Rx';
 import { Subject } from 'rxjs';
 import { CollectionTypeEnum } from './../model/enum.model';
 import { DataFieldFactory } from './../model/data-field.model';
+import { ChartFactory } from 'app/component/workspace/chart/chart.factory';
 
 import { AccessS3 } from "../../accessS3";
 import { environment } from 'environments/environment';
@@ -93,8 +94,16 @@ export class DatasetService {
     return promise;
   }
 
-  public load(args: any, fromPrivate: boolean): Observable<any> {
+  // getMyUserId() {
+  //   let email = window['storedAuthBits'].email; 
+  //   return email;
+  // }
+    
+  public load(args: any, fromPrivate: boolean, grantee: string): Observable<any> {
     DataFieldFactory.setMutationFields(null);
+
+    console.log('>>>>> IN datasetService.load, args = ...');
+    console.dir(args);
 
     const headers = new Headers();
     headers.append('Content-Type', 'application/json');
@@ -110,6 +119,18 @@ export class DatasetService {
     };
     this.loaderStatusUpdate.next('Creating Local Database');
 
+
+    // args.bucket = <owneremail>/<uid>
+    let dbNameToSave:string = args.uid
+    console.log('>> dbNameToSave is ['+ dbNameToSave+']. We do NOT save the true owner name as part of the name.')
+    // if (args.grantee) {
+    //   let uidParts = args.bucket.split('/');
+    //   let owner:string = uidParts[0];
+    //   console.log('owner is ['+ owner+']')
+    //   dbNameToSave = owner +'/'+uidParts[1];
+    //   console.log('dbNameToSave is ['+ dbNameToSave+']')
+    // }
+      
     // Get updates first, if exist.
     console.log('About to do loadDatasetUpdates');
     this.loadDatasetUpdates(args.baseUrl + "updates.txt")
@@ -125,7 +146,7 @@ export class DatasetService {
         manifestRequest = (manifestRequest as string).replace("oncoscape.v3.sttrcancer.org", "oncoscape-data.s3-us-west-2.amazonaws.com");
       }
 
-      AccessS3.fetchSupportingPresigned(environment.envName, manifestRequest, requestInit, fromPrivate).then(response => {
+      AccessS3.fetchSupportingPresigned(environment.envName, manifestRequest, requestInit, fromPrivate, args['grantee'], null, args.owner).then(response => {
         return response.json()
       })
         .then(response => {
@@ -152,7 +173,7 @@ export class DatasetService {
           }
 
           console.log('Dexie exists test - pre');
-          Dexie.exists('notitia-' + args.uid).then(function (temp_exists_check) {
+          Dexie.exists('notitia-' + dbNameToSave).then(function (temp_exists_check) {
             if (temp_exists_check)
               console.log("Database exists");
             else
@@ -163,7 +184,7 @@ export class DatasetService {
           console.log('Dexie exists test - post');
 
 
-          Dexie.exists('notitia-' + args.uid).then(exists => {
+          Dexie.exists('notitia-' + dbNameToSave).then(exists => {
             // Add Table Defs
             response.schema.pathways = '++, n';
             response.schema.cohorts = '++, n';
@@ -174,7 +195,9 @@ export class DatasetService {
               response.schema.sampleMeta = 'key';
             }
 
-            DatasetService.db = new Dexie('notitia-' + args.uid);
+            console.log('Load: about to create db '+dbNameToSave+'...')
+            DatasetService.db = new Dexie('notitia-' + dbNameToSave);
+            console.log('db created for '+dbNameToSave)
             DatasetService.db.on('versionchange', function (event) { });
             DatasetService.db.on('blocked', () => { });
 
@@ -211,18 +234,18 @@ export class DatasetService {
               // MJ Moved existence test _after_ the version bumps.
               if (exists) {
                 console.log('exists ABOUT TO CREATE updatePromisesResult');
-                this.getDataset(args.uid)
+                this.getDataset(dbNameToSave)
                 .then(dataset => {
                   WorkspaceComponent.instance.updateVersion = dataset.updateVersion;
 
-                  DataService.instance.getPatientData('notitia-' + args.uid, 'patient')
+                  DataService.instance.getPatientData('notitia-' + dbNameToSave, 'patient')
                   .then(patientDataResult => {
                     let sampleMap = patientDataResult.sampleMap;
                     let datasetUpdateVersion:number = 0;
                     if(dataset && dataset.updateVersion){
                       datasetUpdateVersion = dataset.updateVersion
                     }
-                    let updatePromises = this.generateUpdatePromises(args.uid, sampleMap, datasetUpdateVersion);
+                    let updatePromises = this.generateUpdatePromises(dbNameToSave, sampleMap, datasetUpdateVersion);
                     Promise.all(updatePromises).then(updatePromisesResult => {
                       console.log('exists COMPLETED updatePromisesResult');
                       this.loader$.next(args);
@@ -316,12 +339,12 @@ export class DatasetService {
                         }
                       })
                       .filter(v => v);
-                      
+
                     const updateVersionToWrite = WorkspaceComponent.instance.updatesIncomingData ? WorkspaceComponent.instance.updatesIncomingData.version : 0;
                     console.log(`=== updateVersionToWrite = ${updateVersionToWrite}.`)
                     const dataset = {
                       version: response.version,
-                      name: args.uid,
+                      name: dbNameToSave, //args.uid,
                       events: events,
                       fields: patient.concat(sample),
                       // patients: patient,
@@ -378,8 +401,10 @@ export class DatasetService {
                                 env: environment.envName,
                                 cmd: 'load',
                                 version: response.version,
+                                grantee: grantee,
+                                owner: args['owner'],
                                 disease: args.disease,
-                                uid: args.uid,
+                                uid: dbNameToSave, //args.uid,
                                 baseUrl: args.baseUrl,
                                 file: file,
                                 token: args.token ? args.token : '',
@@ -398,16 +423,16 @@ export class DatasetService {
                           })
                       ).then(v => {
                         // console.log('MJ args = ' + JSON.stringify(args));
-                        this.getDataset(args.uid)
+                        this.getDataset(dbNameToSave) //args.uid)
                         .then(dataset => {
                           WorkspaceComponent.instance.updateVersion = dataset.updateVersion;
 
-                          DataService.instance.getPatientData('notitia-' + args.uid, 'patient')
+                          DataService.instance.getPatientData('notitia-' + dbNameToSave, 'patient')
                           .then(patientDataResult => {
                             let sampleMap = patientDataResult.sampleMap;
                             console.log('update ready to go: initial database created.');
                             console.log('NOTexists ABOUT TO CREATE updatePromisesResult');
-                            let updatePromises = this.generateUpdatePromises(args.uid, sampleMap, 0); // Cannot be datasetUpdateVersion, because we just created the database.
+                            let updatePromises = this.generateUpdatePromises(dbNameToSave, sampleMap, 0); // Cannot be datasetUpdateVersion, because we just created the database.
                             Promise.all(updatePromises).then(updatePromisesResult => {
                               console.log('NOTexists COMPLETED updatePromisesResult');
                               this.loader$.next(args);
@@ -504,8 +529,8 @@ export class DatasetService {
                   console.log(`=== V1 updateVersionToWrite = ${updateVersionToWrite}.`)
 
                   const dataset:DatasetTableInfo = {
-                    name: args.uid,
-                    title: args.uid, // ! should be human friendly
+                    name: dbNameToSave,
+                    title: dbNameToSave, // ! should be human friendly
                     version: 1, // ???
                     events: events,
                     fields: fields,
@@ -548,7 +573,7 @@ export class DatasetService {
                             loader.postMessage({
                               cmd: 'load',
                               disease: args.disease,
-                              uid: args.uid,
+                              uid: dbNameToSave,
                               baseUrl: args.baseUrl,
                               file: file,
                               token: args.token ? args.token : ''
@@ -581,9 +606,31 @@ export class DatasetService {
     return this.loader$;
   }
 
+  processCustomColorChanges(changes:DatasetUpdates, dbName:string){
+    let customColors = changes.customColors;
+    if(customColors){
+      // Change is of form: "Sample group!gtex": "#9ACD32",
+      // So
+      let customColorItems = Object.getOwnPropertyNames(customColors);
+      customColorItems.forEach(colorItemName => {
+        let colorValue = customColors[colorItemName];
+
+        // NOTE: dbName was originally "self._config.database" where we first called readCustomValueFromLocalStorage.
+        let existingCustomColor = ChartFactory.readCustomValueFromLocalStorage(dbName, 'legendColors', colorItemName);
+        if(existingCustomColor) {
+          console.log(`Custom color already exists for "${colorItemName}". It is ${existingCustomColor}}.`)
+        }  else {
+          console.log(`Writing custom color "${colorValue}" for "${colorItemName}".`)
+          ChartFactory.writeCustomValueToLocalStorage(dbName, 'legendColors', colorItemName, colorValue);
+ 
+        }
+      });
+
+    }
+  }
+
+  // Any promises needed to apply data in the updates.txt file downloaded for the dataset.
   generateUpdatePromises(dbName:string, sampleMap:any, datasetUpdateVersion:number) {
-    // let dummySleepPromise1 = this.dummySleep(6000, 'longSleep');
-    // let dummySleepPromise2 = this.dummySleep(3000, 'shortSleep');
     let dummyPromise = new Promise ((resolve, reject) => {
       console.log('== processing update dummyPromise')
       resolve(true)
@@ -603,6 +650,8 @@ export class DatasetService {
       // For each type of database change seen, create a promise.
       console.log('incoming updates...')
       console.dir(changes);
+
+      this.processCustomColorChanges(changes, dbName);
 
       // updating dataset table
       updatePromises.push(this.updateDatasetTable(dbName, changes));
@@ -641,6 +690,16 @@ export class DatasetService {
     WorkspaceComponent.instance.updatesIncomingData = null;
     let tempWorkspace = WorkspaceComponent.instance;
     console.log(`WS projectName? '${tempWorkspace.projectName}'`);
+    if (tempWorkspace == null){
+      console.log('tempworkspace is null')
+    } else {
+      if (tempWorkspace.projectName == null){
+        console.log('tempWorkspace.projectName is null. workspace is...')
+        console.dir(tempWorkspace)
+      } else {
+        
+      }
+    }
 
     let headers = {};
     headers['Content-Type'] = 'text/plain'; // 'application/json';

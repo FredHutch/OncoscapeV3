@@ -213,7 +213,7 @@ export class DataEffect {
       }
       console.log('dataLoadFromPublic args...');
       console.dir(args);
-      return this.datasetService.load(args, false);
+      return this.datasetService.load(args, false, null);
     }),
     mergeMap(args => {
       return [
@@ -222,6 +222,11 @@ export class DataEffect {
       ];
     })
   );
+
+  getMyUserId() {
+    let email = window['storedAuthBits'].email; 
+    return email;
+  }
 
   /*
   oncoscape-privatedata-${env}/converted/
@@ -236,17 +241,25 @@ export class DataEffect {
       console.log(`MJ CHECK! env is ${env }`);
       console.log(`MJ dataLoadFromPrivate, args = ${JSON.stringify(args
         ) }`);
-      let user =   args['bucket'].split('/')[0];
+      let user =   args['bucket'].split('/')[0]; // actual owner of item
+      args["owner"]=user;
       let userEncoded = encodeURIComponent(user);
       let itemId = args['bucket'].split('/')[1];
       args['token'] = self['zagerToken']; // MJ window
-      args['uid'] =itemId; //  args['bucket'];
+      args['uid'] =itemId; 
       // args['baseUrl'] = 'https://oncoscape.v3.sttrcancer.org/datasets/' + args['bucket'] + '/';
       // args['manifest'] = 'https://oncoscape.v3.sttrcancer.org/datasets/' + args['bucket'] + '/manifest.json.gz';
+      let me = null; // Don't need to say who I am if I own the dataset, only if I am a grantee.
+      if (user != this.getMyUserId()){
+        // Owned by someone else. Treat ourself as a grantee.
+        me = this.getMyUserId()
+        args['grantee']=me;
+      }
+
       args['baseUrl'] = `https://oncoscape-privatedata-${env}.s3-us-west-2.amazonaws.com/converted/${userEncoded}/${itemId}/final/`;
       args['manifest'] = `https://oncoscape-privatedata-${env}.s3-us-west-2.amazonaws.com/converted/${userEncoded}/${itemId}/final/manifest.json.gz`;
       // console.log('MJ before call load');
-      return this.datasetService.load(args, true);
+      return this.datasetService.load(args, true, me);
     }),
     mergeMap(args => {
       // console.log('MJ before guts of mergeMap');
@@ -262,6 +275,8 @@ export class DataEffect {
   dataLoadFromDexie$: Observable<DataLoadedAction> = this.actions$.pipe(ofType(data.DATA_LOAD_FROM_DEXIE)).pipe(
     switchMap((args: DataLoadFromDexieAction) => {
       console.log(`data.effect.dataLoadFromDexie$, #1 args.dataset = [${args.dataset}]`);
+      console.log('ALL argsfrom this.dataLoadFromDexie$ ... ');
+      console.dir(args);
 
       GraphConfig.database = args.dataset;
       GraphConfig.datasetName = args.datasetname;

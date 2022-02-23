@@ -301,6 +301,15 @@ export class UserPanelComponent {
     return infoStr;
   }
 
+  hasSharedDatasets(){
+    if (this.sharedDatasets){
+      return this.sharedDatasets.length > 0
+    } else {
+      console.warn('hasSharedDatasets says sharedDatasets is null.')
+      return false;
+    }
+  }
+
   showInfoDataset(option): void {
     let ownerBlurb = '';
     let ownerFromProject = option.project.split('|')[1];  // project is "Filename.zip|joe@company.com"

@@ -11,4 +11,5 @@ export class DatasetUpdates {
   public defaultVizConfig:GraphConfig = null;
   public decorators:Array<DataDecorator> = [];
   public tooltips:Array<TooltipOverride> = [];
+  public customColors = {}; // dictionary-like object, entries of form: "Sample group!gtex": "\"#9ACD32\"".  Note the "!" between legend and item names.
 }

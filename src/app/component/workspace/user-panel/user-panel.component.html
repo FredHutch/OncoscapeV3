@@ -203,7 +203,7 @@
 
   <!-- Add Data Set -->
   <div id="privateDataProjectListId" *ngIf="activeForm === 'PROJECT_LIST'">
-    <div id="sharedProjectListId" *ngIf="sharedDatasets.length > 0">
+    <div id="sharedProjectListId" *ngIf="hasSharedDatasets()">
       <h2>Datasets Shared With Me</h2>
       <div *ngFor="let option of sharedDatasets" class="panel-config-row-del-dataset-list">
         <i class="private-dataset-delete-icon material-icons md-18" attr.data-tippy-content="Delete?"

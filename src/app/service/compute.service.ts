@@ -314,8 +314,10 @@ export class ComputeService {
           errMessage = v.data.details.errorMessage
           errDetails = `Computation: '${v.data.details.cpuMethod}.`;
         }
-        document.querySelector('.loader')["style"]["visibility"] = 'hidden';
-        alert(`ERROR: ${JSON.stringify(errMessage)} ... \n ${errDetails}'\n You might need to reload the web page.`)
+        if(document.querySelector('.loader')){
+          document.querySelector('.loader')["style"]["visibility"] = 'hidden';
+        }
+        alert(`ERROR: ${JSON.stringify(errMessage)} ... \n ${errDetails}'\n You  might need to reload the web page.`)
 
       }
     } else {

@@ -4,6 +4,7 @@ import { environment } from './environments/environment';
 import { VisualizationEnum } from './app/model/enum.model';
 import { inspect } from 'util'
 import { resolve } from 'url';
+import { chownSync } from 'fs';
 
 // declare var Dexie: any;
 
@@ -58,7 +59,7 @@ const requestInit = (token): RequestInit => {
     headers.append('Content-Type', 'application/json');
     headers.append('Accept-Encoding', 'gzip');
     headers.append('zager', token);
-    let aRequestInit:RequestInit = {
+    let aRequestInit: RequestInit = {
       method: 'GET',
       headers: headers,
       mode: 'cors',
@@ -67,7 +68,7 @@ const requestInit = (token): RequestInit => {
     return aRequestInit;
   }
 };
-  
+
 // Only cache the public request init. If it has a token, we need to make a new init.
 let _requestInit = null;
 const requestPublicInit = (): RequestInit => {
@@ -96,7 +97,7 @@ const report = (msg: string) => {
   const date = new Date();
   const inbetween = self as unknown;
   const me = inbetween as LoaderWorkerGlobalScope;
-  const fullMessage:string = JSON.stringify({
+  const fullMessage: string = JSON.stringify({
     cmd: 'msg',
     msg: msg
   });
@@ -107,37 +108,38 @@ const MJbackchannelLog = (msg: string) => {
   const date = new Date();
   const inbetween = self as unknown;
   const me = inbetween as LoaderWorkerGlobalScope;
-  const fullMessage:string = JSON.stringify({
+  const fullMessage: string = JSON.stringify({
     cmd: 'log',
     msg: msg
   });
   // commented out for now: me.postMessage(fullMessage);
 };
 
-const processResource = (env: string, resource: { name: string; dataType: string; file: string }): Promise<any> => {
+const processResource = (env: string, resource: { name: string; dataType: string; file: string }, grantee, owner): Promise<any> => {
+  report('processResource grantee=[' + grantee + ']')
   resource.name = resource.name.replace(/ /gi, '').toLowerCase();
-  return resource.dataType === 'clinical' || resource.dataType === 'patient' 
-    ? loadPatient(env, resource.name, resource.file, false, '')
+  return resource.dataType === 'clinical' || resource.dataType === 'patient'
+    ? loadPatient(env, resource.name, resource.file, false, '', null, owner)
     : resource.dataType === 'psmap'
-    ? loadPatientSampleMap(env, resource.name, resource.file, false, '')
-    : resource.dataType === 'matrix'
-    ? loadMatrix(env, resource.name, resource.file, false, '')
-    : resource.dataType === 'gistic_threshold'
-    ? loadMatrix(env, resource.name, resource.file, false, '')
-    : resource.dataType === 'gistic'
-    ? loadGistic(env, resource.name, resource.file, false, '')
-    : resource.dataType === 'mut'
-    ? loadMutation(env, resource.name, resource.file, false, '')
-    : resource.dataType === 'rna'
-    ? loadRna(env, resource.name, resource.file, false, '')
-    : resource.dataType === 'events'
-    ? loadEvents(env, resource.name, resource.file, false, '')
-    : null;
+      ? loadPatientSampleMap(env, resource.name, resource.file, false, '', null, owner)
+      : resource.dataType === 'matrix'
+        ? loadMatrix(env, resource.name, resource.file, false, '', null, owner)
+        : resource.dataType === 'gistic_threshold'
+          ? loadMatrix(env, resource.name, resource.file, false, '', null, owner)
+          : resource.dataType === 'gistic'
+            ? loadGistic(env, resource.name, resource.file, false, '', null, owner)
+            : resource.dataType === 'mut'
+              ? loadMutation(env, resource.name, resource.file, false, '', null, owner)
+              : resource.dataType === 'rna'
+                ? loadRna(env, resource.name, resource.file, false, '', null, owner)
+                : resource.dataType === 'events'
+                  ? loadEvents(env, resource.name, resource.file, false, '', null, owner)
+                  : null;
 };
 
 // Complete
-const loadEvents = (env: string, name: string, file: string, fromPrivate:boolean=false, token:string): Promise<any> => {
-  return AccessS3.fetchSupportingPresigned(env, baseUrl + file + '.gz', requestInit(token), fromPrivate)
+const loadEvents = (env: string, name: string, file: string, fromPrivate: boolean = false, token: string, grantee: string, owner: string): Promise<any> => {
+  return AccessS3.fetchSupportingPresigned(env, baseUrl + file + '.gz', requestInit(token), fromPrivate, grantee, null, owner)
     .then(response => {
       report('Loading Events');
       return response.json();
@@ -147,14 +149,14 @@ const loadEvents = (env: string, name: string, file: string, fromPrivate:boolean
       const eventTable = [];
       const mult = 86400000;
 
-      let lookup:Array<any> = null;
+      let lookup: Array<any> = null;
       try {
         lookup = Object.keys(response.map).reduce((p, c) => {
           p.push({ type: response.map[c], subtype: c });
           return p;
         }, []);
       } catch (respReduceErr) {
-        console.error(`In loadevents, response reduce error is...`);  
+        console.error(`In loadevents, response reduce error is...`);
         console.dir(respReduceErr);
       }
 
@@ -176,7 +178,7 @@ const loadEvents = (env: string, name: string, file: string, fromPrivate:boolean
         visEnum: VisualizationEnum.TIMELINES,
         settings: JSON.stringify(response.barsConfig)
       }]
-      
+
       return new Promise((resolve, reject) => {
         resolve([{ tbl: name, data: data, visSettings: visSettingsToAdd }]);
       });
@@ -184,53 +186,63 @@ const loadEvents = (env: string, name: string, file: string, fromPrivate:boolean
 };
 
 // Complete
-const loadPatient = (env: string, name: string, file: string, fromPrivate:boolean=false, token:string): Promise<any> => {
-  report('Loading Subjects...');
-  return AccessS3.fetchSupportingPresigned(env, baseUrl + file + '.gz', requestInit(token), fromPrivate, self as LoaderWorkerGlobalScope)
-    .then(response => {
-      report('Subjects Loaded');
-      return response.json();
-    })
-    .then(response => {
-      report('Parsing Subjects');
-      // MJbackchannelLog('Subjects loaded response.fields = ' + JSON.stringify(response.fields));
-      
-      const patientMetaTable = Object.keys(response.fields).map((key, index) => ({
-        ctype: 2,
-        key: key.toLowerCase(),
-        label: key.replace(/_/gi, ' '),
-        tbl: 'patient',
-        type: Array.isArray(response.fields[key]) ? 'STRING' : 'NUMBER',
-        values: response.fields[key]
-      }));
+const loadPatient = (env: string, name: string, file: string, fromPrivate: boolean = false, token: string, grantee: string, owner: string): Promise<any> => {
+  report('Loading Subjects #00001 ...');
+  report('loadPatient, grantee=[' + grantee + ']');
+  let result = null;
+  try {
+    result = AccessS3.fetchSupportingPresigned(env, baseUrl + file + '.gz', requestInit(token), fromPrivate, grantee, self as LoaderWorkerGlobalScope, owner)
+      .then(response => {
+        report('Subjects Loaded');
+        return response.json();
+      })
+      .then(response => {
+        report('Parsing Subjects');
+        // MJbackchannelLog('Subjects loaded response.fields = ' + JSON.stringify(response.fields));
 
-      const patientTable = response.ids.map((id, index) => {
-        return patientMetaTable.reduce(
-          (p, v, i) => {
-            const value = response.values[index][i];
-            p[v.key.toLowerCase()] = v.type === 'NUMBER' ? value : v.values[value];
-            return p;
-          },
-          { p: id.toLowerCase() }
-        );
-      });
+        const patientMetaTable = Object.keys(response.fields).map((key, index) => ({
+          ctype: 2,
+          key: key.toLowerCase(),
+          label: key.replace(/_/gi, ' '),
+          tbl: 'patient',
+          type: Array.isArray(response.fields[key]) ? 'STRING' : 'NUMBER',
+          values: response.fields[key]
+        }));
 
-      report('Processing Clinical');
-      return new Promise((resolve, reject) => {
-        resolve([
-          // { tbl: 'patientMeta', data: patientMetaTable },
-          { tbl: 'patient', data: patientTable }
-        ]);
+        const patientTable = response.ids.map((id, index) => {
+          return patientMetaTable.reduce(
+            (p, v, i) => {
+              const value = response.values[index][i];
+              p[v.key.toLowerCase()] = v.type === 'NUMBER' ? value : v.values[value];
+              return p;
+            },
+            { p: id.toLowerCase() }
+          );
+        });
+
+        report('Processing Clinical');
+        return new Promise((resolve, reject) => {
+          resolve([
+            // { tbl: 'patientMeta', data: patientMetaTable },
+            { tbl: 'patient', data: patientTable }
+          ]);
+        });
+      })
+      .catch(error => {
+        report('Error in Loading Subjects...');
+        report(JSON.stringify(error));
+        MJbackchannelLog('Caught error in loadPatient : ' + JSON.stringify(error));
       });
-    })
-    .catch(error => {
-      MJbackchannelLog('Caught error in loadPatient : ' + JSON.stringify(error));
-    });
+  } catch (err) {
+    report('Exception in loadPatient in loader. Exception....');
+    report(JSON.stringify(err))
+  }
+  return result;
 };
 
-const loadSample = (env: string, name: string, file: string, fromPrivate:boolean=false, token:string): Promise<any> => {
+const loadSample = (env: string, name: string, file: string, fromPrivate: boolean = false, token: string, grantee: string, owner: string): Promise<any> => {
   report('Loading Samples');
-  return AccessS3.fetchSupportingPresigned(env, baseUrl + file + '.gz', requestInit(token), fromPrivate)
+  return AccessS3.fetchSupportingPresigned(env, baseUrl + file + '.gz', requestInit(token), fromPrivate, grantee, null, owner)
     .then(response => {
       report('Samples Loaded');
       return response.json();
@@ -266,10 +278,10 @@ const loadSample = (env: string, name: string, file: string, fromPrivate:boolean
 };
 
 // Complete
-const loadMatrix = (env: string, name: string, file: string, fromPrivate:boolean=false, token:string): Promise<any> => {
+const loadMatrix = (env: string, name: string, file: string, fromPrivate: boolean = false, token: string, grantee: string, owner: string): Promise<any> => {
   report('Loading Molecular Matrix');
   const fullFilePath = baseUrl + file + '.gz';
-  return AccessS3.fetchSupportingPresigned(env, baseUrl + file + '.gz', requestInit(token), fromPrivate)
+  return AccessS3.fetchSupportingPresigned(env, baseUrl + file + '.gz', requestInit(token), fromPrivate, grantee, null, owner)
     .then(response => {
       report('Molecular Matrix Loaded');
       return response.json();
@@ -304,9 +316,9 @@ const loadMatrix = (env: string, name: string, file: string, fromPrivate:boolean
 };
 
 // Complete
-const loadGistic = (env: string, name: string, file: string, fromPrivate:boolean=false, token:string): Promise<any> => {
+const loadGistic = (env: string, name: string, file: string, fromPrivate: boolean = false, token: string, grantee: string, owner: string): Promise<any> => {
   report('Loading Gistic Scores');
-  return AccessS3.fetchSupportingPresigned(env, baseUrl + file + '.gz', requestInit(token), fromPrivate)
+  return AccessS3.fetchSupportingPresigned(env, baseUrl + file + '.gz', requestInit(token), fromPrivate, grantee, null, owner)
     .then(response => {
       report('Gistic Loaded');
       return response.json();
@@ -337,9 +349,9 @@ const loadGistic = (env: string, name: string, file: string, fromPrivate:boolean
     });
 };
 
-const loadPatientSampleMap = (env: string, name: string, file: string, fromPrivate:boolean=false, token:string): Promise<any> => {
+const loadPatientSampleMap = (env: string, name: string, file: string, fromPrivate: boolean = false, token: string, grantee: string, owner: string): Promise<any> => {
   report('Loading Patient Sample Maps');
-  return AccessS3.fetchSupportingPresigned(env, baseUrl + file + '.gz', requestInit(token), fromPrivate)
+  return AccessS3.fetchSupportingPresigned(env, baseUrl + file + '.gz', requestInit(token), fromPrivate, grantee, null, owner)
     .then(response => {
       report('Parsing Patient Sample Maps');
       return response.json();
@@ -358,9 +370,9 @@ const loadPatientSampleMap = (env: string, name: string, file: string, fromPriva
     });
 };
 
-const loadMutation = (env: string, name: string, file: string, fromPrivate:boolean=false, token:string): Promise<any> => {
+const loadMutation = (env: string, name: string, file: string, fromPrivate: boolean = false, token: string, grantee: string, owner: string): Promise<any> => {
   report('Loading Mutation Data');
-  return AccessS3.fetchSupportingPresigned(env, baseUrl + file + '.gz', requestInit(token), fromPrivate)
+  return AccessS3.fetchSupportingPresigned(env, baseUrl + file + '.gz', requestInit(token), fromPrivate, grantee, null, owner)
     .then(response => {
       report('Parsing Mutation Data');
       return response.json();
@@ -389,32 +401,32 @@ const loadMutation = (env: string, name: string, file: string, fromPrivate:boole
       try {
         var sampleCountHolder = {};
         // Count mutation instances per sample ("s").
-        data.forEach(function(d) {
+        data.forEach(function (d) {
           if (sampleCountHolder.hasOwnProperty(d.s)) {
             sampleCountHolder[d.s] = sampleCountHolder[d.s] + 1;
           } else {
             sampleCountHolder[d.s] = 1;
           }
         });
-        
+
         var sampleCountArray = [];
-        
+
         for (var prop in sampleCountHolder) {
-          sampleCountArray.push({ name: prop.replace('"',''), value: sampleCountHolder[prop] });
+          sampleCountArray.push({ name: prop.replace('"', ''), value: sampleCountHolder[prop] });
         }
       } catch (errJ) {
-        MJbackchannelLog('Error = ' + errJ.name +',   ' + errJ.message);
+        MJbackchannelLog('Error = ' + errJ.name + ',   ' + errJ.message);
       }
-  
+
       return new Promise((resolve, reject) => {
         resolve([{ tbl: 'mut', data: data }]);
       });
     });
 };
 
-const loadMutationV3 = (env: string, name: string, file: string, fromPrivate:boolean=false, token:string): Promise<any> => {
+const loadMutationV3 = (env: string, name: string, file: string, fromPrivate: boolean = false, token: string, grantee: string, owner: string): Promise<any> => {
   report('Loading Mutation Data');
-  return AccessS3.fetchSupportingPresigned(env, baseUrl + file + '.gz', requestInit(token), fromPrivate)
+  return AccessS3.fetchSupportingPresigned(env, baseUrl + file + '.gz', requestInit(token), fromPrivate, grantee, null, owner)
     .then(response => {
       report('Parsing Mutation Data');
       return response.json();
@@ -453,9 +465,9 @@ const loadMutationV3 = (env: string, name: string, file: string, fromPrivate:boo
 };
 
 // Complete
-const loadRna = (env: string, name: string, file: string, fromPrivate:boolean=false, token:string): Promise<any> => {
+const loadRna = (env: string, name: string, file: string, fromPrivate: boolean = false, token: string, grantee: string, owner: string): Promise<any> => {
   report('Loading RNA Data');
-  return AccessS3.fetchSupportingPresigned(env, baseUrl + file + '.gz', requestInit(token), fromPrivate)
+  return AccessS3.fetchSupportingPresigned(env, baseUrl + file + '.gz', requestInit(token), fromPrivate, grantee, null, owner)
     .then(response => {
       report('Parsing Rna Data');
       return response.json();
@@ -485,23 +497,23 @@ const loadRna = (env: string, name: string, file: string, fromPrivate:boolean=fa
     });
 };
 
-const processV31 = (env: string, resource: { name: string; dataType: string; file: string }, fromPrivate:boolean, token:string): Promise<any> => {
-  report('in processV31, ' + resource.file);
+const processV31 = (env: string, resource: { name: string; dataType: string; file: string }, fromPrivate: boolean, token: string, grantee: string, owner: string): Promise<any> => {
+  report('in processV31, file=[' + resource.file + '] grantee=[' + JSON.stringify(grantee) + '] owner=[' + JSON.stringify(owner) + ']');
   switch (resource.dataType.toLowerCase().trim()) {
     case 'patient':
-      return loadPatient(env, resource.name, resource.file, fromPrivate, token);
+      return loadPatient(env, resource.name, resource.file, fromPrivate, token, grantee, owner);
     case 'sample':
-      return loadSample(env, resource.name, resource.file, fromPrivate, token);
+      return loadSample(env, resource.name, resource.file, fromPrivate, token, grantee, owner);
     case 'matrix':
-      return loadMatrix(env, resource.name, resource.file, fromPrivate, token);
+      return loadMatrix(env, resource.name, resource.file, fromPrivate, token, grantee, owner);
     case 'events':
-      return loadEvents(env, resource.name, resource.file, fromPrivate, token);
+      return loadEvents(env, resource.name, resource.file, fromPrivate, token, grantee, owner);
     case 'mut':
-      return loadMutationV3(env, resource.name, resource.file, fromPrivate, token);
+      return loadMutationV3(env, resource.name, resource.file, fromPrivate, token, grantee, owner);
     case 'psmap':
-      return loadPatientSampleMap(env, resource.name, resource.file, fromPrivate, token);
+      return loadPatientSampleMap(env, resource.name, resource.file, fromPrivate, token, grantee, owner);
 
-      default:
+    default:
       return new Promise((resolve, reject) => {
         resolve();
       });
@@ -513,8 +525,8 @@ const countMutationsIfPresent = (db: Dexie, tables: Array<{ tbl: string; data: A
   // MJbackchannelLog(`table 0 = ${tables[0].tbl}`);
   // MJbackchannelLog(`table 0 data...`);
   // MJbackchannelLog(JSON.stringify(tables[0].data));
-  
-  if(tables[0].tbl == 'mut') {
+
+  if (tables[0].tbl == 'mut') {
     return new Promise((resolve, reject) => {
       // TBD: count the mutations per gene.
       // Here is some old code to repurpose.
@@ -558,7 +570,8 @@ const countMutationsIfPresent = (db: Dexie, tables: Array<{ tbl: string; data: A
 
 };
 
-onmessage = function(e) {
+
+onmessage = function (e) {
   const inbetween = self as unknown;
   const me = inbetween as LoaderWorkerGlobalScope;
 
@@ -575,9 +588,15 @@ onmessage = function(e) {
         if (e.data.hasOwnProperty('version')) {
           if (e.data.version === '3.1') {
             try {
-              processV31(e.data.env, e.data.file, e.data.fromPrivate, token).then(values => {
+              report('loader onmessage, e.data...')
+              report('e.Data:' + JSON.stringify(e.data))
+              report('loader e.Data written.')
+
+
+              processV31(e.data.env, e.data.file, e.data.fromPrivate, token, e.data.grantee, e.data.owner).then(values => {
+                report('processV31 success, got values.')
                 const tables: Array<{ tbl: string; data: Array<any>; visSettings: Array<any> }> = values;
-                const summarizeTablesAsText  = tables.map(t => {
+                const summarizeTablesAsText = tables.map(t => {
                   return {
                     tbl: t.tbl,
                     numItems: t.data.length
@@ -585,6 +604,7 @@ onmessage = function(e) {
                 });
                 Promise.all(
                   tables.map(tbl => {
+                    report('processV31 now doing table ' + tbl.tbl)
                     if (tbl.tbl.toLowerCase().trim() === 'sample' || tbl.tbl.toLowerCase().trim() === 'patient') {
                       const d = tbl.data.map(datum => {
                         const rv = Object.keys(datum).reduce((p, c) => {
@@ -597,19 +617,19 @@ onmessage = function(e) {
                       return db.table(tbl.tbl).bulkAdd(d);
                     }
 
-                    let d:any = [];
+                    let d: any = [];
                     let keyName = 'm';
                     if (tbl.tbl.endsWith('Map')) {
                       keyName = 's'
                     }
-                   
+
                     let mutationTypes = null;
                     if (tbl['mType'] && tbl.tbl.toLowerCase().trim() === 'mut') { // map of mutation types, if this is mutation
                       mutationTypes = tbl['mType'];
                     }
 
-                    let checkForUniqueIds:boolean = e.data.file.dataType == 'matrix';
-                    let previousKey:string = ''; //TEMPNOTE: Assumes data is sorted by key, coming in.
+                    let checkForUniqueIds: boolean = e.data.file.dataType == 'matrix';
+                    let previousKey: string = ''; //TEMPNOTE: Assumes data is sorted by key, coming in.
                     let seenSymbolsSet = new Set();
                     tbl.data.map(datum => {
                       if (checkForUniqueIds && seenSymbolsSet.has(datum[keyName])) {
@@ -617,46 +637,46 @@ onmessage = function(e) {
                         MJbackchannelLog(`TEMPNOTE: Table ${tbl.tbl}, Have already seen key'${datum.m}'.`);
                       } else {
                         d.push(datum);
-                        if(checkForUniqueIds) {
+                        if (checkForUniqueIds) {
                           seenSymbolsSet.add(datum[keyName]);
                         }
                       }
                     });
                     return db.table(tbl.tbl).bulkAdd(d)
-                    .then( something => {
-                      if (mutationTypes) {  //log them
-                        return db.table('miscMeta').add({
-                          type: 'mutationTypes',
-                          data: mutationTypes
-                        }).then(xyz => {
-                          return countMutationsIfPresent(db, tables);
-                        });
-                        
-                      }
-                    });
+                      .then(something => {
+                        if (mutationTypes) {  //log them
+                          return db.table('miscMeta').add({
+                            type: 'mutationTypes',
+                            data: mutationTypes
+                          }).then(xyz => {
+                            return countMutationsIfPresent(db, tables);
+                          });
+
+                        }
+                      });
                   })
                 )
-                .catch(function(err) {
-                  // log that I have an error, return the entire array;
-                  MJbackchannelLog(`#2 probably failed to bulkAdd.. ${inspect(err)}.`);
-                  return err;
-                })
-                .then((input) => {
-                  //debugger;
-                  //MJbackchannelLog(`MJ INPUT for tbl ${tables[0].tbl} = ${inspect(input).substring(0,30)+'... '}.`);
-                  if (tables[0].visSettings && tables[0].visSettings.length >0 ) {
-                    report('Saving related settings ... ');
-                    return db.table('visSettings').bulkAdd(tables[0].visSettings);
+                  .catch(function (err) {
+                    // log that I have an error, return the entire array;
+                    MJbackchannelLog(`#2 probably failed to bulkAdd.. ${inspect(err)}.`);
+                    return err;
+                  })
+                  .then((input) => {
+                    //debugger;
+                    //MJbackchannelLog(`MJ INPUT for tbl ${tables[0].tbl} = ${inspect(input).substring(0,30)+'... '}.`);
+                    if (tables[0].visSettings && tables[0].visSettings.length > 0) {
+                      report('Saving related settings ... ');
+                      return db.table('visSettings').bulkAdd(tables[0].visSettings);
+                    }
                   }
-                }
-                ).then((stuff) => {
-                  report('Now Saving ' + tables[0].tbl);
-                  me.postMessage(
-                    JSON.stringify({
-                      cmd: 'terminate'
-                    })
-                  );
-                });
+                  ).then((stuff) => {
+                    report('Now Saving ' + tables[0].tbl);
+                    me.postMessage(
+                      JSON.stringify({
+                        cmd: 'terminate'
+                      })
+                    );
+                  });
               });
             } catch (e) {
               MJbackchannelLog('LOADER error e is....'); // Show details separately in case stringify fails.
@@ -669,7 +689,10 @@ onmessage = function(e) {
           }
         } else {
           try {
-            processResource(e.data.env, e.data.file).then(values => {
+            report('e.data is? ...')
+            report(JSON.stringify(e.data));
+            report("processResource needs to be called with real granteee")
+            processResource(e.data.env, e.data.file, null, null).then(values => {
               const tables: Array<{ tbl: string; data: Array<any> }> = values;
               tables.forEach(w => {
                 if (w.tbl.indexOf('matrix') === 0) {
@@ -690,12 +713,12 @@ onmessage = function(e) {
                   );
                 })
                 .catch((err1) => {
-                  MJbackchannelLog('Loader error after processResource = ' + JSON.stringify(err1)+'.');
+                  MJbackchannelLog('Loader error after processResource = ' + JSON.stringify(err1) + '.');
                 });
             });
           } catch (err2) {
             MJbackchannelLog('Loader err2.'); // Show details separately in case stringify fails.
-            MJbackchannelLog('Loader err2 = ' + JSON.stringify(err2)+'.');
+            MJbackchannelLog('Loader err2 = ' + JSON.stringify(err2) + '.');
           }
         }
       });
