@@ -495,15 +495,15 @@ export class DataEffect {
         defaultConfig = pcaConfig;
         // visActionA = new compute.PcaAction({ config: pcaConfig })
       } else {
-        if (args.datasetDesc.hasSurvival) {
-          visType = VisualizationEnum.SURVIVAL;
-          defaultConfig = survivalConfig;
-          //visActionA = new compute.SurvivalAction({ config: survivalConfig });
-        } else {
-          if (args.datasetDesc.hasEvents) {
-            visType = VisualizationEnum.TIMELINES;
-            defaultConfig = timelinesConfig;
-            //visActionA = new compute.TimelinesAction({ config: timelinesConfig });
+        if (args.datasetDesc.hasEvents) {
+          visType = VisualizationEnum.TIMELINES;
+          defaultConfig = timelinesConfig;
+          //visActionA = new compute.TimelinesAction({ config: timelinesConfig });
+      } else {
+          if (args.datasetDesc.hasSurvival) {
+            visType = VisualizationEnum.SURVIVAL;
+            defaultConfig = survivalConfig;
+            //visActionA = new compute.SurvivalAction({ config: survivalConfig });            
           } else {
             const savedPointsConfig = new SavedPointsConfigModel();
             savedPointsConfig.graph = GraphEnum.GRAPH_A;
