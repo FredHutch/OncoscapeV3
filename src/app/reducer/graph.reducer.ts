@@ -172,6 +172,7 @@ function processAction(action: UnsafeAction, state: State): State {
     case COMPUTE_ONE_CLASS_SVM_COMPLETE:
     case COMPUTE_SVR_COMPLETE:
     case COMPUTE_QUADRATIC_DISCRIMINANT_ANALYSIS_COMPLETE:
+      console.log("Checking savedDecorators")
       let savedDecorators = OncoData.instance.dataLoadedAction.datasetTableInfo.decorators;
       if (savedDecorators && savedDecorators.length >0){
           savedDecorators.map(dec => {

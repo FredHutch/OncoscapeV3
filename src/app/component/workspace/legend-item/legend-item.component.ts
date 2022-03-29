@@ -14,15 +14,6 @@ import * as _ from 'lodash';
 import { GraphConfig } from '../../../model/graph-config.model';
 import { DataDecorator } from '../../../model/data-map.model';
 import { Legend } from '../../../model/legend.model';
-import { ChartFactory } from '../chart/chart.factory';
-import { count } from 'rxjs/operators';
-import * as THREE from 'three';
-import { CommonSidePanelComponent } from '../common-side-panel/common-side-panel.component';
-import { SelectionModifiers } from 'app/component/visualization/visualization.abstract.scatter.component';
-import { OncoData } from 'app/oncoData';
-import { ChartScene } from '../chart/chart.scene';
-import { VisualizationView } from '../../../model/chart-view.model';
-import { AbstractScatterVisualization } from '../../visualization/visualization.abstract.scatter.component';
 
 @Component({
   selector: 'app-workspace-legend-item',

@@ -1,7 +1,7 @@
-import * as dat from 'dat.gui.min';
+import * as dat from   './../../src/dat.gui.min'  
 import { ChartScene } from './component/workspace/chart/chart.scene';
 import { EdgesGraph } from './component/visualization/edges/edges.graph';
-import { GraphEnum, VisualizationEnum, SelectionTypeEnum } from 'app/model/enum.model';
+import { GraphEnum, VisualizationEnum, SelectionTypeEnum } from  './../app/model/enum.model';
 import { GenomeGraph } from './component/visualization/genome/genome.graph';
 import { TimelinesGraph } from './component/visualization/timelines/timelines.graph';
 import { SvgTimelinesGraph } from './component/visualization/timelines/svgtimelines.graph';

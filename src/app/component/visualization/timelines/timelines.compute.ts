@@ -3,6 +3,7 @@ import { scaleSequential } from 'd3-scale';
 import { interpolateSpectral } from 'd3-scale-chromatic';
 import * as _ from 'lodash';
 import { Legend } from './../../../model/legend.model';
+import { DataDecorator, DataDecoratorTypeEnum } from "./../../../model/data-map.model";
 import { TimelinesConfigModel } from './timelines.model';
 
 
@@ -189,11 +190,39 @@ export const timelinesCompute = (config: TimelinesConfigModel, worker: Dedicated
 
         // Created with colorbrewer2.org, using Qualitative, 8-classes.
         const brewerColorsQualitative:Array<Array<number>> = [
-          [0x7fc97f,0xbeaed4,0xfdc086,0x386cb0,0xf0027f,0xbf5b17,0x666666], // 0xffff99 taken out of the fourth spot; the yellow is too pale.
-          [0x1b9e77,0xd95f02,0x7570b3,0xe7298a,0x66a61e,0xe6ab02,0xa6761d,0x666666],
-          [0xa6cee3,0x1f78b4,0xb2df8a,0x33a02c,0xfb9a99,0xe31a1c,0xfdbf6f,0xff7f00],
-          [0xfbb4ae,0xb3cde3,0xccebc5,0xdecbe4,0xfed9a6,0xffffcc,0xe5d8bd,0xfddaec]
-        ]
+            [0x7fc97f,0xbeaed4,0xfdc086,0x386cb0,0xf0027f,0xbf5b17,0x666666], // 0xffff99 taken out of the fourth spot; the yellow is too pale.
+            [0x1b9e77,0xd95f02,0x7570b3,0xe7298a,0x66a61e,0xe6ab02,0xa6761d,0x666666],
+            [0xa6cee3,0x1f78b4,0xb2df8a,0x33a02c,0xfb9a99,0xe31a1c,0xfdbf6f,0xff7f00],
+            [0xfbb4ae,0xb3cde3,0xccebc5,0xdecbe4,0xfed9a6,0xffffcc,0xe5d8bd,0xfddaec],
+            [0x7fc97f,0xbeaed4,0xfdc086,0x386cb0,0xf0027f,0xbf5b17,0x666666], // 0xffff99 taken out of the fourth spot; the yellow is too pale.
+            [0x1b9e77,0xd95f02,0x7570b3,0xe7298a,0x66a61e,0xe6ab02,0xa6761d,0x666666],
+            [0xa6cee3,0x1f78b4,0xb2df8a,0x33a02c,0xfb9a99,0xe31a1c,0xfdbf6f,0xff7f00],
+            [0xfbb4ae,0xb3cde3,0xccebc5,0xdecbe4,0xfed9a6,0xffffcc,0xe5d8bd,0xfddaec],
+            [0x7fc97f,0xbeaed4,0xfdc086,0x386cb0,0xf0027f,0xbf5b17,0x666666], // 0xffff99 taken out of the fourth spot; the yellow is too pale.
+            [0x1b9e77,0xd95f02,0x7570b3,0xe7298a,0x66a61e,0xe6ab02,0xa6761d,0x666666],
+            [0xa6cee3,0x1f78b4,0xb2df8a,0x33a02c,0xfb9a99,0xe31a1c,0xfdbf6f,0xff7f00],
+            [0xfbb4ae,0xb3cde3,0xccebc5,0xdecbe4,0xfed9a6,0xffffcc,0xe5d8bd,0xfddaec],
+            [0x7fc97f,0xbeaed4,0xfdc086,0x386cb0,0xf0027f,0xbf5b17,0x666666], // 0xffff99 taken out of the fourth spot; the yellow is too pale.
+            [0x1b9e77,0xd95f02,0x7570b3,0xe7298a,0x66a61e,0xe6ab02,0xa6761d,0x666666],
+            [0xa6cee3,0x1f78b4,0xb2df8a,0x33a02c,0xfb9a99,0xe31a1c,0xfdbf6f,0xff7f00],
+            [0xfbb4ae,0xb3cde3,0xccebc5,0xdecbe4,0xfed9a6,0xffffcc,0xe5d8bd,0xfddaec],
+            [0x7fc97f,0xbeaed4,0xfdc086,0x386cb0,0xf0027f,0xbf5b17,0x666666], // 0xffff99 taken out of the fourth spot; the yellow is too pale.
+            [0x1b9e77,0xd95f02,0x7570b3,0xe7298a,0x66a61e,0xe6ab02,0xa6761d,0x666666],
+            [0xa6cee3,0x1f78b4,0xb2df8a,0x33a02c,0xfb9a99,0xe31a1c,0xfdbf6f,0xff7f00],
+            [0xfbb4ae,0xb3cde3,0xccebc5,0xdecbe4,0xfed9a6,0xffffcc,0xe5d8bd,0xfddaec],
+            [0x7fc97f,0xbeaed4,0xfdc086,0x386cb0,0xf0027f,0xbf5b17,0x666666], // 0xffff99 taken out of the fourth spot; the yellow is too pale.
+            [0x1b9e77,0xd95f02,0x7570b3,0xe7298a,0x66a61e,0xe6ab02,0xa6761d,0x666666],
+            [0xa6cee3,0x1f78b4,0xb2df8a,0x33a02c,0xfb9a99,0xe31a1c,0xfdbf6f,0xff7f00],
+            [0xfbb4ae,0xb3cde3,0xccebc5,0xdecbe4,0xfed9a6,0xffffcc,0xe5d8bd,0xfddaec],
+            [0x7fc97f,0xbeaed4,0xfdc086,0x386cb0,0xf0027f,0xbf5b17,0x666666], // 0xffff99 taken out of the fourth spot; the yellow is too pale.
+            [0x1b9e77,0xd95f02,0x7570b3,0xe7298a,0x66a61e,0xe6ab02,0xa6761d,0x666666],
+            [0xa6cee3,0x1f78b4,0xb2df8a,0x33a02c,0xfb9a99,0xe31a1c,0xfdbf6f,0xff7f00],
+            [0xfbb4ae,0xb3cde3,0xccebc5,0xdecbe4,0xfed9a6,0xffffcc,0xe5d8bd,0xfddaec],
+            [0x7fc97f,0xbeaed4,0xfdc086,0x386cb0,0xf0027f,0xbf5b17,0x666666], // 0xffff99 taken out of the fourth spot; the yellow is too pale.
+            [0x1b9e77,0xd95f02,0x7570b3,0xe7298a,0x66a61e,0xe6ab02,0xa6761d,0x666666],
+            [0xa6cee3,0x1f78b4,0xb2df8a,0x33a02c,0xfb9a99,0xe31a1c,0xfdbf6f,0xff7f00],
+            [0xfbb4ae,0xb3cde3,0xccebc5,0xdecbe4,0xfed9a6,0xffffcc,0xe5d8bd,0xfddaec],
+            ]
 
         const allBrewerQual:Array<number> = [].concat(...brewerColorsQualitative);
         const copiedAllBrewerQual = allBrewerQual; // TEMPNOTE: could make copies, like [].concat(allBrewerQual, allBrewerQual, allBrewerQual);
@@ -355,9 +384,9 @@ export const timelinesCompute = (config: TimelinesConfigModel, worker: Dedicated
             pas.then(attrs => {
 
                 legends = legends.concat(attrs.attrs.map(attr => {
+                    const legend: Legend = new Legend();
                     if (attr.hasOwnProperty('min')) {
                         const scale = scaleSequential<string>(interpolateSpectral).domain([attr.min, attr.max]);
-                        const legend: Legend = new Legend();
                         legend.name = 'HEATMAP // ' + attr.prop.replace(/_/gi, ' ');
                         legend.type = 'COLOR';
                         legend.display = 'CONTINUOUS';
@@ -376,21 +405,29 @@ export const timelinesCompute = (config: TimelinesConfigModel, worker: Dedicated
                         attr.values = attr.values.map(v => {
                             return { label: v, color: colorToHex(scale(v)) };
                         });
-                        return legend;
+
                     } else {
                         const cm = attr.set.reduce((p, c, i) => {
                             p[c] = worker.util.colors[i];
                             return p;
                         }, {});
-                        const legend: Legend = new Legend();
                         legend.name = 'HEATMAP // ' + attr.prop.replace(/_/gi, ' ').toUpperCase();
                         legend.type = 'COLOR';
                         legend.display = 'DISCRETE';
                         legend.labels = Object.keys(cm);
                         legend.values = Object.keys(cm).map(key => cm[key]);
                         attr.values = attr.values.map(v => ({ label: v, color: cm[v] }));
-                        return legend;
+                        
+
                     }
+
+
+
+                    return legend;
+
+                      
+
+
                 }));
                 worker.postMessage({
                     config: config,

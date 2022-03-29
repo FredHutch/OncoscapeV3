@@ -821,6 +821,7 @@ export class DataService {
   }
 
   createDataDecorator(config: GraphConfig, decorator: DataDecorator): Observable<any> {
+    console.log("Entering createSampleDataDecorator")
     if (decorator.type === DataDecoratorTypeEnum.SELECT) {
        return observableFrom(
         new Promise(resolve => {

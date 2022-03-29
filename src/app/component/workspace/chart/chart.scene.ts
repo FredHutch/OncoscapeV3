@@ -3,8 +3,8 @@ import { environment } from '../../../../environments/environment';
 import * as TWEEN from '@tweenjs/tween.js';
 import { ChartSelection } from './../../../model/chart-selection.model';
 import { EventEmitter, Injectable } from '@angular/core';
-import { GraphEnum, VisualizationEnum } from 'app/model/enum.model';
-import { GraphConfig } from 'app/model/graph-config.model';
+import { GraphEnum, VisualizationEnum } from './../../../../app/model/enum.model';
+import { GraphConfig } from './../../../../app/model/graph-config.model';
 import {
   AmbientLight,
   Camera,
@@ -32,8 +32,8 @@ import { ChartEvent, ChartEvents } from './chart.events';
 import { ChartFactory } from './chart.factory';
 import { ThreeToSvg } from './three_to_svg';
 import { OncoSVGRenderer } from './OncoSVGRenderer';
-import { GlobalGuiControls } from 'app/globalGuiControls';
-import { OncoData } from 'app/oncoData';
+import { GlobalGuiControls } from './../../../../app/globalGuiControls';
+import { OncoData } from './../../../../app/oncoData';
 
 var THREE = require('three');
 var gggg =  new OncoSVGRenderer();

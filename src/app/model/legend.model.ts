@@ -1,9 +1,11 @@
 /**
  * Represents a visual legend
  */
+//import { ChartScene } from './../../app/component/workspace/chart/chart.scene';
 import * as THREE from 'three';
 
 import { DataDecorator } from "./data-map.model";
+import { VisualizationEnum } from './enum.model';
 
 export class Legend {
   result: any; // data results from compute call, but might be null.
@@ -48,7 +50,12 @@ export class Legend {
     return l;
   }
 
-  static clickedPidsFromLegendItem(legend: Legend, i:number): any {
+  static clickedPidsFromLegendItem(legend: Legend, i:number, visEnum: VisualizationEnum): any {
+    if (legend.decorator == null) {
+      console.warn('Null decorator in clickedPidsFromLegendItem.');
+      return;
+    }
+
     if (legend.decorator && legend.decorator.pidsByLabel != null) {
       let clickedColorValue:string = legend.values[i];
       let clickedPids = legend.decorator.pidsByLabel.find(v => v.label == clickedColorValue);

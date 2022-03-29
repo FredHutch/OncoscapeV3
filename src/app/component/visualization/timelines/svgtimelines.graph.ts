@@ -28,7 +28,7 @@ import {Runtime, Library, Inspector} from "./new_timeline/runtime.js";
 import { TimelineSelectionController } from 'app/controller/selection/timeline.selection.controller';
 import { WorkspaceComponent } from 'app/component/workspace/workspace.component';
 import { CommonSidePanelComponent } from 'app/component/workspace/common-side-panel/common-side-panel.component';
-
+import { ComputeWorkerUtil } from 'app/service/compute.worker.util';
 export class axisDataForGrouping {
   public groupingName: string;
   public minY: number = 0;
@@ -427,6 +427,30 @@ export class SvgTimelinesGraph extends AbstractVisualization {
         OncoData.instance.dataLoadedAction.events.map(v => `${v.type}:${v.subtype}`).sort()
       );
       console.log("== updateObservableBitsIfReady done.");
+
+      console.log('>> In updateObservableBitsIfReady, build clickedPidsPerEvent')
+
+      let pidsInOrder = OncoData.instance.currentCommonSidePanel.commonSidePanelModel.patientData.map(v => v.p);
+      let clickedPidsPerEvent = {}
+      window['clickedPidsPerEvent'] = null;
+      let pidIndex = 0;
+      data.result.patients.map( eventsThisPatient => {
+        // For each event, add it to entry type:subtype set, create set if  doesn't exist first.
+        eventsThisPatient.map(e => {
+          let typeSubtype = (e.type + ":" + e.subtype).toLowerCase();
+          if(clickedPidsPerEvent[typeSubtype] == null) {
+            clickedPidsPerEvent[typeSubtype]  = new Set();
+          }
+          let currentSet:Set<string> =  clickedPidsPerEvent[typeSubtype];
+          currentSet.add(pidsInOrder[pidIndex])
+        })
+        pidIndex = pidIndex+1;
+      });
+      window['clickedPidsPerEvent'] = clickedPidsPerEvent;
+      // console.log('BUILT:')
+      // console.dir(clickedPidsPerEvent)
+
+
     } else {
       window.setTimeout(() => {
         self.updateObservableBitsIfReady(config, data);
@@ -435,9 +459,12 @@ export class SvgTimelinesGraph extends AbstractVisualization {
     } 
   }
 
+  protected wutil  = new ComputeWorkerUtil();  // Not for remote cpu calls, just for data access utility functions.
+
   updateData(config: GraphConfig, data: any) {
     super.updateData(config, data);
     this.setupRuntime();
+
 
     // Update patients, events, and config.
     if(this.observableRuntimeModule) {

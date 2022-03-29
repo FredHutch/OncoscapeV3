@@ -1,8 +1,8 @@
-import { ShapeEnum, SizeEnum } from 'app/model/enum.model';
+import { ShapeEnum, SizeEnum } from './../../../../app/model/enum.model';
 import * as scale from 'd3-scale';
 import * as THREE from 'three';
 import { PerspectiveCamera, Vector3 } from 'three';
-import { OrbitControls } from 'three-orbitcontrols-ts';
+import { OrbitControls } from  'three-orbitcontrols-ts';
 import { MeshLine, MeshLineMaterial } from 'three.meshline';
 import {
   DataDecorator,
@@ -13,8 +13,8 @@ import {
   SpriteMaterialEnum
 } from './../../../model/enum.model';
 import { VisualizationView } from './../../../service/chart-view.model';
-import { GlobalGuiControls } from 'app/globalGuiControls';
-import { DataFieldFactory } from 'app/model/data-field.model';
+import { GlobalGuiControls } from './../../../../app/globalGuiControls';
+import { DataFieldFactory } from './../../../../app/model/data-field.model';
 
 export type DataDecoratorRenderer = (
   group: THREE.Group,

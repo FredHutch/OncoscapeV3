@@ -26,6 +26,8 @@ import { ChartScene } from '../chart/chart.scene';
 import { VisualizationView } from '../../../model/chart-view.model';
 import { AbstractScatterVisualization } from '../../visualization/visualization.abstract.scatter.component';
 import { LegendItemComponent } from '../legend-item/legend-item.component';
+import { VisualizationEnum } from 'app/model/enum.model';
+import { of } from 'rxjs';
 
 @Component({
   selector: 'app-workspace-legend-panel',
@@ -172,24 +174,39 @@ export class LegendPanelComponent implements AfterViewInit, OnDestroy {
 
   legendItemClick(legend: Legend, i:number): void {
     console.log(`MJ click on legend item [${i}] text itself`);
-    
+    let patientIds = null;    
     // build list of matching patient IDs, then pass it off to 
     // commonSidePanel.setSelectionPatientIds.
     // List length should match legend.counts[i].
-    let clickedLabel = Legend.clickedPidsFromLegendItem(legend, i);
+    let clickedLabel = Legend.clickedPidsFromLegendItem(legend, i, ChartScene.instance.views[0].config.visualization);
+
+    if(clickedLabel==null && ChartScene.instance.views[0].config.visualization==VisualizationEnum.TIMELINES && window['clickedPidsPerEvent'] ) {
+      let basekey=legend.name.startsWith("ROW // ") ? legend.name.substring("ROW // ".length) : legend.name;
+      console.log(`basekey=${basekey}.`)
+      let subtype = legend.labels[i];
+      let typeSubtype = (basekey+":"+subtype).toLowerCase()
+      let typeSubtypeArray = window['clickedPidsPerEvent'][typeSubtype]
+      if(typeSubtypeArray){
+        let pids:Array<string> = Array.from(typeSubtypeArray)
+        patientIds = pids
+      }
+    }
 
     if(clickedLabel) {
+      patientIds = clickedLabel.pids; 
+    }
+    if(patientIds != null){
       let mouseEvent:any = event;
       let selectionModifiers:SelectionModifiers = new SelectionModifiers();
       selectionModifiers.extend = mouseEvent.shiftKey;
       selectionModifiers.inverse = mouseEvent.altKey;
 
-      let patientIds = clickedLabel.pids;
       window.setTimeout(() => {
         OncoData.instance.currentCommonSidePanel.setSelectionPatientIds(patientIds, 
           "Legend", selectionModifiers);
       }, 20);            
       OncoData.instance.currentCommonSidePanel.drawWidgets();
+  
     } else {
       console.log('Click on label did not resolve by color.');
     }
