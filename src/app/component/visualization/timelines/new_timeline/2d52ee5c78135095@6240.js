@@ -1,11 +1,18 @@
 import define1 from "./e93997d5089d7165@2303.js";
 
-export default function define(runtime, observer) {
-  const main = runtime.module();
-  main.variable(observer()).define(["md"], function(md){return(
-md`# Timeline Conversion  build 0204`
-)});
-  main.variable(observer("miniButtonStyle")).define("miniButtonStyle", ["html"], function(html)
+function _1(md){return(
+md`# Timeline Conversion  build 0212`
+)}
+
+function _2(md){return(
+md`Recent Changes:
+1. For LARGE TEST, set smallTest=False in loadedRawData.
+2. Pushes cases of unmatched events to bottom of sort.
+3. Now looks at negative event dates for sorting, exceptin case of -1234 error code.
+4. Now coloring non-matches a different shade, to distinguish from matches (e.g., do they have a Death event)`
+)}
+
+function _miniButtonStyle(html)
 { return html`
 <link rel="stylesheet">
 <style>
@@ -24,23 +31,29 @@ md`# Timeline Conversion  build 0204`
       background-color: RoyalBlue;
     }
 </style>`}
-);
-  main.variable(observer()).define(["minMax"], function(minMax){return(
+
+
+function _4(minMax){return(
 minMax
-)});
-  main.variable(observer("maxLogNegativeArea")).define("maxLogNegativeArea", ["minMax"], function(minMax){return(
+)}
+
+function _maxLogNegativeArea(minMax){return(
 Math.log10(Math.abs(minMax.min)+1)
-)});
-  main.variable(observer("maxLogPositiveArea")).define("maxLogPositiveArea", ["minMax"], function(minMax){return(
+)}
+
+function _maxLogPositiveArea(minMax){return(
 Math.log10(Math.abs(minMax.max)+1)
-)});
-  main.variable(observer("totalLogArea")).define("totalLogArea", ["maxLogNegativeArea","maxLogPositiveArea"], function(maxLogNegativeArea,maxLogPositiveArea){return(
+)}
+
+function _totalLogArea(maxLogNegativeArea,maxLogPositiveArea){return(
 maxLogNegativeArea + maxLogPositiveArea
-)});
-  main.variable(observer("pixelsForLogNegativeArea")).define("pixelsForLogNegativeArea", ["rightSideWidth","maxLogNegativeArea","totalLogArea"], function(rightSideWidth,maxLogNegativeArea,totalLogArea){return(
+)}
+
+function _pixelsForLogNegativeArea(rightSideWidth,maxLogNegativeArea,totalLogArea){return(
 rightSideWidth * (maxLogNegativeArea/totalLogArea)
-)});
-  main.variable(observer("logScaleFunction")).define("logScaleFunction", ["rightLogScale","pixelsForLogNegativeArea","leftLogScale"], function(rightLogScale,pixelsForLogNegativeArea,leftLogScale){return(
+)}
+
+function _logScaleFunction(rightLogScale,pixelsForLogNegativeArea,leftLogScale){return(
 function(i){
   // ====== Does not include getStretcherVal =======
   if(i >=0) {
@@ -49,8 +62,9 @@ function(i){
     return pixelsForLogNegativeArea  - leftLogScale(-i);
   }
 }
-)});
-  main.variable(observer("smartPixelScale")).define("smartPixelScale", ["use_logscale","logScaleFunction"], function(use_logscale,logScaleFunction){return(
+)}
+
+function _smartPixelScale(use_logscale,logScaleFunction){return(
 function(i){
   // ====== Does not include getStretcherVal =======
   if(use_logscale) {
@@ -59,8 +73,9 @@ function(i){
     return i;
   }
 }
-)});
-  main.variable(observer("rightSvgStraightScale")).define("rightSvgStraightScale", ["use_logscale","d3","minMax","pixelsForLogNegativeArea","getStretcherVal","rightSideWidth"], function(use_logscale,d3,minMax,pixelsForLogNegativeArea,getStretcherVal,rightSideWidth){return(
+)}
+
+function _rightSvgStraightScale(use_logscale,d3,minMax,pixelsForLogNegativeArea,getStretcherVal,rightSideWidth){return(
 use_logscale ?  // Used only to create axis at top.
             d3.scaleLog()
             .domain([1, minMax.max+1])
@@ -69,46 +84,51 @@ use_logscale ?  // Used only to create axis at top.
             d3.scaleLinear()
             .domain([0, minMax.max ])
             .range([0, minMax.max * getStretcherVal()])
-)});
-  main.variable(observer("leftLogScale")).define("leftLogScale", ["d3","minMax","pixelsForLogNegativeArea"], function(d3,minMax,pixelsForLogNegativeArea){return(
+)}
+
+function _leftLogScale(d3,minMax,pixelsForLogNegativeArea){return(
 d3.scaleLog()
   .domain([1, Math.abs(minMax.min)+1])
   .range([0, pixelsForLogNegativeArea])
-)});
-  main.variable(observer("rightLogScale")).define("rightLogScale", ["d3","minMax","pixelsForLogNegativeArea","rightSideWidth"], function(d3,minMax,pixelsForLogNegativeArea,rightSideWidth){return(
+)}
+
+function _rightLogScale(d3,minMax,pixelsForLogNegativeArea,rightSideWidth){return(
 d3.scaleLog()
   .domain([1, minMax.max+1])
   .range([pixelsForLogNegativeArea, rightSideWidth])
-)});
-  main.variable(observer("brushHorizontal")).define("brushHorizontal", ["d3","rightSideWidth","brushHeight","brushedHorizontal"], function(d3,rightSideWidth,brushHeight,brushedHorizontal){return(
+)}
+
+function _brushHorizontal(d3,rightSideWidth,brushHeight,brushedHorizontal){return(
 d3.brushX()
     .extent([[0, 0], [rightSideWidth , brushHeight]])  // was [0,0]  // x was width.
     .on('brush end', brushedHorizontal)
-)});
-  main.variable(observer("viewof dynamicTrackHeight")).define("viewof dynamicTrackHeight", ["html"], function(html){return(
+)}
+
+function _dynamicTrackHeight(html){return(
 html`<input id="stretcher" type="range" min="0.01" max="40" step="0.01" value="16"></input>`
-)});
-  main.variable(observer("dynamicTrackHeight")).define("dynamicTrackHeight", ["Generators", "viewof dynamicTrackHeight"], (G, _) => G.input(_));
-  main.variable(observer()).define(["useMultipleTracks"], function(useMultipleTracks){return(
+)}
+
+function _16(useMultipleTracks){return(
 useMultipleTracks
-)});
-  main.variable(observer("viewof useMultipleTracks")).define("viewof useMultipleTracks", ["html"], function(html){return(
+)}
+
+function _useMultipleTracks(html){return(
 html`<input type=checkbox>`
-)});
-  main.variable(observer("useMultipleTracks")).define("useMultipleTracks", ["Generators", "viewof useMultipleTracks"], (G, _) => G.input(_));
-  main.variable(observer()).define(["use_logscale"], function(use_logscale){return(
+)}
+
+function _18(use_logscale){return(
 use_logscale
-)});
-  main.variable(observer("viewof use_logscale")).define("viewof use_logscale", ["html"], function(html){return(
+)}
+
+function _use_logscale(html){return(
 html`<input type=checkbox>`
-)});
-  main.variable(observer("use_logscale")).define("use_logscale", ["Generators", "viewof use_logscale"], (G, _) => G.input(_));
-  main.define("initial rowSelectionChangedCounter", function(){return(
+)}
+
+function _rowSelectionChangedCounter(){return(
 0
-)});
-  main.variable(observer("mutable rowSelectionChangedCounter")).define("mutable rowSelectionChangedCounter", ["Mutable", "initial rowSelectionChangedCounter"], (M, _) => new M(_));
-  main.variable(observer("rowSelectionChangedCounter")).define("rowSelectionChangedCounter", ["mutable rowSelectionChangedCounter"], _ => _.generator);
-  main.variable(observer("currentSelectionLinkedToCounter")).define("currentSelectionLinkedToCounter", ["d3"], function(d3)
+)}
+
+function _currentSelectionLinkedToCounter(d3)
 {
   // let rr = mutable rowSelectionChangedCounter;
   let selection = [];
@@ -123,35 +143,40 @@ html`<input type=checkbox>`
   */
   return selection;
 }
-);
-  main.variable(observer("onOncoscapeEventClicked")).define("onOncoscapeEventClicked", function(){return(
+
+
+function _onOncoscapeEventClicked(){return(
 function(event) {
     console.log("=================");
     console.log('EMITTED oncoscapeEventClicked for PID=' +event.detail.pid);
       console.dir(event.detail);
   }
-)});
-  main.variable(observer("onOncoscapeRowSelectionChanged")).define("onOncoscapeRowSelectionChanged", function(){return(
+)}
+
+function _onOncoscapeRowSelectionChanged(){return(
 function(event) {
     console.log("=================");
     console.log('EMITTED oncoscapeRowSelectionChanged.');
 }
-)});
-  main.variable(observer("onOncoscapeIdGroupClicked")).define("onOncoscapeIdGroupClicked", function(){return(
+)}
+
+function _onOncoscapeIdGroupClicked(){return(
 function(event) {
     console.log("=================");
     console.log('EMITTED onOncoscapeIdGroupClicked.');
     console.dir(event.detail);
 }
-)});
-  main.variable(observer("onOncoscapeCreateCohortFromTimelineSelection")).define("onOncoscapeCreateCohortFromTimelineSelection", function(){return(
+)}
+
+function _onOncoscapeCreateCohortFromTimelineSelection(){return(
 function(event) {
     console.log("=================");
     console.log('EMITTED onOncoscapeCreateCohortFromTimelineSelection.');
     console.dir(event.detail);
 }
-)});
-  main.variable(observer("setupEventPlaceholders")).define("setupEventPlaceholders", ["onOncoscapeEventClicked","onOncoscapeRowSelectionChanged","onOncoscapeIdGroupClicked","onOncoscapeCreateCohortFromTimelineSelection"], function(onOncoscapeEventClicked,onOncoscapeRowSelectionChanged,onOncoscapeIdGroupClicked,onOncoscapeCreateCohortFromTimelineSelection){return(
+)}
+
+function _setupEventPlaceholders(onOncoscapeEventClicked,onOncoscapeRowSelectionChanged,onOncoscapeIdGroupClicked,onOncoscapeCreateCohortFromTimelineSelection){return(
 function(caller) {
     console.log("oncoscapeEventClicked caller...")
     let shmee = caller;
@@ -163,12 +188,13 @@ function(caller) {
     caller.addEventListener("oncoscapeIdGroupClicked", onOncoscapeIdGroupClicked); 
     caller.addEventListener("oncoscapeCreateCohortFromTimelineSelection", onOncoscapeCreateCohortFromTimelineSelection); 
   }
-)});
-  main.variable(observer("viewof stretcher")).define("viewof stretcher", ["html"], function(html){return(
+)}
+
+function _stretcher(html){return(
 html`<input id="stretcher" type="range" min="0.01" max="4" step="0.01"  value="1.0"></input>`
-)});
-  main.variable(observer("stretcher")).define("stretcher", ["Generators", "viewof stretcher"], (G, _) => G.input(_));
-  main.variable(observer("viewof sortTools")).define("viewof sortTools", ["eventTypes","eventTypeForDiagnosis","html","generateAlignOptions","eventTypeForDeath","d3","processSort","processAlignment","generateGroupingOptions","dlaGroupableFields","processGrouping"], function(eventTypes,eventTypeForDiagnosis,html,generateAlignOptions,eventTypeForDeath,d3,processSort,processAlignment,generateGroupingOptions,dlaGroupableFields,processGrouping)
+)}
+
+function _sortTools(eventTypes,eventTypeForDiagnosis,html,generateAlignOptions,eventTypeForDeath,d3,processSort,processAlignment,generateGroupingOptions,dlaGroupableFields,processGrouping)
 {
   let eventTypesWithDay0IfNoDiagnosis = [ ...eventTypes];
   
@@ -353,17 +379,17 @@ ${sortByToDiv}
   
   return view;
 }
-);
-  main.variable(observer("sortTools")).define("sortTools", ["Generators", "viewof sortTools"], (G, _) => G.input(_));
-  main.define("initial tooltip", function(){return(
+
+
+function _tooltip(){return(
 "empty"
-)});
-  main.variable(observer("mutable tooltip")).define("mutable tooltip", ["Mutable", "initial tooltip"], (M, _) => new M(_));
-  main.variable(observer("tooltip")).define("tooltip", ["mutable tooltip"], _ => _.generator);
-  main.variable(observer()).define(["transformData"], function(transformData){return(
+)}
+
+function _31(transformData){return(
 transformData.map(v => v.events).flat(Infinity).filter(v => v.subtype=="Radiation").map(v => v.p+"_"+v.start)
-)});
-  main.variable(observer("svgTable")).define("svgTable", ["d3","html","miniBtnView","createLeftSVG","createRightSVG","createLowerRightSVG","createUpperRightSVG","createOuterSvgEventHandlers","stretcher","getData","barHeight","mousemoveEventSpaceBackground","mouseoverEventSpaceBackground","mouseoutEventSpaceBackground","clickIdGroup","smartPixelScale","numTracks","trackHeight","createEventElementGroups","addVerticalCrosshair","recalcVertScrollbarDiv","processSort","setupEventPlaceholders"], function(d3,html,miniBtnView,createLeftSVG,createRightSVG,createLowerRightSVG,createUpperRightSVG,createOuterSvgEventHandlers,stretcher,getData,barHeight,mousemoveEventSpaceBackground,mouseoverEventSpaceBackground,mouseoutEventSpaceBackground,clickIdGroup,smartPixelScale,numTracks,trackHeight,createEventElementGroups,addVerticalCrosshair,recalcVertScrollbarDiv,processSort,setupEventPlaceholders)
+)}
+
+function _svgTable(d3,html,miniBtnView,createLeftSVG,createRightSVG,createLowerRightSVG,createUpperRightSVG,createOuterSvgEventHandlers,stretcher,getData,barHeight,mousemoveEventSpaceBackground,mouseoverEventSpaceBackground,mouseoutEventSpaceBackground,clickIdGroup,smartPixelScale,numTracks,trackHeight,createEventElementGroups,addVerticalCrosshair,recalcVertScrollbarDiv,processSort,setupEventPlaceholders)
 {    
   const tbl = d3.select(html`
  
@@ -374,6 +400,7 @@ transformData.map(v => v.events).flat(Infinity).filter(v => v.subtype=="Radiatio
 width:25px;
 overflow-y: scroll; max-height: 100px;" onscroll='(function(){ 
 let g= 5;
+  console.log(">> onscroll start fn")
   let sb = document.getElementById("vertScrollbarDiv");
   let scrollTopInt = (sb.scrollTop).toFixed(0);
   let barHeight = 16; // !!!
@@ -398,7 +425,8 @@ let g= 5;
   for (var i=0; i < els.length; i++) {
       els[i].setAttribute("transform", leftTransform);
   }
-
+  console.log(">> onscroll end fn")
+  
 
   aChartVertOffsetElement.value = newVal;
 }());'>
@@ -514,181 +542,203 @@ width:0px;
   setupEventPlaceholders(tbl.node());
   return tbl.node();
 }
-);
-  main.variable(observer("processSort")).define("processSort", ["d3","barHeight"], function(d3,barHeight){return(
-function(){
-  let measure = document.getElementById("measure").value.toLowerCase();   
-  /*
-none
-start of
-interval from start of
-end of
-interval from end of
-duration TBD
-count TBD
-*/
-  // In sort test, first check d["_groupByIdx"].
 
-  let action = document.getElementById("sortBy").value;
-  console.log(`process sort value ${action}.`);
-  let actionTo = document.getElementById("sortByTo").value;
-  //console.log(`process sortTo value ${actionTo}.`);
 
-  let allRightRows = d3.selectAll("#rightSvgTimeline .timeline-svg-row") ; 
-  let theType = action.split(":")[0];
-  let theSubtype = action.split(":")[1]; // undefined if theType is None. '[All]' for all subtypes
-  console.log("SUBTYPE====["+theSubtype+"]")
-  let theToType = actionTo.split(":")[0];
-  let theToSubtype = actionTo.split(":")[1]; // undefined if theType is None.
-  console.log("MEASURE=["+measure+"]. actionTo=["+actionTo+"]")
+function _processSort(d3,barHeight){return(
+function () {
+    let measure = document.getElementById("measure").value.toLowerCase(); 
+    /*
+    none
+    start of
+    interval from start of
+    end of
+    interval from end of
+    duration TBD
+    count TBD
+     */
+
+    let startTime = (new Date()).getTime()
+
+
   
-  // d.originalOrderPos holds the order it came out of timeline compute.
-  allRightRows.attr("sortPos", (d,i) => {
-    // console.log("BEFORE #"+String(i)+" CHECK ID="+String(d.id));
-    
-    if (measure != "none") {  
-      let matchingEventsInThisPatient = d.events
-      // .filter(v=>v.type == theType)
-      .filter(v=> v.type == theType)
-      .filter(v=> v.subtype == theSubtype || theSubtype == "[All]")
-      .sort(function(a, b) {
-          return a.start - b.start;
-        });
-      
-      // Look for INTERVAL to a second event type.
-      if (measure.toLowerCase().startsWith("interval")) {     // was (measure != "none") {
-        if(theType == "Day 0" || matchingEventsInThisPatient.length > 0) { 
-          let firstOfFirstType = {start:0, end:0};
-          if (matchingEventsInThisPatient.length>0) {firstOfFirstType = matchingEventsInThisPatient[0];}
-          
-          let useStartAndNotEnd = measure.includes("start");
-          // console.log(`useStartAndNotEnd = ${useStartAndNotEnd} [${measure}]`);
-          let startOrEndOfFirstOfFirstType = useStartAndNotEnd ? firstOfFirstType.start : firstOfFirstType.end;
+    let action = document.getElementById("sortBy").value;
+    console.log(`process sort value ${action}.`);
+    let actionTo = document.getElementById("sortByTo").value;
+    //console.log(`process sortTo value ${actionTo}.`);
 
-          let matchingToEventsInThisPatient = d.events
-          .filter(v=>v.type == theToType)
-          .filter(v=>v.subtype == theToSubtype)
-          .sort(function(a, b) {
-            return a.start - b.start;
-          });
-          
-          if(matchingToEventsInThisPatient.length > 0) {
-            let firstOfSecondType = matchingToEventsInThisPatient[0];
+    let allRightRows = d3.selectAll("#rightSvgTimeline .timeline-svg-row");
+    let theType = action.split(":")[0];
+    let theSubtype = action.split(":")[1]; // undefined if theType is None. '[All]' for all subtypes
+    console.log("SUBTYPE====[" + theSubtype + "]")
+    let theToType = actionTo.split(":")[0];
+    let theToSubtype = actionTo.split(":")[1]; // undefined if theType is None.
+    console.log("MEASURE=[" + measure + "]. actionTo=[" + actionTo + "]")
 
-            let startOfFirstOfSecondType = firstOfSecondType.start;
-            // e.g., from start of radiation to start of death event.    
-            let diff = startOfFirstOfSecondType - startOrEndOfFirstOfFirstType;
-            if (diff < 0) {
-              d.sortPos = 1100000 + diff; // ?? why? Negative values not always bogus! TBD
+    // d.originalOrderPos holds the order it came out of timeline compute.
+    allRightRows.attr("sortPos", (d, i) => {
+        // console.log("BEFORE #"+String(i)+" CHECK ID="+String(d.id));
+
+        if (measure != "none") {
+            let matchingEventsInThisPatient = d.events
+                // .filter(v=>v.type == theType)
+                .filter(v => v.type == theType)
+                .filter(v => v.subtype == theSubtype || theSubtype == "[All]")
+                .sort(function (a, b) {
+                    return a.start - b.start;
+                });
+
+            if (matchingEventsInThisPatient.length == 0) {
+                d.sortPos = 25000000; // Make this 100million if allowed.
             } else {
-              d.sortPos = diff;
+                // Look for INTERVAL to a second event type.
+                if (measure.toLowerCase().startsWith("interval")) { // was (measure != "none") {
+                    if (theType == "Day 0" || matchingEventsInThisPatient.length > 0) {
+                        let firstOfFirstType = {
+                            start: 0,
+                            end: 0
+                        };
+                        if (matchingEventsInThisPatient.length > 0) {
+                            firstOfFirstType = matchingEventsInThisPatient[0];
+                        }
+
+                        let useStartAndNotEnd = measure.includes("start");
+                        // console.log(`useStartAndNotEnd = ${useStartAndNotEnd} [${measure}]`);
+                        let startOrEndOfFirstOfFirstType = useStartAndNotEnd ? firstOfFirstType.start : firstOfFirstType.end;
+
+                        let matchingToEventsInThisPatient = d.events
+                            .filter(v => v.type == theToType)
+                            .filter(v => v.subtype == theToSubtype)
+                            .sort(function (a, b) {
+                                return a.start - b.start;
+                            });
+
+                        if (matchingToEventsInThisPatient.length > 0) {
+                            let firstOfSecondType = matchingToEventsInThisPatient[0];
+
+                            let startOfFirstOfSecondType = firstOfSecondType.start;
+                            // e.g., from start of radiation to start of death event.
+                            let diff = startOfFirstOfSecondType - startOrEndOfFirstOfFirstType;
+                            if (diff == -1234) { // Special value for bad date. In general negative numbers might be bogus. TBD: consider more smarts here.
+                                d.sortPos = 1100000 + diff;
+                            } else {
+                                d.sortPos = diff;
+                            }
+                            // console.log(`${d.id} sort=${d.sortPos}. 1=${startOrEndOfFirstOfFirstType} 2=${startOfFirstOfSecondType}`);
+
+                        } else {
+                            //console.log("INTERVAL Fail1");
+                            d.sortPos = 25000000; // no events of the second type # was RETURN
+                        }
+                    } else {
+                        //console.log("INTERVAL Fail2");
+                        d.sortPos = 25000000; // no events of theType for this patient.
+                    }
+
+                } else {
+                    // Normal, just sort by start date.  First event of type theType.
+                    //console.log("00A BEFORE #"+String(i)+" CHECK ID="+String(d.id));
+                    matchingEventsInThisPatient.sort(function (a, b) {
+                        return a.start - b.start;
+                    });
+
+                    if (matchingEventsInThisPatient.length > 0) {
+                        d.sortPos = matchingEventsInThisPatient[0].start;
+                    } else {
+                        d.sortPos = 25000000;
+                    }
+
+                }
             }
-            // console.log(`${d.id} sort=${d.sortPos}. 1=${startOrEndOfFirstOfFirstType} 2=${startOfFirstOfSecondType}`);
-
-          } else {
-            //console.log("INTERVAL Fail1");
-            d.sortPos = 10000000; // no events of the second type # was RETURN
-          }
         } else {
-          //console.log("INTERVAL Fail2");
-          d.sortPos = 10000000; // no events of theType for this patient.
+            //console.log("00C ORiG #"+String(i)+" CHECK ID="+String(d.id));
+            d.sortPos = d.originalOrderPos;
         }
+        //console.log("ID="+String(d.id)+", POS=["+String(d.sortPos)+"]")
+        return d.sortPos;
+    });
 
-      } else {
-        // Normal, just sort by start date.  First event of type theType.    
-        //console.log("00A BEFORE #"+String(i)+" CHECK ID="+String(d.id));
-        matchingEventsInThisPatient.sort(function(a, b) {
-          return a.start - b.start;
-        });
+    // Add 3 million to each group, so we can group first and sort within groups.
+    allRightRows.each((d, i) => {
+        if (d._groupByIdx) {
+            d.sortPos = d.sortPos + 90000000 * d._groupByIdx;
+        }
+    });
 
-      
-        if (matchingEventsInThisPatient.length > 0 ){
-          d.sortPos = matchingEventsInThisPatient[0].start;
+    console.log(">>> allRightRows....")
+    console.dir(allRightRows)
+    let innerRightStartTime = (new Date()).getTime()
+    let sortedAllRightRows = allRightRows.sort(function (x, y) {
+        if (x.sortPos == 25000000 && y.sortPos == 25000000) {
+            return d3.ascending(x.originalOrderPos, y.originalOrderPos);
         } else {
-          d.sortPos = 10000000;
+            return d3.ascending(x.sortPos, y.sortPos);
         }
-      }
-      
-    } else {
-      //console.log("00C ORiG #"+String(i)+" CHECK ID="+String(d.id));
-      d.sortPos = d.originalOrderPos;
-    }
-    //console.log("ID="+String(d.id)+", POS=["+String(d.sortPos)+"]")
-    return d.sortPos;
-  });
-
-  // Add 20 million to each group, so we can group first and sort within groups.
-  allRightRows.each((d,i) => {
-    if(d._groupByIdx){
-      d.sortPos = d.sortPos + 20000000 * d._groupByIdx;
-    }
-  });
-
-  let sortedAllRightRows = allRightRows.sort(function(x, y){
-    return d3.ascending(x.sortPos, y.sortPos);
-  });
-
-  /* 
-  console.log("===RESULT OF SORT===")
-  let qq=[];sortedAllRightRows.each(e => qq.push(e.sortPos));
-  console.log(qq)
-  */
+    });
+    let innerRightEndTime = (new Date()).getTime()
+    console.log(">> end inner RIGHT sort at duration " + (innerRightEndTime - innerRightStartTime))
   
-  let pidYLookup = new Map();
+    let pidYLookup = new Map();
 
-  // Now fix their y in transform.
-  sortedAllRightRows.attr("transform", function(d,i) {
-    let newY = i * barHeight;
-    pidYLookup.set(d.id, newY);
-    let t = d3.select(this).attr("transform");
-    let tParts = t.split(",");
-    return tParts[0] + `, ${newY})`;
-  })
+    // Now fix their y in transform.
+    sortedAllRightRows.attr("transform", function (d, i) {
+        let newY = i * barHeight;
+        pidYLookup.set(d.id, newY);
+        let t = d3.select(this).attr("transform");
+        let tParts = t.split(",");
+        return tParts[0] + `, ${newY})`;
+    })
 
-  // Now color the rows dim if they are "fail" cases.
-  /*
+    // Now color the rows dim if they are "fail" cases.
     sortedAllRightRows.each((d,i) => {
-    if(d.sortPos = 10000000){
-      console.log('FAIL ' + d.id);
-    } else {
-      console.log('SUCCESS ' + d.id);
-    }
-  });
-  */
-  
-  // Use pidYLookup set in a sort function for ID column.
-  let allLeftRows = d3.selectAll("#svgFirstLeftGroup .timeline-svg-row") ; 
-  let sortedAllLeftRows = allLeftRows.sort(function(x, y){
-    let xPos = pidYLookup.get(x.id);
-    let yPos = pidYLookup.get(y.id);
-    return d3.ascending(xPos, yPos);
-  });
-  // Now fix ID rows y in transform.
-  sortedAllLeftRows.attr("transform", function(d,i) {
-    let newY = i * barHeight;
-    pidYLookup.set(d.id, newY);
-    let t = d3.select(this).attr("transform");
-    let tParts = t.split(",");
-    return tParts[0] + `, ${newY})`;
-  })
-  console.log('TBD move by sortedAllLeftRows');
+      if(d.sortPos == 25000000){
+        d3.select("#id-rect-"+d.id).classed("timeline-svg-id-rect-sortfailure", true) ;
+      } else {
+        d3.select("#id-rect-"+d.id).classed("timeline-svg-id-rect-sortfailure", false) ;
+      }
+    });
 
-  const anSvg = document.getElementById('timelineSvgMasterTable');
-  anSvg.dispatchEvent(new CustomEvent("input"));
+    // Use pidYLookup set in a sort function for ID column.
+    let innerLeftStartTime = (new Date()).getTime()
+    
+    let allLeftRows = d3.selectAll("#svgFirstLeftGroup .timeline-svg-row");
+    let sortedAllLeftRows = allLeftRows.sort(function (x, y) {
+        let xPos = pidYLookup.get(x.id);
+        let yPos = pidYLookup.get(y.id);
+        return d3.ascending(xPos, yPos);
+    });
+    // Now fix ID rows y in transform.
+    sortedAllLeftRows.attr("transform", function (d, i) {
+        let newY = i * barHeight;
+        pidYLookup.set(d.id, newY);
+        let t = d3.select(this).attr("transform");
+        let tParts = t.split(",");
+        return tParts[0] + `, ${newY})`;
+    })
+    console.log('TBD move by sortedAllLeftRows');
+    let innerLeftEndTime = (new Date()).getTime()
+    console.log(">> end inner LEFT sort at duration " + (innerLeftEndTime - innerLeftStartTime))
+  
+    let endTime = (new Date()).getTime()
+    console.log(">> end sort at duration " + (endTime - startTime))
+
+    const anSvg = document.getElementById('timelineSvgMasterTable');
+    anSvg.dispatchEvent(new CustomEvent("input"));
 }
-)});
-  main.variable(observer("arrayIdsToSelect")).define("arrayIdsToSelect", function(){return(
+)}
+
+function _arrayIdsToSelect(){return(
 []
-)});
-  main.variable(observer("rowIdToSelect")).define("rowIdToSelect", function(){return(
+)}
+
+function _rowIdToSelect(){return(
 ""
-)});
-  main.define("initial currentEventMousedOver", function(){return(
+)}
+
+function _currentEventMousedOver(){return(
 null
-)});
-  main.variable(observer("mutable currentEventMousedOver")).define("mutable currentEventMousedOver", ["Mutable", "initial currentEventMousedOver"], (M, _) => new M(_));
-  main.variable(observer("currentEventMousedOver")).define("currentEventMousedOver", ["mutable currentEventMousedOver"], _ => _.generator);
-  main.variable(observer("processAlignment")).define("processAlignment", ["d3","smartPixelScale","stretcher","barHeight","svgTable"], function(d3,smartPixelScale,stretcher,barHeight,svgTable){return(
+)}
+
+function _processAlignment(d3,smartPixelScale,stretcher,barHeight,svgTable){return(
 function(action){
   //console.log(`process align ${action}.`);
   let globalMinStart = 0;
@@ -752,8 +802,9 @@ function(action){
   let anSvg = svgTable; //.leftSvg;
   anSvg.dispatchEvent(new CustomEvent("input"));
 }
-)});
-  main.variable(observer("miniBtnStyle")).define("miniBtnStyle", ["html"], function(html)
+)}
+
+function _miniBtnStyle(html)
 { return html`miniBtnStyle
 <hr>
 <link rel="stylesheet">
@@ -773,8 +824,9 @@ function(action){
       background-color: RoyalBlue;
     }
 </style>`}
-);
-  main.variable(observer("miniBtnView")).define("miniBtnView", ["html","miniBtnCmds","d3","pbcopy","selectAllRows","updateRowSelectionChangedCounter","requestCreateCohortFromTimelineSelection"], function(html,miniBtnCmds,d3,pbcopy,selectAllRows,updateRowSelectionChangedCounter,requestCreateCohortFromTimelineSelection){return(
+
+
+function _miniBtnView(html,miniBtnCmds,d3,pbcopy,selectAllRows,updateRowSelectionChangedCounter,requestCreateCohortFromTimelineSelection){return(
 html`${miniBtnCmds.map((v, i) => {
     const iconToTooltipDict = {
       copy: "Copy IDs of Selected Patients",
@@ -835,11 +887,13 @@ html`${miniBtnCmds.map((v, i) => {
     };
     return div;
   })}`
-)});
-  main.variable(observer("miniBtnCmds")).define("miniBtnCmds", function(){return(
+)}
+
+function _miniBtnCmds(){return(
 ['asterisk', 'copy', 'plus','minus']
-)});
-  main.variable(observer("pbcopy")).define("pbcopy", function(){return(
+)}
+
+function _pbcopy(){return(
 function pbcopy(text) {
   const fake = document.body.appendChild(document.createElement("textarea"));
   fake.style.position = "absolute";
@@ -855,8 +909,9 @@ function pbcopy(text) {
     fake.parentNode.removeChild(fake);
   }
 }
-)});
-  main.variable(observer("clickIdGroup")).define("clickIdGroup", ["selectAllRows","d3","findFirstSelectedIdAbove","selectRowById","updateRowSelectionChangedCounter"], function(selectAllRows,d3,findFirstSelectedIdAbove,selectRowById,updateRowSelectionChangedCounter){return(
+)}
+
+function _clickIdGroup(selectAllRows,d3,findFirstSelectedIdAbove,selectRowById,updateRowSelectionChangedCounter){return(
 function(evt, data){
   evt.stopPropagation(); // If click text label in ID row, do not also let the background rect process it.
   
@@ -915,8 +970,9 @@ function(evt, data){
   const timelineTable = document.getElementById('timelineSvgMasterTable');
   timelineTable.dispatchEvent(event);  
 }
-)});
-  main.variable(observer("updateRowSelectionChangedCounter")).define("updateRowSelectionChangedCounter", ["mutable rowSelectionChangedCounter"], function($0){return(
+)}
+
+function _updateRowSelectionChangedCounter($0){return(
 function(){
   $0.value++
   console.log(`new rowSelectionChangedCounter ${$0.value}!`);
@@ -926,8 +982,9 @@ function(){
   timelineTable.dispatchEvent(event);
  
 }
-)});
-  main.variable(observer("requestCreateCohortFromTimelineSelection")).define("requestCreateCohortFromTimelineSelection", function(){return(
+)}
+
+function _requestCreateCohortFromTimelineSelection(){return(
 function(pids){
   console.log(`Calling requestCreateCohortFromTimelineSelection.`);
   
@@ -939,8 +996,9 @@ function(pids){
   timelineTable.dispatchEvent(event);
  
 }
-)});
-  main.variable(observer("processExternalArrayIdsToSelect")).define("processExternalArrayIdsToSelect", ["arrayIdsToSelect","selectAllRows","selectRowById"], function(arrayIdsToSelect,selectAllRows,selectRowById)
+)}
+
+function _processExternalArrayIdsToSelect(arrayIdsToSelect,selectAllRows,selectRowById)
 {
   let rowId = arrayIdsToSelect;
   if(arrayIdsToSelect.length == 0) {
@@ -958,8 +1016,9 @@ function(pids){
     }
   }
 }
-);
-  main.variable(observer("processExternalRowSelect")).define("processExternalRowSelect", ["rowIdToSelect","selectAllRows","selectRowById"], function(rowIdToSelect,selectAllRows,selectRowById)
+
+
+function _processExternalRowSelect(rowIdToSelect,selectAllRows,selectRowById)
 {
   let rowId = rowIdToSelect;
   if(rowId =="") {
@@ -976,8 +1035,9 @@ function(pids){
     }
   }
 }
-);
-  main.variable(observer("selectRowById")).define("selectRowById", ["d3"], function(d3){return(
+
+
+function _selectRowById(d3){return(
 function(id){
   let idgroup_target = d3.select("#idgroup-"+id);
 
@@ -986,8 +1046,9 @@ function(id){
   d3.select("#id-rect-"+id).classed("timeline-svg-id-rect-selected", true )
 
 }
-)});
-  main.variable(observer("findFirstSelectedIdAbove")).define("findFirstSelectedIdAbove", ["d3"], function(d3){return(
+)}
+
+function _findFirstSelectedIdAbove(d3){return(
 function findFirstSelectedIdAbove(id) {
   let result = id;
   let target = d3.select("g #idgroup-"+id);
@@ -1006,8 +1067,9 @@ function findFirstSelectedIdAbove(id) {
   }
   return result;
 }
-)});
-  main.variable(observer("selectAllRows")).define("selectAllRows", ["d3"], function(d3){return(
+)}
+
+function _selectAllRows(d3){return(
 function(truthy){
 /*  
   d3.selectAll(".timeline-svg-id-rect-selected")
@@ -1026,13 +1088,15 @@ function(truthy){
   d3.selectAll("g.timeline-idgroup")
     .classed("timeline-idgroup-selected", truthy);
 }
-)});
-  main.variable(observer("horizontalBrushScale")).define("horizontalBrushScale", ["d3","rightSideWidth","minMax"], function(d3,rightSideWidth,minMax){return(
+)}
+
+function _horizontalBrushScale(d3,rightSideWidth,minMax){return(
 d3.scaleLinear()
             .domain([0, rightSideWidth])
             .range([minMax.min, minMax.max])
-)});
-  main.variable(observer("popupPatientData")).define("popupPatientData", function(){return(
+)}
+
+function _popupPatientData(){return(
 function(evtToIgnore, data) {
   evtToIgnore.stopPropagation();
   console.log("in popupPatientData");
@@ -1079,8 +1143,9 @@ display: block;
   console.log('Do not popup patient. Just note hit on ' + d.id);
 
 }
-)});
-  main.variable(observer("brushedHorizontal")).define("brushedHorizontal", ["horizontalBrushScale","getStretcherVal","d3"], function(horizontalBrushScale,getStretcherVal,d3){return(
+)}
+
+function _brushedHorizontal(horizontalBrushScale,getStretcherVal,d3){return(
 (e) => {
   if (e.type == "brush") {
     const sel = e.selection;
@@ -1099,11 +1164,13 @@ display: block;
 
   }
 }
-)});
-  main.variable(observer()).define(["tlConfig"], function(tlConfig){return(
+)}
+
+function _53(tlConfig){return(
 tlConfig.bars
-)});
-  main.variable(observer("getEventStyle")).define("getEventStyle", ["tlConfig"], function(tlConfig){return(
+)}
+
+function _getEventStyle(tlConfig){return(
 function(event){
   // This is hardcoded, but will be pulled out of IndexedDB overrides, etc. in Oncoscape.
   const styleDict__old = {
@@ -1121,13 +1188,13 @@ function(event){
   //console.dir(styleDict);
   return styleDict[event.type];
 }
-)});
-  main.define("initial lastGroupedByField", function(){return(
+)}
+
+function _lastGroupedByField(){return(
 "none"
-)});
-  main.variable(observer("mutable lastGroupedByField")).define("mutable lastGroupedByField", ["Mutable", "initial lastGroupedByField"], (M, _) => new M(_));
-  main.variable(observer("lastGroupedByField")).define("lastGroupedByField", ["mutable lastGroupedByField"], _ => _.generator);
-  main.variable(observer("processGrouping")).define("processGrouping", ["d3","mutable lastGroupedByField","dataLoadedAction","rawPatientsFromJson","updateGroupingRects","processSort"], function(d3,$0,dataLoadedAction,rawPatientsFromJson,updateGroupingRects,processSort){return(
+)}
+
+function _processGrouping(d3,$0,dataLoadedAction,rawPatientsFromJson,updateGroupingRects,processSort){return(
 function(action){
   let allRightRows = d3.selectAll("#rightSvgTimeline .timeline-svg-row") ; //.timeline-event-group"); //
 
@@ -1192,8 +1259,9 @@ function(action){
   },200 );
   
 }
-)});
-  main.variable(observer("updateGroupingRects")).define("updateGroupingRects", ["d3","mutable lastGroupedByField","dataLoadedAction","cellGroupingColorList"], function(d3,$0,dataLoadedAction,cellGroupingColorList){return(
+)}
+
+function _updateGroupingRects(d3,$0,dataLoadedAction,cellGroupingColorList){return(
 function(useColors){
   let groupingRects = d3.selectAll(".timeline-svg-id-grouping-rect"); 
   //console.log('===> GROUPING RECTS');
@@ -1230,14 +1298,17 @@ function(useColors){
       });    
   }
 }
-)});
-  main.variable(observer("eventTypeForDeath")).define("eventTypeForDeath", ["eventTypes"], function(eventTypes){return(
+)}
+
+function _eventTypeForDeath(eventTypes){return(
 eventTypes.find(v=>v.endsWith(":Death"))
-)});
-  main.variable(observer()).define(["eventTypes"], function(eventTypes){return(
+)}
+
+function _59(eventTypes){return(
 eventTypes.find(v=>v.endsWith(":Death"))
-)});
-  main.variable(observer("popupEventData")).define("popupEventData", ["getData"], function(getData){return(
+)}
+
+function _popupEventData(getData){return(
 function(d) {
   console.log("==POPUP EVENT");
   let actionDropdown = `
@@ -1334,8 +1405,9 @@ display: block;
   const timelineTable = document.getElementById('timelineSvgMasterTable');
   timelineTable.dispatchEvent(event);
 }
-)});
-  main.variable(observer("setupEventContextMenu")).define("setupEventContextMenu", ["popupEventData"], function(popupEventData){return(
+)}
+
+function _setupEventContextMenu(popupEventData){return(
 function(eventElementGroups){
   eventElementGroups.on("mouseup", function(event, d) {
 //    const e = selection.nodes();
@@ -1355,27 +1427,28 @@ function(eventElementGroups){
   eventElementGroups
     .on("contextmenu",  function(event) {  event.preventDefault();  });
 }
-)});
-  main.variable(observer("eventTypeForDiagnosis")).define("eventTypeForDiagnosis", ["eventTypes"], function(eventTypes){return(
+)}
+
+function _eventTypeForDiagnosis(eventTypes){return(
 eventTypes.find(v=>v.toLowerCase().endsWith(":diagnosis"))
-)});
-  main.variable(observer("getStretcherVal")).define("getStretcherVal", ["stretcher"], function(stretcher){return(
+)}
+
+function _getStretcherVal(stretcher){return(
 function(){
   return stretcher
 }
-)});
-  main.variable(observer("tlConfig")).define("tlConfig", ["computeTlConfig"], function(computeTlConfig){return(
+)}
+
+function _tlConfig(computeTlConfig){return(
 computeTlConfig()
-)});
-  main.variable(observer()).define(["tlConfig"], function(tlConfig){return(
-tlConfig.bars
-)});
-  main.variable(observer("computeTlConfig")).define("computeTlConfig", ["rawTlConfig","useMultipleTracks"], function(rawTlConfig,useMultipleTracks){return(
+)}
+
+function _computeTlConfig(rawTlConfig,useMultipleTracks){return(
 function(){
   console.log("=========")
-  console.log(JSON.stringify(rawTlConfig));
-  console.dir(rawTlConfig.bars);
-  console.log("========= useMultipleTracks = " + useMultipleTracks)
+  //console.log(JSON.stringify(rawTlConfig));
+  //console.dir(rawTlConfig.bars);
+  //console.log("========= useMultipleTracks = " + useMultipleTracks)
   let newTlConfig = JSON.parse(JSON.stringify(rawTlConfig));
   if (!useMultipleTracks) {
     console.log("Do NOT use multiple tracks")
@@ -1386,12 +1459,13 @@ function(){
   } else {
         console.log("Do NOT use multiple tracks")
   }
-  console.dir(rawTlConfig.bars);
+  //console.dir(rawTlConfig.bars);
 
   return newTlConfig;
 }
-)});
-  main.variable(observer("createUpperRightSVG")).define("createUpperRightSVG", ["rightSideWidth","rightSvgStraightScale","d3","use_logscale","getStretcherVal"], function(rightSideWidth,rightSvgStraightScale,d3,use_logscale,getStretcherVal){return(
+)}
+
+function _createUpperRightSVG(rightSideWidth,rightSvgStraightScale,d3,use_logscale,getStretcherVal){return(
 function(tableCell){
 
 
@@ -1431,11 +1505,13 @@ function(tableCell){
 
   return upperRightSvg;
 }
-)});
-  main.variable(observer("rightSideWidth")).define("rightSideWidth", function(){return(
+)}
+
+function _rightSideWidth(){return(
 900
-)});
-  main.variable(observer("viewof vb3")).define("viewof vb3", ["slider","maxHeight"], function(slider,maxHeight){return(
+)}
+
+function _vb3(slider,maxHeight){return(
 slider({
   min: 1, 
   max: maxHeight, 
@@ -1443,35 +1519,40 @@ slider({
   value:  300, 
   title: "height"
 })
-)});
-  main.variable(observer("vb3")).define("vb3", ["Generators", "viewof vb3"], (G, _) => G.input(_));
-  main.variable(observer("mouseoverEventSpaceBackground")).define("mouseoverEventSpaceBackground", ["d3"], function(d3){return(
+)}
+
+function _mouseoverEventSpaceBackground(d3){return(
 function  (event, d) {  // Add interactivity
   d3.select("#idgroup-"+d.id+" rect").classed("timeline-svg-id-rect-highlight", true ) ;
   let theBar = d3.select("#id-rect-"+d.id);
   theBar.classed("timeline-eventbar-hover", true);
 }
-)});
-  main.variable(observer("mouseoutEventSpaceBackground")).define("mouseoutEventSpaceBackground", ["d3"], function(d3){return(
+)}
+
+function _mouseoutEventSpaceBackground(d3){return(
 function  (event, d) {  // Add interactivity
   d3.select("#idgroup-"+d.id+" rect").classed("timeline-svg-id-rect-highlight", false ) ;
   let theBar = d3.select("#id-rect-"+d.id);
   theBar.classed("timeline-eventbar-hover", false);
 }
-)});
-  main.variable(observer("stretcherCurrentVal")).define("stretcherCurrentVal", ["stretcher"], function(stretcher){return(
+)}
+
+function _stretcherCurrentVal(stretcher){return(
 stretcher
-)});
-  main.variable(observer("eventTypes")).define("eventTypes", ["dataLoadedAction"], function(dataLoadedAction)
+)}
+
+function _eventTypes(dataLoadedAction)
 {
   let result = dataLoadedAction.events.map(v => `${v.type}:${v.subtype}`).sort(); // rawEventTypes
   return result;
 }
-);
-  main.variable(observer()).define(["dataLoadedAction"], function(dataLoadedAction){return(
+
+
+function _73(dataLoadedAction){return(
 dataLoadedAction.events
-)});
-  main.variable(observer("brushedVertical")).define("brushedVertical", ["availableVertBrushHeight","d3"], function(availableVertBrushHeight,d3){return(
+)}
+
+function _brushedVertical(availableVertBrushHeight,d3){return(
 (e) => {
 //  console.log(`brushedVertical  evtype ${e.type}.`);
   if (e.type == "brush") {
@@ -1495,8 +1576,9 @@ dataLoadedAction.events
         */
   }
 }
-)});
-  main.variable(observer("recalcVertScrollbarDiv")).define("recalcVertScrollbarDiv", ["barHeight"], function(barHeight){return(
+)}
+
+function _recalcVertScrollbarDiv(barHeight){return(
 function(data){
   let leftSvgTd = document.getElementById("leftSvgTd");
 
@@ -1516,25 +1598,30 @@ function(data){
     console.log('Cannot call recalcVertScrollbarDiv yet.');
   }
 }
-)});
-  main.variable(observer("fontSize")).define("fontSize", ["barHeight"], function(barHeight){return(
+)}
+
+function _fontSize(barHeight){return(
 Math.min(barHeight * 0.6, 14)
-)});
-  main.variable(observer("mousemoveEventSpaceBackground")).define("mousemoveEventSpaceBackground", ["d3"], function(d3){return(
+)}
+
+function _mousemoveEventSpaceBackground(d3){return(
 function  (event, d) {  // Add interactivity
   let coordinates = d3.pointer(event, event.currentTarget); // d3.select('#rightSvgTimeline');
   //console.log(`move ${event.y} ${coordinates}`);
 }
-)});
-  main.variable(observer("brushHeight")).define("brushHeight", function(){return(
+)}
+
+function _brushHeight(){return(
 20
-)});
-  main.variable(observer("brushVertical")).define("brushVertical", ["d3","brushHeight","availableVertBrushHeight","brushedVertical"], function(d3,brushHeight,availableVertBrushHeight,brushedVertical){return(
+)}
+
+function _brushVertical(d3,brushHeight,availableVertBrushHeight,brushedVertical){return(
 d3.brushY()
     .extent([[0, 0], [brushHeight, availableVertBrushHeight()]])
     .on('brush end', brushedVertical)
-)});
-  main.variable(observer("availableVertBrushHeight")).define("availableVertBrushHeight", function(){return(
+)}
+
+function _availableVertBrushHeight(){return(
 function(){
   let idTableCell = document.getElementById("leftSvgTd");
   console.log('ID=='+JSON.stringify(idTableCell));
@@ -1543,11 +1630,13 @@ function(){
   return result;
 //  return 300;
 }
-)});
-  main.variable(observer("transformData")).define("transformData", ["transformData1"], function(transformData1){return(
+)}
+
+function _transformData(transformData1){return(
 transformData1
-)});
-  main.variable(observer("verticalLine")).define("verticalLine", function(){return(
+)}
+
+function _verticalLine(){return(
 function(svg) {
   let l = svg.append("line");
   l
@@ -1561,8 +1650,9 @@ function(svg) {
     .attr("pointer-events", "none");
   return l;
 }
-)});
-  main.variable(observer("createLowerRightSVG")).define("createLowerRightSVG", ["rightSideWidth","brushHeight","minMax","brushHorizontal"], function(rightSideWidth,brushHeight,minMax,brushHorizontal){return(
+)}
+
+function _createLowerRightSVG(rightSideWidth,brushHeight,minMax,brushHorizontal){return(
 function(tableCell){
 
   
@@ -1585,8 +1675,9 @@ function(tableCell){
   brushHorizontalGroup.selectAll('rect').attr('height', brushHeight);
   return lowerRightSvg;
 }
-)});
-  main.variable(observer("createRightBrushGroupSVG")).define("createRightBrushGroupSVG", ["brushHeight","availableVertBrushHeight","vertPercentVisibleRows","brushVertical"], function(brushHeight,availableVertBrushHeight,vertPercentVisibleRows,brushVertical){return(
+)}
+
+function _createRightBrushGroupSVG(brushHeight,availableVertBrushHeight,vertPercentVisibleRows,brushVertical){return(
 function(tableCell){
 
   var rightBrushSvg = tableCell.append('svg')
@@ -1610,16 +1701,19 @@ function(tableCell){
   return rightBrushSvg;
   
 }
-)});
-  main.variable(observer("vertPercentVisibleRows")).define("vertPercentVisibleRows", function(){return(
+)}
+
+function _vertPercentVisibleRows(){return(
 function(){
   return 22/100;
 }
-)});
-  main.variable(observer()).define(["html"], function(html){return(
+)}
+
+function _86(html){return(
 html`<input id="aChartHorOffset" value="0">`
-)});
-  main.variable(observer("addVerticalCrosshair")).define("addVerticalCrosshair", ["verticalLine","d3"], function(verticalLine,d3){return(
+)}
+
+function _addVerticalCrosshair(verticalLine,d3){return(
 function(anElement) {
   let elementId = anElement._groups[0][0].id;
   if(elementId.includes('right')){
@@ -1636,8 +1730,9 @@ function(anElement) {
     // no crosshair
   }
 }
-)});
-  main.variable(observer("createOuterSvgEventHandlers")).define("createOuterSvgEventHandlers", ["barHeight","d3"], function(barHeight,d3){return(
+)}
+
+function _createOuterSvgEventHandlers(barHeight,d3){return(
 function(anElement){
 
   
@@ -1679,17 +1774,21 @@ function(anElement){
   
   return  0;
 }
-)});
-  main.variable(observer()).define(["tlConfig"], function(tlConfig){return(
+)}
+
+function _89(tlConfig){return(
 tlConfig.firmColors
-)});
-  main.variable(observer()).define(["getData"], function(getData){return(
+)}
+
+function _90(getData){return(
 getData()[0].events[0]
-)});
-  main.variable(observer("theAttrs")).define("theAttrs", ["tlConfig"], function(tlConfig){return(
+)}
+
+function _theAttrs(tlConfig){return(
 tlConfig.attrs
-)});
-  main.variable(observer("createEventElementGroups")).define("createEventElementGroups", ["tlConfig","trackHeight","minMax","stretcher","smartPixelScale","d3","hideSvgEventTooltip","mutable currentEventMousedOver","showSvgEventTooltip","setupEventContextMenu"], function(tlConfig,trackHeight,minMax,stretcher,smartPixelScale,d3,hideSvgEventTooltip,$0,showSvgEventTooltip,setupEventContextMenu){return(
+)}
+
+function _createEventElementGroups(tlConfig,trackHeight,minMax,stretcher,smartPixelScale,d3,hideSvgEventTooltip,$0,showSvgEventTooltip,setupEventContextMenu){return(
 function(eventGroups) {
   //console.log(`CEEG ${Date.now()}`);
 
@@ -1942,13 +2041,15 @@ function(eventGroups) {
 
   return eventElementGroups;
 }
-)});
-  main.variable(observer("clickEventSpaceBackground")).define("clickEventSpaceBackground", function(){return(
+)}
+
+function _clickEventSpaceBackground(){return(
 function handleMouseOver(event, d) {  // Add interactivity
   console.log('should deselect all rows?');
 }
-)});
-  main.variable(observer("createRightSVG")).define("createRightSVG", ["rightSideWidth","maxHeight","clickEventSpaceBackground","vb3"], function(rightSideWidth,maxHeight,clickEventSpaceBackground,vb3){return(
+)}
+
+function _createRightSVG(rightSideWidth,maxHeight,clickEventSpaceBackground,vb3){return(
 function(outerSvg) {
   var rightSVG = outerSvg.append('svg')
       .attr("id","rightSvgTimeline")
@@ -1975,14 +2076,17 @@ function(outerSvg) {
  // rightSVG.call(tool_tip);
   return rightSVG;  
 }
-)});
-  main.variable(observer("cellGroupingColorList")).define("cellGroupingColorList", function(){return(
+)}
+
+function _cellGroupingColorList(){return(
 ["red","blue","green","orange","cyan","yellow","black","gray","red","blue","green","orange","cyan","yellow","black","gray","red","blue","green","orange","cyan","yellow"]
-)});
-  main.variable(observer("cellAttrColorList")).define("cellAttrColorList", function(){return(
+)}
+
+function _cellAttrColorList(){return(
 ["orange","cyan","yellow","black","magenta","red","blue","green","purple","yellowgreen","orange","cyan","yellow","black","magenta","red","blue","green","purple","yellowgreen","orange","cyan","yellow","black","magenta","red","blue","green","purple","yellowgreen","orange","cyan","yellow","black","magenta","red","blue","green","purple","yellowgreen","orange","cyan","yellow","black","magenta","red","blue","green","purple","yellowgreen"]
-)});
-  main.variable(observer("createLeftSVG")).define("createLeftSVG", ["vb3","getData","barHeight","d3","clickIdGroup","fontSize","tlConfig","dataLoadedAction","cellAttrColorList","rawPatientsFromJson"], function(vb3,getData,barHeight,d3,clickIdGroup,fontSize,tlConfig,dataLoadedAction,cellAttrColorList,rawPatientsFromJson){return(
+)}
+
+function _createLeftSVG(vb3,getData,barHeight,d3,clickIdGroup,fontSize,tlConfig,dataLoadedAction,cellAttrColorList,rawPatientsFromJson){return(
 function(tableCell) {
   let cellWidth = 100; //100
   var leftSvg = tableCell.append('svg') 
@@ -2151,17 +2255,20 @@ function(tableCell) {
   leftSvg.attr("viewBox", `17 0 ${cellWidth} ${vb3}`) // ${vb1}
   return leftSvg;
 }
-)});
-  main.variable(observer("tool_tip")).define("tool_tip", ["d3Tip"], function(d3Tip){return(
+)}
+
+function _tool_tip(d3Tip){return(
 d3Tip()
       .attr("class", "tooltip-nowrap") //"d3-tip")
       .offset([-8, 0])
       .html(function(d) { return `ITEM ${d.p}_${d.i} ${d.start}-${d.end}`; })
-)});
-  main.variable(observer("margin")).define("margin", function(){return(
+)}
+
+function _margin(){return(
 {top: 20, right: 0, bottom: 100, left: 40}
-)});
-  main.variable(observer("showSvgEventTooltip")).define("showSvgEventTooltip", ["tool_tip","mutable tooltip"], function(tool_tip,$0){return(
+)}
+
+function _showSvgEventTooltip(tool_tip,$0){return(
 function(event){
   //log(`ITEM ${event.p}_${event.i} ${event.start}-${event.end}`);
   let dataAsStr = event.data;
@@ -2180,36 +2287,42 @@ function(event){
 
   
 }
-)});
-  main.variable(observer("hideSvgEventTooltip")).define("hideSvgEventTooltip", ["mutable tooltip","tool_tip"], function($0,tool_tip){return(
+)}
+
+function _hideSvgEventTooltip($0,tool_tip){return(
 function(){
   $0.value = '';
   tool_tip.hide
 }
-)});
-  main.variable(observer("generateAlignOptions")).define("generateAlignOptions", function(){return(
+)}
+
+function _generateAlignOptions(){return(
 function(_alignOptionsData, preferedSelection){
   let options = _alignOptionsData.map(v => `<option  value="${v}" ${ v == preferedSelection ? "selected" : ""}>${v}</option>`);
   return options;
 }
-)});
-  main.variable(observer("generateGroupingOptions")).define("generateGroupingOptions", function(){return(
+)}
+
+function _generateGroupingOptions(){return(
 function(_groupingOptionsData, preferedSelection){
   let options = _groupingOptionsData.map(v => `<option  value="${v}" ${ v == preferedSelection ? "selected" : ""}>${v}</option>`);
   return options;
 }
-)});
-  main.variable(observer("getData")).define("getData", ["transformData"], function(transformData){return(
+)}
+
+function _getData(transformData){return(
 function(){
   let result = transformData; 
   result.map((v,i) => v["originalOrderPos"] = i);
   return result; //.filter(v=>v.id=="a2-a04p" )
 }
-)});
-  main.variable(observer()).define(["transformData1"], function(transformData1){return(
+)}
+
+function _105(transformData1){return(
 transformData1.slice(0,4)
-)});
-  main.variable(observer("transformData1")).define("transformData1", ["loadedRawData","getEventStyle"], function(loadedRawData,getEventStyle){return(
+)}
+
+function _transformData1(loadedRawData,getEventStyle){return(
 loadedRawData.patients.map(u=> { 
   return {id: u[0].p, 
           events:  u.map((v,i) => {
@@ -2239,43 +2352,130 @@ loadedRawData.patients.map(u=> {
             }
           })
          }})
-)});
-  main.variable(observer()).define(["html"], function(html){return(
-html`<input id="aChartVertOffset" value="0">`
-)});
-  main.variable(observer("d3Tip")).define("d3Tip", ["require"], function(require){return(
-require("d3-tip")
-)});
-  main.variable(observer("l")).define("l", ["loadedRawData"], function(loadedRawData){return(
-loadedRawData.patients.slice(2,8)
-)});
-  main.variable(observer("minMax")).define("minMax", ["loadedRawData"], function(loadedRawData){return(
-loadedRawData.minMax
-)});
-  main.variable(observer("testSliceSizeForLoadedRawData")).define("testSliceSizeForLoadedRawData", function(){return(
-1000
-)});
-  main.variable(observer("loadedRawData")).define("loadedRawData", ["rawDataFromJson","testSliceSizeForLoadedRawData"], function(rawDataFromJson,testSliceSizeForLoadedRawData)
-{
-  let patientArray = rawDataFromJson.patients.slice(0, testSliceSizeForLoadedRawData) // 1000
-  .map(v => {
+)}
 
+function _107(html){return(
+html`<input id="aChartVertOffset" value="0">`
+)}
+
+function _d3Tip(require){return(
+require("d3-tip")
+)}
+
+function _l(loadedRawData){return(
+loadedRawData.patients.slice(2,8)
+)}
+
+function _minMax(loadedRawData){return(
+loadedRawData.minMax
+)}
+
+function _testSliceSizeForLoadedRawData(){return(
+10000
+)}
+
+function _numShmoopLoops(){return(
+10
+)}
+
+function _shmoop2(rawDataFromJson,numShmoopLoops)
+{
+   let basics = []
+   rawDataFromJson.patients.map( pEventList =>  {
+
+     for (let i = 0; i < numShmoopLoops; i++) {
+       let pMoreEvents = [];
+       let newEvents = []
+       pEventList.map(pel => {
+         //console.dir(pel)
+         let pelNew = { ...pel }
+         pelNew['p'] = (100+i)+"_"+pel['p']
+         pelNew['start'] = pelNew['start']+(i*3)
+         pelNew['end'] = pelNew['end']+(i*3)
+         newEvents.push(pelNew)
+       });
+       //console.log('neweventslen= ' + newEvents.length)
+       //console.dir(newEvents)
+       //console.log('after newevents')
+       pMoreEvents = pMoreEvents.concat(newEvents) //pEventList)
+       basics.push(pMoreEvents)
+   
+     }
+   
+   });
+
+   return basics
+ }
+
+
+function _shmoopPids(rawDataFromJson,numShmoopLoops)
+{
+   let pids = []
+   rawDataFromJson.patients.map( pEventList =>  {
+     for (let i = 0; i < numShmoopLoops; i++) {
+       let pid = (100+i)+"_"+pEventList[0]['p']
+       pids.push(pid)
+     }
+   });
+
+   return pids
+ }
+
+
+function _115(rawDataFromJson){return(
+rawDataFromJson.attrs
+)}
+
+function _loadedRawData(rawPatientsFromJson,rawDataFromJson,shmoop2,shmoopPids,testSliceSizeForLoadedRawData)
+{
+  let testPatientStuff= {
+    minMax: {min:-500, max:5000}, attrs:{pids: rawPatientsFromJson.map(v=>v.p), attrs:[]}
+  }
+  let thesePatients = []
+  let result = {}
+
+  let smallTest = true
+
+  if (smallTest){
+    console.log('===small test==')
+      console.dir(rawDataFromJson)
+    thesePatients = rawDataFromJson.patients
+    result = {
+      minMax: rawDataFromJson.minMax,
+      attrs: rawDataFromJson.attrs,
+    }
+  } else {
+    console.log('===large test==')
+      console.dir(rawDataFromJson)
+    thesePatients = shmoop2 //rawDataFromJson.patients
+    result = {
+      minMax: rawDataFromJson.minMax,
+      attrs: rawDataFromJson.attrs,
+    }
+    result.attrs.pids = shmoopPids
+  }
+
+  console.dir(thesePatients)
+  
+  let patientArray = thesePatients.slice(0, testSliceSizeForLoadedRawData) // 1000
+  .map(v => {
       return v;
     });
-  
-  
-  return {
-    minMax: rawDataFromJson.minMax,
-    attrs: rawDataFromJson.attrs,
-    patients: patientArray
-    
-    
-  }
+
+  result['patients'] = patientArray
+
+  return result
+  //return {
+    //minMax: rawDataFromJson.minMax, 
+  //  attrs: rawDataFromJson.attrs,
+  //  patients: patientArray
+  //}
 }
-);
-  main.variable(observer("rawDataFromJson")).define("rawDataFromJson", ["tinyEventData"], function(tinyEventData)
+
+
+function _rawDataFromJson(tinyEventData)
 {
-  let myUrl = "https://oncoscape-sites-dev.s3-us-west-2.amazonaws.com/TcgaGliomaEvents.json"
+  // let myUrl = "https://oncoscape-sites-dev.s3-us-west-2.amazonaws.com/TcgaGliomaEvents.json"
   // let url = "https://cors-anywhere.herokuapp.com/" + myUrl
   // let url = "http://thingproxy.freeboard.io/fetch/" + myUrl
   
@@ -2288,8 +2488,9 @@ loadedRawData.minMax
   //return loadedRawDataOriginalFromBrain; // !!! 
   return loadedJson;
 }
-);
-  main.variable(observer("loadedRawDataOriginalFromBrain")).define("loadedRawDataOriginalFromBrain", function(){return(
+
+
+function _loadedRawDataOriginalFromBrain(){return(
 JSON.parse(`{
   
   "minMax": {
@@ -3805,8 +4006,9 @@ JSON.parse(`{
     ]
      ]
 }`)
-)});
-  main.variable(observer("rawTlConfig")).define("rawTlConfig", function(){return(
+)}
+
+function _rawTlConfig(){return(
 JSON.parse(`{
     \"hasAppliedMetafileOverrides\": false,
     \"isScatterVisualization\": false,
@@ -3914,14 +4116,17 @@ JSON.parse(`{
         \"ctype\": 16384
     }
 }`)
-)});
-  main.variable(observer("dlaGroupableFields")).define("dlaGroupableFields", ["dataLoadedAction"], function(dataLoadedAction){return(
+)}
+
+function _dlaGroupableFields(dataLoadedAction){return(
 dataLoadedAction.fields.filter(v => v.type == "STRING").map(v => v.label)
-)});
-  main.variable(observer()).define(["dataLoadedAction"], function(dataLoadedAction){return(
+)}
+
+function _121(dataLoadedAction){return(
 dataLoadedAction.fields.filter(v => v.type == "STRING")
-)});
-  main.variable(observer("dataLoadedAction")).define("dataLoadedAction", function(){return(
+)}
+
+function _dataLoadedAction(){return(
 JSON.parse(`
 {
     "dataset": "tcga_brain",
@@ -4144,11 +4349,13 @@ JSON.parse(`
     "type": "[Data] Loaded"
 }
 `)
-)});
-  main.variable(observer("rawPatientsFromJson")).define("rawPatientsFromJson", ["reallyRawPatientsFromJson"], function(reallyRawPatientsFromJson){return(
+)}
+
+function _rawPatientsFromJson(reallyRawPatientsFromJson){return(
 reallyRawPatientsFromJson
-)});
-  main.variable(observer("old__reallyRawPatientsFromJson")).define("old__reallyRawPatientsFromJson", function()
+)}
+
+function _old__reallyRawPatientsFromJson()
 {
   //let loadedJson = await d3.json("https://cors-anywhere.herokuapp.com/https://oncoscape-sites-dev.s3-us-west-2.amazonaws.com/TcgaGliomaPatients.json");   
   let tinyPatientData = `
@@ -4192,11 +4399,13 @@ reallyRawPatientsFromJson
   let loadedJson = JSON.parse(tinyPatientData);
   return loadedJson;
 }
-);
-  main.variable(observer("reallyRawPatientsFromJson")).define("reallyRawPatientsFromJson", ["reallyRawPatient1","reallyRawPatient2"], function(reallyRawPatient1,reallyRawPatient2){return(
+
+
+function _reallyRawPatientsFromJson(reallyRawPatient1,reallyRawPatient2){return(
 JSON.parse(reallyRawPatient1).concat(JSON.parse(reallyRawPatient2))
-)});
-  main.variable(observer("reallyRawPatient1")).define("reallyRawPatient1", function(){return(
+)}
+
+function _reallyRawPatient1(){return(
 `
 [
 {
@@ -7344,8 +7553,9 @@ JSON.parse(reallyRawPatient1).concat(JSON.parse(reallyRawPatient2))
 "gender":"female"
 }]
 `
-)});
-  main.variable(observer("reallyRawPatient2")).define("reallyRawPatient2", function(){return(
+)}
+
+function _reallyRawPatient2(){return(
 `
 [{
 "p":"32-1978",
@@ -10871,8 +11081,9 @@ JSON.parse(reallyRawPatient1).concat(JSON.parse(reallyRawPatient2))
 }
 ]
 `
-)});
-  main.variable(observer("tinyEventData")).define("tinyEventData", function(){return(
+)}
+
+function _tinyEventData(){return(
 `{
   "minMax": {
     "min": -325,
@@ -10899,24 +11110,7 @@ JSON.parse(reallyRawPatient1).concat(JSON.parse(reallyRawPatient2))
         "originalIndex": 0,
         "color": 0
       },
-      {
-        "p": "06-0876",
-        "start": -87,
-        "end": 60,
-        "data": {
-          "response": "",
-          "type": "Chemotherapy",
-          "drug": "Temozolomide",
-          "total dose": " ",
-          "prescribed dose": " "
-        },
-        "type": "Treatment",
-        "subtype": "Drug",
-        "originalStart": -87,
-        "originalEnd": 60,
-        "originalIndex": 1,
-        "color": 3697840
-      },
+
       {
         "p": "06-0876",
         "start": 112,
@@ -13938,28 +14132,33 @@ JSON.parse(reallyRawPatient1).concat(JSON.parse(reallyRawPatient2))
     "attrs": []
   }
 }`
-)});
-  main.variable(observer("d3")).define("d3", ["require"], function(require){return(
+)}
+
+function _d3(require){return(
 require("d3@6")
-)});
-  main.variable(observer("leftPanelOffset")).define("leftPanelOffset", function(){return(
+)}
+
+function _leftPanelOffset(){return(
 0
-)});
-  main.variable(observer("barHeight")).define("barHeight", ["numTracks","trackHeight"], function(numTracks,trackHeight){return(
+)}
+
+function _barHeight(numTracks,trackHeight){return(
 numTracks * trackHeight
-)});
-  main.variable(observer("numTracks")).define("numTracks", ["tlConfig"], function(tlConfig){return(
+)}
+
+function _numTracks(tlConfig){return(
 Math.max(...tlConfig.bars.map(v=> v.row))+1
-)});
-  main.variable(observer("trackHeight")).define("trackHeight", ["dynamicTrackHeight"], function(dynamicTrackHeight){return(
+)}
+
+function _trackHeight(dynamicTrackHeight){return(
 dynamicTrackHeight
-)});
-  main.variable(observer("maxHeight")).define("maxHeight", function(){return(
+)}
+
+function _maxHeight(){return(
 1200
-)});
-  const child1 = runtime.module(define1);
-  main.import("slider", child1);
-  main.variable(observer("timelineModal")).define("timelineModal", function()
+)}
+
+function _timelineModal()
 {
   return null;
   /*
@@ -14001,23 +14200,28 @@ dynamicTrackHeight
   */
   
 }
-);
-  main.variable(observer()).define(["html"], function(html){return(
+
+
+function _137(html){return(
 html`<!--<code>css</code> <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">-->`
-)});
-  main.variable(observer()).define(["html"], function(html){return(
+)}
+
+function _138(html){return(
 html`<code>fontawesome</code> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous">`
-)});
-  main.variable(observer("$")).define("$", ["require"], function(require){return(
+)}
+
+function _$(require){return(
 require('jquery').then(jquery => {
   window.jquery = jquery;
   return require('popper@1.0.1/index.js').catch(() => jquery);
 })
-)});
-  main.variable(observer("Popper")).define("Popper", ["require"], function(require){return(
+)}
+
+function _Popper(require){return(
 require("https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js")
-)});
-  main.variable(observer("font")).define("font", ["html"], function(html)
+)}
+
+function _font(html)
 { return html`
 <hr>
 <link rel="stylesheet">
@@ -14120,7 +14324,13 @@ timeline-svg-id-attr-rect {
   fill: blue;
 }
 
+.timeline-svg-id-rect-sortfailure {
+  fill:   #CCCCCC;
+}
 
+.timeline-svg-id-rect-selected.timeline-svg-id-rect-sortfailure {
+  fill:   #273187;
+}
 
 .timeline-eventbar-hover {
   fill: #CCEEFF; 
@@ -14166,6 +14376,164 @@ timeline-svg-id-attr-rect {
 </style>StyleInfo
 `
 }
-);
+
+
+export default function define(runtime, observer) {
+  const main = runtime.module();
+  main.variable(observer()).define(["md"], _1);
+  main.variable(observer()).define(["md"], _2);
+  main.variable(observer("miniButtonStyle")).define("miniButtonStyle", ["html"], _miniButtonStyle);
+  main.variable(observer()).define(["minMax"], _4);
+  main.variable(observer("maxLogNegativeArea")).define("maxLogNegativeArea", ["minMax"], _maxLogNegativeArea);
+  main.variable(observer("maxLogPositiveArea")).define("maxLogPositiveArea", ["minMax"], _maxLogPositiveArea);
+  main.variable(observer("totalLogArea")).define("totalLogArea", ["maxLogNegativeArea","maxLogPositiveArea"], _totalLogArea);
+  main.variable(observer("pixelsForLogNegativeArea")).define("pixelsForLogNegativeArea", ["rightSideWidth","maxLogNegativeArea","totalLogArea"], _pixelsForLogNegativeArea);
+  main.variable(observer("logScaleFunction")).define("logScaleFunction", ["rightLogScale","pixelsForLogNegativeArea","leftLogScale"], _logScaleFunction);
+  main.variable(observer("smartPixelScale")).define("smartPixelScale", ["use_logscale","logScaleFunction"], _smartPixelScale);
+  main.variable(observer("rightSvgStraightScale")).define("rightSvgStraightScale", ["use_logscale","d3","minMax","pixelsForLogNegativeArea","getStretcherVal","rightSideWidth"], _rightSvgStraightScale);
+  main.variable(observer("leftLogScale")).define("leftLogScale", ["d3","minMax","pixelsForLogNegativeArea"], _leftLogScale);
+  main.variable(observer("rightLogScale")).define("rightLogScale", ["d3","minMax","pixelsForLogNegativeArea","rightSideWidth"], _rightLogScale);
+  main.variable(observer("brushHorizontal")).define("brushHorizontal", ["d3","rightSideWidth","brushHeight","brushedHorizontal"], _brushHorizontal);
+  main.variable(observer("viewof dynamicTrackHeight")).define("viewof dynamicTrackHeight", ["html"], _dynamicTrackHeight);
+  main.variable(observer("dynamicTrackHeight")).define("dynamicTrackHeight", ["Generators", "viewof dynamicTrackHeight"], (G, _) => G.input(_));
+  main.variable(observer()).define(["useMultipleTracks"], _16);
+  main.variable(observer("viewof useMultipleTracks")).define("viewof useMultipleTracks", ["html"], _useMultipleTracks);
+  main.variable(observer("useMultipleTracks")).define("useMultipleTracks", ["Generators", "viewof useMultipleTracks"], (G, _) => G.input(_));
+  main.variable(observer()).define(["use_logscale"], _18);
+  main.variable(observer("viewof use_logscale")).define("viewof use_logscale", ["html"], _use_logscale);
+  main.variable(observer("use_logscale")).define("use_logscale", ["Generators", "viewof use_logscale"], (G, _) => G.input(_));
+  main.define("initial rowSelectionChangedCounter", _rowSelectionChangedCounter);
+  main.variable(observer("mutable rowSelectionChangedCounter")).define("mutable rowSelectionChangedCounter", ["Mutable", "initial rowSelectionChangedCounter"], (M, _) => new M(_));
+  main.variable(observer("rowSelectionChangedCounter")).define("rowSelectionChangedCounter", ["mutable rowSelectionChangedCounter"], _ => _.generator);
+  main.variable(observer("currentSelectionLinkedToCounter")).define("currentSelectionLinkedToCounter", ["d3"], _currentSelectionLinkedToCounter);
+  main.variable(observer("onOncoscapeEventClicked")).define("onOncoscapeEventClicked", _onOncoscapeEventClicked);
+  main.variable(observer("onOncoscapeRowSelectionChanged")).define("onOncoscapeRowSelectionChanged", _onOncoscapeRowSelectionChanged);
+  main.variable(observer("onOncoscapeIdGroupClicked")).define("onOncoscapeIdGroupClicked", _onOncoscapeIdGroupClicked);
+  main.variable(observer("onOncoscapeCreateCohortFromTimelineSelection")).define("onOncoscapeCreateCohortFromTimelineSelection", _onOncoscapeCreateCohortFromTimelineSelection);
+  main.variable(observer("setupEventPlaceholders")).define("setupEventPlaceholders", ["onOncoscapeEventClicked","onOncoscapeRowSelectionChanged","onOncoscapeIdGroupClicked","onOncoscapeCreateCohortFromTimelineSelection"], _setupEventPlaceholders);
+  main.variable(observer("viewof stretcher")).define("viewof stretcher", ["html"], _stretcher);
+  main.variable(observer("stretcher")).define("stretcher", ["Generators", "viewof stretcher"], (G, _) => G.input(_));
+  main.variable(observer("viewof sortTools")).define("viewof sortTools", ["eventTypes","eventTypeForDiagnosis","html","generateAlignOptions","eventTypeForDeath","d3","processSort","processAlignment","generateGroupingOptions","dlaGroupableFields","processGrouping"], _sortTools);
+  main.variable(observer("sortTools")).define("sortTools", ["Generators", "viewof sortTools"], (G, _) => G.input(_));
+  main.define("initial tooltip", _tooltip);
+  main.variable(observer("mutable tooltip")).define("mutable tooltip", ["Mutable", "initial tooltip"], (M, _) => new M(_));
+  main.variable(observer("tooltip")).define("tooltip", ["mutable tooltip"], _ => _.generator);
+  main.variable(observer()).define(["transformData"], _31);
+  main.variable(observer("svgTable")).define("svgTable", ["d3","html","miniBtnView","createLeftSVG","createRightSVG","createLowerRightSVG","createUpperRightSVG","createOuterSvgEventHandlers","stretcher","getData","barHeight","mousemoveEventSpaceBackground","mouseoverEventSpaceBackground","mouseoutEventSpaceBackground","clickIdGroup","smartPixelScale","numTracks","trackHeight","createEventElementGroups","addVerticalCrosshair","recalcVertScrollbarDiv","processSort","setupEventPlaceholders"], _svgTable);
+  main.variable(observer("processSort")).define("processSort", ["d3","barHeight"], _processSort);
+  main.variable(observer("arrayIdsToSelect")).define("arrayIdsToSelect", _arrayIdsToSelect);
+  main.variable(observer("rowIdToSelect")).define("rowIdToSelect", _rowIdToSelect);
+  main.define("initial currentEventMousedOver", _currentEventMousedOver);
+  main.variable(observer("mutable currentEventMousedOver")).define("mutable currentEventMousedOver", ["Mutable", "initial currentEventMousedOver"], (M, _) => new M(_));
+  main.variable(observer("currentEventMousedOver")).define("currentEventMousedOver", ["mutable currentEventMousedOver"], _ => _.generator);
+  main.variable(observer("processAlignment")).define("processAlignment", ["d3","smartPixelScale","stretcher","barHeight","svgTable"], _processAlignment);
+  main.variable(observer("miniBtnStyle")).define("miniBtnStyle", ["html"], _miniBtnStyle);
+  main.variable(observer("miniBtnView")).define("miniBtnView", ["html","miniBtnCmds","d3","pbcopy","selectAllRows","updateRowSelectionChangedCounter","requestCreateCohortFromTimelineSelection"], _miniBtnView);
+  main.variable(observer("miniBtnCmds")).define("miniBtnCmds", _miniBtnCmds);
+  main.variable(observer("pbcopy")).define("pbcopy", _pbcopy);
+  main.variable(observer("clickIdGroup")).define("clickIdGroup", ["selectAllRows","d3","findFirstSelectedIdAbove","selectRowById","updateRowSelectionChangedCounter"], _clickIdGroup);
+  main.variable(observer("updateRowSelectionChangedCounter")).define("updateRowSelectionChangedCounter", ["mutable rowSelectionChangedCounter"], _updateRowSelectionChangedCounter);
+  main.variable(observer("requestCreateCohortFromTimelineSelection")).define("requestCreateCohortFromTimelineSelection", _requestCreateCohortFromTimelineSelection);
+  main.variable(observer("processExternalArrayIdsToSelect")).define("processExternalArrayIdsToSelect", ["arrayIdsToSelect","selectAllRows","selectRowById"], _processExternalArrayIdsToSelect);
+  main.variable(observer("processExternalRowSelect")).define("processExternalRowSelect", ["rowIdToSelect","selectAllRows","selectRowById"], _processExternalRowSelect);
+  main.variable(observer("selectRowById")).define("selectRowById", ["d3"], _selectRowById);
+  main.variable(observer("findFirstSelectedIdAbove")).define("findFirstSelectedIdAbove", ["d3"], _findFirstSelectedIdAbove);
+  main.variable(observer("selectAllRows")).define("selectAllRows", ["d3"], _selectAllRows);
+  main.variable(observer("horizontalBrushScale")).define("horizontalBrushScale", ["d3","rightSideWidth","minMax"], _horizontalBrushScale);
+  main.variable(observer("popupPatientData")).define("popupPatientData", _popupPatientData);
+  main.variable(observer("brushedHorizontal")).define("brushedHorizontal", ["horizontalBrushScale","getStretcherVal","d3"], _brushedHorizontal);
+  main.variable(observer()).define(["tlConfig"], _53);
+  main.variable(observer("getEventStyle")).define("getEventStyle", ["tlConfig"], _getEventStyle);
+  main.define("initial lastGroupedByField", _lastGroupedByField);
+  main.variable(observer("mutable lastGroupedByField")).define("mutable lastGroupedByField", ["Mutable", "initial lastGroupedByField"], (M, _) => new M(_));
+  main.variable(observer("lastGroupedByField")).define("lastGroupedByField", ["mutable lastGroupedByField"], _ => _.generator);
+  main.variable(observer("processGrouping")).define("processGrouping", ["d3","mutable lastGroupedByField","dataLoadedAction","rawPatientsFromJson","updateGroupingRects","processSort"], _processGrouping);
+  main.variable(observer("updateGroupingRects")).define("updateGroupingRects", ["d3","mutable lastGroupedByField","dataLoadedAction","cellGroupingColorList"], _updateGroupingRects);
+  main.variable(observer("eventTypeForDeath")).define("eventTypeForDeath", ["eventTypes"], _eventTypeForDeath);
+  main.variable(observer()).define(["eventTypes"], _59);
+  main.variable(observer("popupEventData")).define("popupEventData", ["getData"], _popupEventData);
+  main.variable(observer("setupEventContextMenu")).define("setupEventContextMenu", ["popupEventData"], _setupEventContextMenu);
+  main.variable(observer("eventTypeForDiagnosis")).define("eventTypeForDiagnosis", ["eventTypes"], _eventTypeForDiagnosis);
+  main.variable(observer("getStretcherVal")).define("getStretcherVal", ["stretcher"], _getStretcherVal);
+  main.variable(observer("tlConfig")).define("tlConfig", ["computeTlConfig"], _tlConfig);
+  main.variable(observer("computeTlConfig")).define("computeTlConfig", ["rawTlConfig","useMultipleTracks"], _computeTlConfig);
+  main.variable(observer("createUpperRightSVG")).define("createUpperRightSVG", ["rightSideWidth","rightSvgStraightScale","d3","use_logscale","getStretcherVal"], _createUpperRightSVG);
+  main.variable(observer("rightSideWidth")).define("rightSideWidth", _rightSideWidth);
+  main.variable(observer("viewof vb3")).define("viewof vb3", ["slider","maxHeight"], _vb3);
+  main.variable(observer("vb3")).define("vb3", ["Generators", "viewof vb3"], (G, _) => G.input(_));
+  main.variable(observer("mouseoverEventSpaceBackground")).define("mouseoverEventSpaceBackground", ["d3"], _mouseoverEventSpaceBackground);
+  main.variable(observer("mouseoutEventSpaceBackground")).define("mouseoutEventSpaceBackground", ["d3"], _mouseoutEventSpaceBackground);
+  main.variable(observer("stretcherCurrentVal")).define("stretcherCurrentVal", ["stretcher"], _stretcherCurrentVal);
+  main.variable(observer("eventTypes")).define("eventTypes", ["dataLoadedAction"], _eventTypes);
+  main.variable(observer()).define(["dataLoadedAction"], _73);
+  main.variable(observer("brushedVertical")).define("brushedVertical", ["availableVertBrushHeight","d3"], _brushedVertical);
+  main.variable(observer("recalcVertScrollbarDiv")).define("recalcVertScrollbarDiv", ["barHeight"], _recalcVertScrollbarDiv);
+  main.variable(observer("fontSize")).define("fontSize", ["barHeight"], _fontSize);
+  main.variable(observer("mousemoveEventSpaceBackground")).define("mousemoveEventSpaceBackground", ["d3"], _mousemoveEventSpaceBackground);
+  main.variable(observer("brushHeight")).define("brushHeight", _brushHeight);
+  main.variable(observer("brushVertical")).define("brushVertical", ["d3","brushHeight","availableVertBrushHeight","brushedVertical"], _brushVertical);
+  main.variable(observer("availableVertBrushHeight")).define("availableVertBrushHeight", _availableVertBrushHeight);
+  main.variable(observer("transformData")).define("transformData", ["transformData1"], _transformData);
+  main.variable(observer("verticalLine")).define("verticalLine", _verticalLine);
+  main.variable(observer("createLowerRightSVG")).define("createLowerRightSVG", ["rightSideWidth","brushHeight","minMax","brushHorizontal"], _createLowerRightSVG);
+  main.variable(observer("createRightBrushGroupSVG")).define("createRightBrushGroupSVG", ["brushHeight","availableVertBrushHeight","vertPercentVisibleRows","brushVertical"], _createRightBrushGroupSVG);
+  main.variable(observer("vertPercentVisibleRows")).define("vertPercentVisibleRows", _vertPercentVisibleRows);
+  main.variable(observer()).define(["html"], _86);
+  main.variable(observer("addVerticalCrosshair")).define("addVerticalCrosshair", ["verticalLine","d3"], _addVerticalCrosshair);
+  main.variable(observer("createOuterSvgEventHandlers")).define("createOuterSvgEventHandlers", ["barHeight","d3"], _createOuterSvgEventHandlers);
+  main.variable(observer()).define(["tlConfig"], _89);
+  main.variable(observer()).define(["getData"], _90);
+  main.variable(observer("theAttrs")).define("theAttrs", ["tlConfig"], _theAttrs);
+  main.variable(observer("createEventElementGroups")).define("createEventElementGroups", ["tlConfig","trackHeight","minMax","stretcher","smartPixelScale","d3","hideSvgEventTooltip","mutable currentEventMousedOver","showSvgEventTooltip","setupEventContextMenu"], _createEventElementGroups);
+  main.variable(observer("clickEventSpaceBackground")).define("clickEventSpaceBackground", _clickEventSpaceBackground);
+  main.variable(observer("createRightSVG")).define("createRightSVG", ["rightSideWidth","maxHeight","clickEventSpaceBackground","vb3"], _createRightSVG);
+  main.variable(observer("cellGroupingColorList")).define("cellGroupingColorList", _cellGroupingColorList);
+  main.variable(observer("cellAttrColorList")).define("cellAttrColorList", _cellAttrColorList);
+  main.variable(observer("createLeftSVG")).define("createLeftSVG", ["vb3","getData","barHeight","d3","clickIdGroup","fontSize","tlConfig","dataLoadedAction","cellAttrColorList","rawPatientsFromJson"], _createLeftSVG);
+  main.variable(observer("tool_tip")).define("tool_tip", ["d3Tip"], _tool_tip);
+  main.variable(observer("margin")).define("margin", _margin);
+  main.variable(observer("showSvgEventTooltip")).define("showSvgEventTooltip", ["tool_tip","mutable tooltip"], _showSvgEventTooltip);
+  main.variable(observer("hideSvgEventTooltip")).define("hideSvgEventTooltip", ["mutable tooltip","tool_tip"], _hideSvgEventTooltip);
+  main.variable(observer("generateAlignOptions")).define("generateAlignOptions", _generateAlignOptions);
+  main.variable(observer("generateGroupingOptions")).define("generateGroupingOptions", _generateGroupingOptions);
+  main.variable(observer("getData")).define("getData", ["transformData"], _getData);
+  main.variable(observer()).define(["transformData1"], _105);
+  main.variable(observer("transformData1")).define("transformData1", ["loadedRawData","getEventStyle"], _transformData1);
+  main.variable(observer()).define(["html"], _107);
+  main.variable(observer("d3Tip")).define("d3Tip", ["require"], _d3Tip);
+  main.variable(observer("l")).define("l", ["loadedRawData"], _l);
+  main.variable(observer("minMax")).define("minMax", ["loadedRawData"], _minMax);
+  main.variable(observer("testSliceSizeForLoadedRawData")).define("testSliceSizeForLoadedRawData", _testSliceSizeForLoadedRawData);
+  main.variable(observer("numShmoopLoops")).define("numShmoopLoops", _numShmoopLoops);
+  main.variable(observer("shmoop2")).define("shmoop2", ["rawDataFromJson","numShmoopLoops"], _shmoop2);
+  main.variable(observer("shmoopPids")).define("shmoopPids", ["rawDataFromJson","numShmoopLoops"], _shmoopPids);
+  main.variable(observer()).define(["rawDataFromJson"], _115);
+  main.variable(observer("loadedRawData")).define("loadedRawData", ["rawPatientsFromJson","rawDataFromJson","shmoop2","shmoopPids","testSliceSizeForLoadedRawData"], _loadedRawData);
+  main.variable(observer("rawDataFromJson")).define("rawDataFromJson", ["tinyEventData"], _rawDataFromJson);
+  main.variable(observer("loadedRawDataOriginalFromBrain")).define("loadedRawDataOriginalFromBrain", _loadedRawDataOriginalFromBrain);
+  main.variable(observer("rawTlConfig")).define("rawTlConfig", _rawTlConfig);
+  main.variable(observer("dlaGroupableFields")).define("dlaGroupableFields", ["dataLoadedAction"], _dlaGroupableFields);
+  main.variable(observer()).define(["dataLoadedAction"], _121);
+  main.variable(observer("dataLoadedAction")).define("dataLoadedAction", _dataLoadedAction);
+  main.variable(observer("rawPatientsFromJson")).define("rawPatientsFromJson", ["reallyRawPatientsFromJson"], _rawPatientsFromJson);
+  main.variable(observer("old__reallyRawPatientsFromJson")).define("old__reallyRawPatientsFromJson", _old__reallyRawPatientsFromJson);
+  main.variable(observer("reallyRawPatientsFromJson")).define("reallyRawPatientsFromJson", ["reallyRawPatient1","reallyRawPatient2"], _reallyRawPatientsFromJson);
+  main.variable(observer("reallyRawPatient1")).define("reallyRawPatient1", _reallyRawPatient1);
+  main.variable(observer("reallyRawPatient2")).define("reallyRawPatient2", _reallyRawPatient2);
+  main.variable(observer("tinyEventData")).define("tinyEventData", _tinyEventData);
+  main.variable(observer("d3")).define("d3", ["require"], _d3);
+  main.variable(observer("leftPanelOffset")).define("leftPanelOffset", _leftPanelOffset);
+  main.variable(observer("barHeight")).define("barHeight", ["numTracks","trackHeight"], _barHeight);
+  main.variable(observer("numTracks")).define("numTracks", ["tlConfig"], _numTracks);
+  main.variable(observer("trackHeight")).define("trackHeight", ["dynamicTrackHeight"], _trackHeight);
+  main.variable(observer("maxHeight")).define("maxHeight", _maxHeight);
+  const child1 = runtime.module(define1);
+  main.import("slider", child1);
+  main.variable(observer("timelineModal")).define("timelineModal", _timelineModal);
+  main.variable(observer()).define(["html"], _137);
+  main.variable(observer()).define(["html"], _138);
+  main.variable(observer("$")).define("$", ["require"], _$);
+  main.variable(observer("Popper")).define("Popper", ["require"], _Popper);
+  main.variable(observer("font")).define("font", ["html"], _font);
   return main;
 }

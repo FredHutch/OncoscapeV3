@@ -409,7 +409,7 @@ export class SvgTimelinesGraph extends AbstractVisualization {
     */
   }
 
-  updateObservableBitsIfReady(config: GraphConfig, data: any){
+  updateObservableBitsIfReady(config: GraphConfig, data: any){ 
     let self = this;
     let ready =  OncoData.instance.currentCommonSidePanel && OncoData.instance.currentCommonSidePanel.commonSidePanelModel.patientData;
 
@@ -418,10 +418,13 @@ export class SvgTimelinesGraph extends AbstractVisualization {
       self.observableRuntimeModule.redefine("dataLoadedAction", function(){
         return OncoData.instance.dataLoadedAction;
       });
-
+      let oldDataResult = { ...data.result};
+      oldDataResult.patients = oldDataResult.patients.map(v=> v.events);
+      let pidsInOrder =  data.result.patients.map(v=>v.pid); //  OncoData.instance.currentCommonSidePanel.commonSidePanelModel.patientData.map(v => v.p);
+     
       self.observableRuntimeModule.redefine("tlConfig", self.config);
       self.observableRuntimeModule.redefine("rawPatientsFromJson", OncoData.instance.currentCommonSidePanel.commonSidePanelModel.patientData);
-      self.observableRuntimeModule.redefine("loadedRawData", data.result);
+      self.observableRuntimeModule.redefine("loadedRawData", oldDataResult); // New data.result went from straight evnets to {events:x, pid:y}, so we revert here.
 
       self.observableRuntimeModule.redefine("eventTypes",
         OncoData.instance.dataLoadedAction.events.map(v => `${v.type}:${v.subtype}`).sort()
@@ -430,11 +433,10 @@ export class SvgTimelinesGraph extends AbstractVisualization {
 
       console.log('>> In updateObservableBitsIfReady, build clickedPidsPerEvent')
 
-      let pidsInOrder = OncoData.instance.currentCommonSidePanel.commonSidePanelModel.patientData.map(v => v.p);
       let clickedPidsPerEvent = {}
       window['clickedPidsPerEvent'] = null;
       let pidIndex = 0;
-      data.result.patients.map( eventsThisPatient => {
+      oldDataResult.patients.map( eventsThisPatient => {
         // For each event, add it to entry type:subtype set, create set if  doesn't exist first.
         eventsThisPatient.map(e => {
           let typeSubtype = (e.type + ":" + e.subtype).toLowerCase();

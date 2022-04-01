@@ -354,7 +354,8 @@ export const timelinesCompute = (config: TimelinesConfigModel, worker: Dedicated
         patients = Object.keys(patients).map(key => ({
             sort: patients[key].hasOwnProperty('sort') ? patients[key].sort : null,
             group: patients[key].hasOwnProperty('group') ? patients[key]['group'] : null,
-            events: patients[key]
+            events: patients[key],
+            pid: key
         }));
         if (config.sort.label !== 'None') {
             // patients = patients.filter(p => p.sort !== null);
@@ -368,7 +369,9 @@ export const timelinesCompute = (config: TimelinesConfigModel, worker: Dedicated
             patients = _.groupBy(patients, 'group');
             patients = Object.keys(patients).reduce((p, c) => p.concat(patients[c]), []);
         }
-        patients = patients.map(patient => patient.events);
+        patients = patients.map(patient => {
+            return {events: patient.events, pid: patient.pid}
+        });
 
         // Determine Min + Max "Dates"
         const minMax = eventData.reduce((p, c) => {
