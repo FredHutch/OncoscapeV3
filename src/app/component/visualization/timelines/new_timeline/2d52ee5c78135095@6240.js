@@ -1788,260 +1788,288 @@ function _theAttrs(tlConfig){return(
 tlConfig.attrs
 )}
 
-function _createEventElementGroups(tlConfig,trackHeight,minMax,stretcher,smartPixelScale,d3,hideSvgEventTooltip,$0,showSvgEventTooltip,setupEventContextMenu){return(
-function(eventGroups) {
-  //console.log(`CEEG ${Date.now()}`);
+function _createEventElementGroups(tlConfig, trackHeight, minMax, stretcher, smartPixelScale, d3, hideSvgEventTooltip, $0, showSvgEventTooltip, setupEventContextMenu) {
+  return (
+      function (eventGroups) {
+      console.log(`CEEG start ${Date.now()}`);
 
-  // Map event "Radiation" to track "1" (0-based). Tells us the Y offset to draw in.
-  let eventTrackYOffsetMap = new Map();
-  tlConfig.bars.map(b => {
-    b.events.map(e => {
-      eventTrackYOffsetMap.set(e.toLowerCase(), b.row * trackHeight); // here "row" from config's bar is same as "track". 
-    });
-  });
-  /*
-  function logMapElements(value, key, map) {
-    console.log(`map.get('${key}') = ${value}`)
-  }
-  eventTrackYOffsetMap.forEach(logMapElements)
-  console.log('end of eventTrakYOffsetMap')
-  */
-  
-  let eventElementGroups =  eventGroups.selectAll('g events')  
-  .data(function(d,i){return d.events})
-  .enter()
-  .append('g')
-  .classed('events', true); 
-
-  
-  let maxiMin = minMax.max - minMax.min; 
-  let stretcherVal = stretcher;
-
-  // use smartPixelScale to compute start and end pixels.
-  //let smartPixelStart = smartPixelScale()
-  
-  // We need a new map to turn the Oncoscape/three.js integer colors into web colors.
-  let firmColorKeys = Object.keys(tlConfig.firmColors);
-  let firmColorsSet = new Set(firmColorKeys);
-  let firmColorsMap = new Map();
-  firmColorKeys.map(v => {
-    let newColor = '#' + ("000000"+(tlConfig.firmColors[v]).toString(16)).slice(-6);
-    // console.log(`${v}, pre:${tlConfig.firmColors[v+""]} post:${newColor}`);
-    firmColorsMap.set(v, newColor);
-  });
-  
-  function properColorFromD(d) {
-      // see if type is in tlConfig.firmColors.
-      let lookupType =d.subtype.toLowerCase();
-      if(firmColorsSet.has(lookupType)){
-        let c = firmColorsMap.get(lookupType);
-        //console.log('firm color ' + c); //     +", lt=" + lookupType);
-        return c;
-      } else {
-        console.log(`no firm for [${lookupType}]`);
-        return d.color 
+      // Map event "Radiation" to track "1" (0-based). Tells us the Y offset to draw in.
+      let eventTrackYOffsetMap = new Map();
+      tlConfig.bars.map(b => {
+          b.events.map(e => {
+              eventTrackYOffsetMap.set(e.toLowerCase(), b.row * trackHeight); // here "row" from config's bar is same as "track".
+          });
+      });
+      /*
+      function logMapElements(value, key, map) {
+      console.log(`map.get('${key}') = ${value}`)
       }
-  }
-  
-  // Create groups for bars or arcs
-  let barsOrArcs = eventElementGroups
-    .filter(function(d) { return (d.dateError == false) && (d.style =="Bars" || d.style == "Arcs")})
-    .sort(function(a, b) {
-       return b.end - a.end;  // reverse sort: first event to end is last to be drawn, on top.
-     })
-    .filter(function(d) { 
-      if (d.end == d.start) {
-        d["barArcWidth"] = 1;
-      } else {
-        let expectedW = (smartPixelScale(d.end) - smartPixelScale(d.start)) * stretcherVal;
-        if(expectedW < 0) {
-          expectedW = 2; // !!! TBD - fix cause of negative width.
-        }
-        d["barArcWidth"] = expectedW; 
+      eventTrackYOffsetMap.forEach(logMapElements)
+      console.log('end of eventTrakYOffsetMap')
+       */
+
+      let eventElementGroups = eventGroups.selectAll('g events')
+          .data(function (d, i) {
+              return d.events
+          })
+          .enter()
+          .append('g')
+          .classed('events', true);
+
+      let maxiMin = minMax.max - minMax.min;
+      let stretcherVal = stretcher;
+
+      // use smartPixelScale to compute start and end pixels.
+      //let smartPixelStart = smartPixelScale()
+
+      // We need a new map to turn the Oncoscape/three.js integer colors into web colors.
+      let firmColorKeys = Object.keys(tlConfig.firmColors);
+      let firmColorsSet = new Set(firmColorKeys);
+      let firmColorsMap = new Map();
+      firmColorKeys.map(v => {
+          let newColor = '#' + ("000000" + (tlConfig.firmColors[v]).toString(16)).slice(-6);
+          // console.log(`${v}, pre:${tlConfig.firmColors[v+""]} post:${newColor}`);
+          firmColorsMap.set(v, newColor);
+      });
+
+      function properColorFromD(d) {
+          // see if type is in tlConfig.firmColors.
+          let lookupType = d.subtype.toLowerCase();
+          if (firmColorsSet.has(lookupType)) {
+              let c = firmColorsMap.get(lookupType);
+              //console.log('firm color ' + c); //     +", lt=" + lookupType);
+              return c;
+          } else {
+              console.log(`no firm for [${lookupType}]`);
+              return d.color
+          }
       }
-      return d;
-    })
-    .classed("g-bars-arcs", true);
-  
-  // Add bars
-  let barGroups = barsOrArcs
-    .filter(function(d) { return d.style =="Bars" });
-  barGroups.classed("g-bars", true).raise();
-  barGroups
-    .append('rect')
-    .attr("idDataForSvg", (d)=> { return d.idDataForSvg })  
-    .attr("fill", (d)=> {  
-      return properColorFromD(d);
-    }) 
-  .filter(function(d) {
-    // console.log(`${d.subtype}=> map ${eventTrackYOffsetMap.get(d.subtype)}`);
-  return true;
-})
-    .attr("transform", (d,i)=> `translate(${1+ Math.min(maxiMin, smartPixelScale(d.start) * stretcherVal)}, ${eventTrackYOffsetMap.get(d.subtype.toLowerCase())})`)
-    .attr("x", (d,i)=> 0)
-    .attr("y", (d,i)=> trackHeight * 0.3)
-    .attr("rx", 3)
-    .attr("width", (d)=> {
-      return d["barArcWidth"];  // already scaled for log if needed, above.
-    })
-    .attr("height", trackHeight * 0.4);
-    
 
-  // Add arcs
-  let arcMidpointHeight = trackHeight * 0.9;
-  let arcGroups = barsOrArcs
-    .filter(function(d) { return d.style =="Arcs" });
-  arcGroups.classed("g-arcs", true).raise();
-  arcGroups
-    .append('path')
-    .attr("idDataForSvg", (d)=> { return d.idDataForSvg }) 
-    .attr('fill', 'none')
-    .attr("stroke", (d)=> {  
-      return properColorFromD(d);
-    }) 
-    .attr('d', (d) => { return `M 0,${arcMidpointHeight + eventTrackYOffsetMap.get(d.subtype.toLowerCase()) } S ${d["barArcWidth"] / 2},${eventTrackYOffsetMap.get(d.subtype.toLowerCase()) -arcMidpointHeight},${d["barArcWidth"]},${arcMidpointHeight + eventTrackYOffsetMap.get(d.subtype.toLowerCase()) }`})
-    .attr("transform", (d,i)=> `translate(${1+ Math.min(maxiMin, smartPixelScale(d.start) * stretcherVal)}, 0)`);
-  
-  let subtypeToShapeMap = new Map();
-  tlConfig.bars.map(bar => {
-    bar.events.map(e => {
-      subtypeToShapeMap.set(e.toLowerCase(), bar.shape ? bar.shape.toLowerCase() : "circle");
-    });
-  });
-  
-  // Good symbols
-  let allGoodSymbols = eventElementGroups
-    .filter(function(d) {
-      return  (d.dateError == false) && (d.style =="Symbols") && (d.start == d.end);
-    })
-    .filter(function(d) {
-      // If no shape property exists, default to circle.
-      // Do this mapping once and store it, as we'll check it several times.
-      d.shapeForSubtype = subtypeToShapeMap.get(d.subtype.toLowerCase());
-      return d;
-    })
-  .filter(function(d) {
-    // console.log(`SYMBOL ${d.subtype}=>   ${d.shapeForSubtype}`);
-  return true;
-})
-    .classed("actualGoodSymbols", true)
-    .raise();
-  
-  // add circles
-  allGoodSymbols
-    .filter(function(d) {
-      return (d.shapeForSubtype == "circle"); //  (subtypeToShapeMap.get(d.subtype.toLowerCase()) == "circle");
-    })
-    .append('circle')
-    .attr('idDataForSvg', (d)=> { return d.idDataForSvg })  
-    .attr("fill", (d)=> {  
-      return properColorFromD(d);
-    }) 
-    .attr("transform", (d,i)=> `translate(${Math.min(maxiMin, smartPixelScale(d.start))*stretcherVal}, 0)`)
-    .attr("cx", (d,i)=> 0)
-    .attr("cy", (d,i)=> eventTrackYOffsetMap.get(d.subtype.toLowerCase()) + trackHeight * 0.5) 
-    .attr("r", trackHeight * 0.35)
-    .attr("height", trackHeight * 0.2);
+      // Create groups for bars or arcs
+      let barsOrArcs = eventElementGroups
+          .filter(function (d) {
+              return (d.dateError == false) && (d.style == "Bars" || d.style == "Arcs")
+          })
+          .sort(function (a, b) {
+              return b.end - a.end; // reverse sort: first event to end is last to be drawn, on top.
+          })
+          .filter(function (d) {
+              if (d.end == d.start) {
+                  d["barArcWidth"] = 1;
+              } else {
+                  let expectedW = (smartPixelScale(d.end) - smartPixelScale(d.start)) * stretcherVal;
+                  if (expectedW < 0) {
+                      expectedW = 2; // !!! TBD - fix cause of negative width.
+                  }
+                  d["barArcWidth"] = expectedW;
+              }
+              return d;
+          })
+          .classed("g-bars-arcs", true);
 
-  // add squares
-  allGoodSymbols
-    .filter(function(d) { return (d.shapeForSubtype == "square" ) })
-    .append('rect')
-    .attr('idDataForSvg', (d)=> { return d.idDataForSvg })  
-    .attr("fill", (d)=> {  
-      return  properColorFromD(d);
-    }) 
-    .attr("transform", (d,i)=> `translate(${Math.min(maxiMin, smartPixelScale(d.start))*stretcherVal}, 0)`)
-    .attr("x", (d,i)=> trackHeight * -0.1)
-    .attr("y", (d,i)=> eventTrackYOffsetMap.get(d.subtype.toLowerCase())  + (trackHeight * 0.1) ) 
-    .attr("width", trackHeight * 0.8)
-    .attr("height", trackHeight * 0.8);
+      // Add bars
+      let barGroups = barsOrArcs
+          .filter(function (d) {
+              return d.style == "Bars"
+          });
+      barGroups.classed("g-bars", true).raise();
+      barGroups
+      .append('rect')
+      .attr("idDataForSvg", (d) => {
+          return d.idDataForSvg
+      })
+      .attr("fill", (d) => {
+          return properColorFromD(d);
+      })
+      .filter(function (d) {
+          // console.log(`${d.subtype}=> map ${eventTrackYOffsetMap.get(d.subtype)}`);
+          return true;
+      })
+      .attr("transform", (d, i) => `translate(${1+ Math.min(maxiMin, smartPixelScale(d.start) * stretcherVal)}, ${eventTrackYOffsetMap.get(d.subtype.toLowerCase())})`)
+      .attr("x", (d, i) => 0)
+      .attr("y", (d, i) => trackHeight * 0.3)
+      .attr("rx", 3)
+      .attr("width", (d) => {
+          return d["barArcWidth"]; // already scaled for log if needed, above.
+      })
+      .attr("height", trackHeight * 0.4);
 
-  // add diamonds
-  let halfTrackHeight = (trackHeight * 0.5);
-  let diamondLength = (trackHeight * 0.4);
-  allGoodSymbols
-    .filter(function(d) { return (d.shapeForSubtype == "diamond" ) })  
-    .append('polygon')
-    .attr('idDataForSvg', (d)=> { return d.idDataForSvg }) 
-    .attr("fill", (d)=> {  
-      return  properColorFromD(d);
-    }) 
-    .attr("transform", (d,i)=> `translate(${Math.min(maxiMin, smartPixelScale(d.start) )*stretcherVal}, ${eventTrackYOffsetMap.get(d.subtype.toLowerCase()) })`)
-    .attr("points", `${0},${halfTrackHeight - diamondLength} ${diamondLength},${halfTrackHeight} ${0},${halfTrackHeight + diamondLength} ${-diamondLength},${halfTrackHeight}`);
+      // Add arcs
+      let arcMidpointHeight = trackHeight * 0.9;
+      let arcGroups = barsOrArcs
+          .filter(function (d) {
+              return d.style == "Arcs"
+          });
+      arcGroups.classed("g-arcs", true).raise();
+      arcGroups
+      .append('path')
+      .attr("idDataForSvg", (d) => {
+          return d.idDataForSvg
+      })
+      .attr('fill', 'none')
+      .attr("stroke", (d) => {
+          return properColorFromD(d);
+      })
+      .attr('d', (d) => {
+          return `M 0,${arcMidpointHeight + eventTrackYOffsetMap.get(d.subtype.toLowerCase()) } S ${d["barArcWidth"] / 2},${eventTrackYOffsetMap.get(d.subtype.toLowerCase()) -arcMidpointHeight},${d["barArcWidth"]},${arcMidpointHeight + eventTrackYOffsetMap.get(d.subtype.toLowerCase()) }`
+      })
+      .attr("transform", (d, i) => `translate(${1+ Math.min(maxiMin, smartPixelScale(d.start) * stretcherVal)}, 0)`);
 
-  // add triangles
-  allGoodSymbols
-    .filter(function(d) { return (d.shapeForSubtype == "triangle" ) }) // really triangles
-    .append('polygon')
-    .attr('idDataForSvg', (d)=> { return d.idDataForSvg })  
-    .attr("fill", (d)=> {  
-      return  properColorFromD(d);
-    }) 
-    .attr("transform", (d,i)=> `translate(${Math.min(maxiMin, smartPixelScale(d.start) )*stretcherVal}, ${eventTrackYOffsetMap.get(d.subtype.toLowerCase())} )`)
-    .attr("points", `${0},${halfTrackHeight - diamondLength} ${diamondLength},${halfTrackHeight + diamondLength} ${0-diamondLength},${halfTrackHeight + diamondLength}`);
+      let subtypeToShapeMap = new Map();
+      tlConfig.bars.map(bar => {
+          bar.events.map(e => {
+              subtypeToShapeMap.set(e.toLowerCase(), bar.shape ? bar.shape.toLowerCase() : "circle");
+          });
+      });
 
-  
-  // Bad "symbols", where start != end.
-  let badGroups = eventElementGroups
-    .filter(function(d) { return d.dateError })
-    .classed("actualBadSymbols", true)
-    .raise()
-    .append('g')
-    .attr('idDataForSvg', (d)=> { return d.idDataForSvg }) 
+      // Good symbols
+      let allGoodSymbols = eventElementGroups
+          .filter(function (d) {
+              return (d.dateError == false) && (d.style == "Symbols") && (d.start == d.end);
+          })
+          .filter(function (d) {
+              // If no shape property exists, default to circle.
+              // Do this mapping once and store it, as we'll check it several times.
+              d.shapeForSubtype = subtypeToShapeMap.get(d.subtype.toLowerCase());
+              return d;
+          })
+          .filter(function (d) {
+              // console.log(`SYMBOL ${d.subtype}=>   ${d.shapeForSubtype}`);
+              return true;
+          })
+          .classed("actualGoodSymbols", true)
+          .raise();
 
-    .attr("transform", (d,i)=> `translate(${ Math.min(maxiMin, smartPixelScale(d.start))*stretcherVal}, ${eventTrackYOffsetMap.get(d.subtype.toLowerCase())} )`);
-  
-  let exclamationHalfWidth = trackHeight * 0.12
-  badGroups
-    .append('rect')
-    .attr("fill", (d)=> d.color) 
-    .attr("x", (d,i)=> -exclamationHalfWidth)
-    .attr("y", trackHeight * 0.1)  // top part of exclamation is .2 to .6. Bottom is .8 to .9
-    .attr("width", exclamationHalfWidth+exclamationHalfWidth)
-    .attr("height", trackHeight * 0.5); 
-  badGroups
-    .append('rect')
-    .attr("fill", (d)=> d.color) 
-    .attr("x", (d,i)=> -exclamationHalfWidth)
-    .attr("y", trackHeight * 0.7)  // top part of exclamation is .2 to .6. Bottom is .8 to .9
-    .attr("width", exclamationHalfWidth+exclamationHalfWidth)
-    .attr("height", trackHeight * 0.2);
+      // add circles
+      allGoodSymbols
+      .filter(function (d) {
+          return (d.shapeForSubtype == "circle"); //  (subtypeToShapeMap.get(d.subtype.toLowerCase()) == "circle");
+      })
+      .append('circle')
+      .attr('idDataForSvg', (d) => {
+          return d.idDataForSvg
+      })
+      .attr("fill", (d) => {
+          return properColorFromD(d);
+      })
+      .attr("transform", (d, i) => `translate(${Math.min(maxiMin, smartPixelScale(d.start))*stretcherVal}, 0)`)
+      .attr("cx", (d, i) => 0)
+      .attr("cy", (d, i) => eventTrackYOffsetMap.get(d.subtype.toLowerCase()) + trackHeight * 0.5)
+      .attr("r", trackHeight * 0.35)
+      .attr("height", trackHeight * 0.2);
 
+      // add squares
+      allGoodSymbols
+      .filter(function (d) {
+          return (d.shapeForSubtype == "square")
+      })
+      .append('rect')
+      .attr('idDataForSvg', (d) => {
+          return d.idDataForSvg
+      })
+      .attr("fill", (d) => {
+          return properColorFromD(d);
+      })
+      .attr("transform", (d, i) => `translate(${Math.min(maxiMin, smartPixelScale(d.start))*stretcherVal}, 0)`)
+      .attr("x", (d, i) => trackHeight * -0.1)
+      .attr("y", (d, i) => eventTrackYOffsetMap.get(d.subtype.toLowerCase()) + (trackHeight * 0.1))
+      .attr("width", trackHeight * 0.8)
+      .attr("height", trackHeight * 0.8);
 
+      // add diamonds
+      let halfTrackHeight = (trackHeight * 0.5);
+      let diamondLength = (trackHeight * 0.4);
+      allGoodSymbols
+      .filter(function (d) {
+          return (d.shapeForSubtype == "diamond")
+      })
+      .append('polygon')
+      .attr('idDataForSvg', (d) => {
+          return d.idDataForSvg
+      })
+      .attr("fill", (d) => {
+          return properColorFromD(d);
+      })
+      .attr("transform", (d, i) => `translate(${Math.min(maxiMin, smartPixelScale(d.start) )*stretcherVal}, ${eventTrackYOffsetMap.get(d.subtype.toLowerCase()) })`)
+      .attr("points", `${0},${halfTrackHeight - diamondLength} ${diamondLength},${halfTrackHeight} ${0},${halfTrackHeight + diamondLength} ${-diamondLength},${halfTrackHeight}`);
 
-  eventElementGroups
-    .classed("timeline-svg-event-actual", true)  // way to find all actual timeline events
-    .classed("timeline-svg-event-no-highlight",true)
-    .attr("cursor", "pointer")
-    .attr("id", (d,i)=> "event-actual-pidid-"+d.p+"-"+i)
-    .on("mouseout", function(event, d, i) {
-      d3.select(this)
-        .classed("timeline-svg-event-highlight", false )
-        .classed("timeline-svg-event-no-highlight", true );
-      hideSvgEventTooltip();
-      $0.value = null;
-    })
-    .on("mouseover", function(event,d, i) {
+      // add triangles
+      allGoodSymbols
+      .filter(function (d) {
+          return (d.shapeForSubtype == "triangle")
+      }) // really triangles
+      .append('polygon')
+      .attr('idDataForSvg', (d) => {
+          return d.idDataForSvg
+      })
+      .attr("fill", (d) => {
+          return properColorFromD(d);
+      })
+      .attr("transform", (d, i) => `translate(${Math.min(maxiMin, smartPixelScale(d.start) )*stretcherVal}, ${eventTrackYOffsetMap.get(d.subtype.toLowerCase())} )`)
+      .attr("points", `${0},${halfTrackHeight - diamondLength} ${diamondLength},${halfTrackHeight + diamondLength} ${0-diamondLength},${halfTrackHeight + diamondLength}`);
 
-    let te = d3.select(this);
-    te
-      .classed("timeline-svg-event-highlight", true )
-      .classed("timeline-svg-event-no-highlight", false );
-    let thisEvent = te.data()[0];
-    showSvgEventTooltip(thisEvent);
+      // Bad "symbols", where start != end.
+      let badGroups = eventElementGroups
+          .filter(function (d) {
+              return d.dateError
+          })
+          .classed("actualBadSymbols", true)
+          .raise()
+          .append('g')
+          .attr('idDataForSvg', (d) => {
+              return d.idDataForSvg
+          })
 
-    $0.value = { 
-      timelineEvent:thisEvent,
-      mouseEvent: event
-    }
-  });
+          .attr("transform", (d, i) => `translate(${ Math.min(maxiMin, smartPixelScale(d.start))*stretcherVal}, ${eventTrackYOffsetMap.get(d.subtype.toLowerCase())} )`);
 
-  setupEventContextMenu(eventElementGroups);
+      let exclamationHalfWidth = trackHeight * 0.12
+          badGroups
+          .append('rect')
+          .attr("fill", (d) => d.color)
+          .attr("x", (d, i) => -exclamationHalfWidth)
+          .attr("y", trackHeight * 0.1) // top part of exclamation is .2 to .6. Bottom is .8 to .9
+          .attr("width", exclamationHalfWidth + exclamationHalfWidth)
+          .attr("height", trackHeight * 0.5);
+      badGroups
+      .append('rect')
+      .attr("fill", (d) => d.color)
+      .attr("x", (d, i) => -exclamationHalfWidth)
+      .attr("y", trackHeight * 0.7) // top part of exclamation is .2 to .6. Bottom is .8 to .9
+      .attr("width", exclamationHalfWidth + exclamationHalfWidth)
+      .attr("height", trackHeight * 0.2);
 
-  return eventElementGroups;
+      eventElementGroups
+      .classed("timeline-svg-event-actual", true) // way to find all actual timeline events
+      .classed("timeline-svg-event-no-highlight", true)
+      .attr("cursor", "pointer")
+      .attr("id", (d, i) => "event-actual-pidid-" + d.p + "-" + i)
+      .on("mouseout", function (event, d, i) {
+          d3.select(this)
+          .classed("timeline-svg-event-highlight", false)
+          .classed("timeline-svg-event-no-highlight", true);
+          hideSvgEventTooltip();
+          $0.value = null;
+      })
+      .on("mouseover", function (event, d, i) {
+
+          let te = d3.select(this);
+          te
+          .classed("timeline-svg-event-highlight", true)
+          .classed("timeline-svg-event-no-highlight", false);
+          let thisEvent = te.data()[0];
+          showSvgEventTooltip(thisEvent);
+
+          $0.value = {
+              timelineEvent: thisEvent,
+              mouseEvent: event
+          }
+      });
+
+      setupEventContextMenu(eventElementGroups);
+      console.log(`CEEG end ${Date.now()}`);
+      return eventElementGroups;
+  })
 }
-)}
 
 function _clickEventSpaceBackground(){return(
 function handleMouseOver(event, d) {  // Add interactivity

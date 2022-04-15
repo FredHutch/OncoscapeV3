@@ -624,6 +624,9 @@ export class CommonSidePanelComponent implements AfterViewInit, OnChanges, OnDes
   ngOnDestroy() {}
 
   ngOnChanges(changes: SimpleChanges) {
+    let defaultTourAndVersion = "main.1"
+    let tourOfInterest = defaultTourAndVersion
+
     console.log('trkchanges');
     for (const propName in changes) {
       console.log(`ngOnChanges ${propName} changed.`);
@@ -633,12 +636,37 @@ export class CommonSidePanelComponent implements AfterViewInit, OnChanges, OnDes
     console.log('datasetDescription updated');
     this.wireCspToWidgets();
 
-    if(window["tourSeen_"+ this.commonSidePanelModel.graphConfig.database] == null) {
+    // if(window["tourSeen_"+ this.commonSidePanelModel.graphConfig.database] == null) {
+    //   let self = this;
+    //   window.setTimeout(
+    //     self.startTour, 100);
+    //   window["tourSeen_"+ this.commonSidePanelModel.graphConfig.database] = true;
+    // }
+
+    let shouldTakeTour = false;
+    let toursSeen = localStorage.getItem('toursSeen');
+    // format is "main.1,other.1" CSV, with name.version. Replace e.g., "other" in future with dataset-specific tour.
+    if(toursSeen == null) {
+      shouldTakeTour = true;
+    } else {
+      // Parse CSV and look for tourOfInterest
+      let fullToursString = `,${toursSeen},`;
+      shouldTakeTour = fullToursString.includes(`,${tourOfInterest},`) == false
+    }
+
+    if(shouldTakeTour){
+      let newToursSeenString;
+      if (toursSeen){
+        newToursSeenString = toursSeen+","+tourOfInterest
+      } else {
+        newToursSeenString= tourOfInterest
+      }
+      localStorage.setItem('toursSeen', newToursSeenString);
       let self = this;
       window.setTimeout(
         self.startTour, 100);
-      window["tourSeen_"+ this.commonSidePanelModel.graphConfig.database] = true;
     }
+
   }
 
   introJsFunction:any;

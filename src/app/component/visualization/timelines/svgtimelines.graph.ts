@@ -409,6 +409,7 @@ export class SvgTimelinesGraph extends AbstractVisualization {
     */
   }
 
+
   updateObservableBitsIfReady(config: GraphConfig, data: any){ 
     let self = this;
     let ready =  OncoData.instance.currentCommonSidePanel && OncoData.instance.currentCommonSidePanel.commonSidePanelModel.patientData;
@@ -419,6 +420,15 @@ export class SvgTimelinesGraph extends AbstractVisualization {
         return OncoData.instance.dataLoadedAction;
       });
       let oldDataResult = { ...data.result};
+      if (oldDataResult.patients.length > 2000){
+        oldDataResult.patients = oldDataResult.patients.slice(0,2000);
+        let notifiedUserOfTimelineSizeLimit = sessionStorage.getItem('notifiedUserOfTimelineSizeLimit');
+        if(notifiedUserOfTimelineSizeLimit == null) {
+          sessionStorage.setItem('notifiedUserOfTimelineSizeLimit', 'notified');
+          alert('NOTE: Timeline view is currently limited to the first 2,000 patients in the cohort.')
+        }
+      }
+
       oldDataResult.patients = oldDataResult.patients.map(v=> v.events);
       let pidsInOrder =  data.result.patients.map(v=>v.pid); //  OncoData.instance.currentCommonSidePanel.commonSidePanelModel.patientData.map(v => v.p);
      
