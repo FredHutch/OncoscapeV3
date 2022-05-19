@@ -45,6 +45,7 @@ export class ChartFactory {
   };
 
   public static cleanForLocalStorage(s): string {
+    //TBD: add tolowercase?    
     return s.replace(/\./g, '_')
       .replace(/\!/g, '_')
       .replace(/\,/g, '_')

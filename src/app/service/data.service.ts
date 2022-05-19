@@ -405,10 +405,10 @@ export class DataService {
                       .join(' to ')
                   );
                   if (!decorator.legend.labels.find(v => v === 'NA')) {
-                    decorator.legend.labels.concat(['NA']);
+                    decorator.legend.labels = decorator.legend.labels.concat(['NA']);
                   }
                   if(decorator.legend.labels.length = decorator.legend.values.length+1){
-                    decorator.legend.values = scale['range']().concat(['#DDDDDD']);
+                    decorator.legend.values = scale['range']().concat(['#dddddd']);
                   }
              
                   break;
@@ -437,7 +437,7 @@ export class DataService {
                     decorator.legend.labels.concat(['NA']);
                   }
                   if(decorator.legend.labels.length = decorator.legend.values.length+1){
-                    decorator.legend.values = scale['range']().concat(['#DDDDDD']);
+                    decorator.legend.values = scale['range']().concat(['#dddddd']);
                   }
                   break;
               }
@@ -624,17 +624,31 @@ export class DataService {
                       mid: null,
                       key: EntityTypeEnum.SAMPLE,
                       label: 'NA',
-                      value: 0xeeeeee
+                      value: '#dddddd'
+                    };
+                  } else {
+                    let fieldValue = data[sid][decorator.field.key];
+
+                    let fieldValueLowercase = fieldValue ? fieldValue.toString().toLowerCase() : "untitled";
+                    if (fieldValueLowercase=="" || fieldValueLowercase == "na" || fieldValueLowercase == "empty" || fieldValueLowercase=="untitled") {
+                      return {
+                        sid: sid,
+                        pid: result.sampleMap[sid],
+                        mid: null,
+                        key: EntityTypeEnum.SAMPLE,
+                        label: 'NA',
+                        value: '#dddddd'
+                      };
+                    }
+                    return {
+                      sid: sid,
+                      pid: result.sampleMap[sid],
+                      mid: null,
+                      key: EntityTypeEnum.SAMPLE,
+                      label: formatLabel(decorator.field, fieldValue),
+                      value: scale(formatValue(decorator.field, fieldValue))
                     };
                   }
-                  return {
-                    sid: sid,
-                    pid: result.sampleMap[sid],
-                    mid: null,
-                    key: EntityTypeEnum.SAMPLE,
-                    label: formatLabel(decorator.field, data[sid][decorator.field.key]),
-                    value: scale(formatValue(decorator.field, data[sid][decorator.field.key]))
-                  };
                 });
               } else {
                 data = items.reduce((p, c) => {
@@ -648,18 +662,37 @@ export class DataService {
                       pid: result.sampleMap[sid],
                       mid: null,
                       key: EntityTypeEnum.SAMPLE,
-                      label: 'NA',
-                      value: 0xdddddd
+                      label: '#dddddd', // WAS     'NA',
+                      value: '#dddddd'
                     };
                   }
-                  return {
-                    sid: sid,
-                    pid: result.sampleMap[sid],
-                    mid: null,
-                    key: EntityTypeEnum.SAMPLE,
-                    label: scale(formatLabel(decorator.field, data[result.sampleMap[sid]][decorator.field.key])),
-                    value: scale(formatValue(decorator.field, data[result.sampleMap[sid]][decorator.field.key]))
-                  };
+
+                  let dataFromPid = data[result.sampleMap[sid]];
+                  let fieldValue = dataFromPid ? dataFromPid[decorator.field.key] : null;  
+
+                  let fieldValueLowercase = fieldValue ? fieldValue.toString().toLowerCase() : "untitled";
+                  if (fieldValueLowercase=="" || fieldValueLowercase == "na" || fieldValueLowercase == "empty" || fieldValueLowercase=="untitled") {
+                    return {
+                      sid: sid,
+                      pid: result.sampleMap[sid],
+                      mid: null,
+                      key: EntityTypeEnum.SAMPLE,
+                      label: '#dddddd', // WAS     'NA',
+                      value: '#dddddd'
+                    };
+                  } else {
+
+                    // console.log(`dec_values, sid[${sid}], rawval[${data[result.sampleMap[sid]][decorator.field.key]}], scaled[${ scale(formatValue(decorator.field, data[result.sampleMap[sid]][decorator.field.key]))}].`)
+                    return {
+                      sid: sid,
+                      pid: result.sampleMap[sid],
+                      mid: null,
+                      key: EntityTypeEnum.SAMPLE,
+                      mj_raw_value: data[result.sampleMap[sid]][decorator.field.key],
+                      label: scale(formatLabel(decorator.field, fieldValue)),
+                      value: scale(formatValue(decorator.field, fieldValue))
+                    };
+                  }
                 });
               }
               decorator.legend = new Legend();
@@ -681,9 +714,9 @@ export class DataService {
               if (decorator.field.type === 'STRING') {
                 decorator.legend.labels = scale['domain']().filter(v => v);
                 if (!decorator.legend.labels.find(v => v === 'NA')) {
-                  decorator.legend.labels.concat(['NA']);
+                  decorator.legend.labels = decorator.legend.labels.concat(['NA']);
                 }
-                decorator.legend.values = scale['range']().concat([0xdddddd]);
+                decorator.legend.values = scale['range']().concat(['#dddddd']);
               } else {
                 decorator.legend.labels = scale['range']().map(v =>
                   scale['invertExtent'](v)
@@ -691,14 +724,14 @@ export class DataService {
                     .join(' to ')
                 );
                 if (!decorator.legend.labels.find(v => v === 'NA')) {
-                  decorator.legend.labels.concat(['NA']);
+                  decorator.legend.labels = decorator.legend.labels.concat(['NA']);
                 }
                 decorator.values.forEach(v => {
                   if (v.label === 'NA') {
-                    v.value = 0xdddddd;
+                    v.value = '#dddddd';
                   }
                 });
-                decorator.legend.values = scale['range']().concat([0xdddddd]);
+                decorator.legend.values = scale['range']().concat(['#dddddd']);
 
               }
               decorator.legend.visibility = new Array(decorator.legend.labels.length).fill(1); 
@@ -798,7 +831,7 @@ export class DataService {
               if (decorator.field.type === 'STRING') {
                 decorator.legend.labels = scale['domain']();
                 if (!decorator.legend.labels.find(v => v === 'NA')) {
-                  decorator.legend.labels.concat(['NA']);
+                  decorator.legend.labels = decorator.legend.labels.concat(['NA']);
                 }
                 decorator.legend.values = scale['range']().concat([SpriteMaterialEnum.NA]);
               } else {
@@ -808,7 +841,7 @@ export class DataService {
                     .join(' to ')
                 );
                 if (!decorator.legend.labels.find(v => v === 'NA')) {
-                  decorator.legend.labels.concat(['NA']);
+                  decorator.legend.labels = decorator.legend.labels.concat(['NA']);
                 }
                 decorator.legend.values = scale['range']().concat([SpriteMaterialEnum.NA]);
               }

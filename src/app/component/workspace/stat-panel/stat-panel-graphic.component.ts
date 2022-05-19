@@ -446,14 +446,7 @@ export class StatPanelGraphicComponent {
     if(false) {  // MJ TODO: fix.....   if(this._type == 'PIE') {
       this._options.data.map(function(d) {
         console.log('finding color...')
-        let  cleanLabel = d.name.toLowerCase();
-        let c = ChartFactory.readCustomValueFromLocalStorage(
-          self.statPanelComponent._config.database, 'legendColors', 
-          "Sample "+ self.statPanelComponent.metricSelected.name + '!' + cleanLabel);
-        if (c != null) {
-          console.log(`color found = ${c}.`);
-          d.color = c;
-        }
+        let cleanLabel:string = ChartFactory.cleanForLocalStorage(d.name.toLowerCase());
       });
     }
     this._options.data = this._options.data.sort((a, b) => (a.value < b.value ? 1 : -1));

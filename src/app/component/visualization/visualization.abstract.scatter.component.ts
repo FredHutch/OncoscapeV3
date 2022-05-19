@@ -206,17 +206,17 @@ export class AbstractScatterVisualization extends AbstractVisualization {
             // visibilityLevels:Float32Array = new Float32Array(this.ids.lengt
             let pidsToHide = decorator.pidsByLabel[legendItemIndex].pids;
             if(pidsToHide == null) {
+              // ? Why would it be null ?   Why do we have legend items with no correspodnign pids?
               console.warn('pidsToHide is null.');
-
+            } else {
+              pidsToHide.map((pid, pidIndex) => {
+                let sid = OncoData.instance.currentCommonSidePanel.commonSidePanelModel.patientMap[pid];
+                if(sid) {
+                  let scatterIdIndex = self.ids.findIndex(v => v === sid);
+                  visibilityLevels[scatterIdIndex] = 0;
+                }
+              })
             }
-
-            pidsToHide.map((pid, pidIndex) => {
-              let sid = OncoData.instance.currentCommonSidePanel.commonSidePanelModel.patientMap[pid];
-              if(sid) {
-                let scatterIdIndex = self.ids.findIndex(v => v === sid);
-                visibilityLevels[scatterIdIndex] = 0;
-              }
-            })
           }
         });
 
