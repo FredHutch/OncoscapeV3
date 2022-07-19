@@ -65,7 +65,11 @@ export class Legend {
         clickedPids = legend.decorator.pidsByLabel.find(v => v.label == colorInt.toString());
       }
       if (clickedPids){
+        if(clickedPids.pids) {
         console.log(`clickedPids.length = ${clickedPids.pids.length}.`)
+        } else {
+          console.warn('clickedPids is undefined in clickedPidsFromLegendItem.')
+        }
         console.dir(clickedPids);
         return clickedPids;
       } else {

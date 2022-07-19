@@ -1,0 +1,13 @@
+
+> notitia@0.0.0 ng-high-memory-build C:\repos\OncoscapeV3\OncoscapeV3
+> node --max_old_space_size=8000 ./node_modules/@angular/cli/bin/ng build --configuration=test
+
+
+Date: 2022-06-29T00:34:50.454Z
+Hash: 511e6991bef3b3038271
+Time: 440933ms
+chunk {0} runtime.26209474bfa8dc87a77c.js, runtime.26209474bfa8dc87a77c.js.map (runtime) 1.46 kB [entry] [rendered]
+chunk {1} main.241a32d52505a0147a3d.js, main.241a32d52505a0147a3d.js.map (main) 10.3 MB [initial] [rendered]
+chunk {2} polyfills.1be42c81580d7aaaf3af.js, polyfills.1be42c81580d7aaaf3af.js.map (polyfills) 123 kB [initial] [rendered]
+chunk {3} styles.8068ad08fbbf3e8ef2a5.css, styles.8068ad08fbbf3e8ef2a5.css.map (styles) 99.1 kB [initial] [rendered]
+chunk {scripts} scripts.f6cceb4fa415f974c89c.js, scripts.f6cceb4fa415f974c89c.js.map (scripts) 1.22 MB [entry] [rendered]

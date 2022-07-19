@@ -1,11 +1,12 @@
 <div class="common-widget" ><!-- widget -->
-  <!--<md-icon *ngIf="!getExpanded">play_arrow</md-icon>
-  <md-icon *ngIf="getExpanded">arrow_drop_down</md-icon>-->
-  <!--<button mat-icon-button  (click)='toggleHidden()'> -->
+  <table border="0" width="100%"><tr>
+    <td>
     <mat-icon (click)='toggleHidden()' class="widget-icon" *ngIf="getExpanded()">expand_more</mat-icon>
     <mat-icon (click)='toggleHidden()' class="widget-icon" *ngIf="!getExpanded()">expand_less</mat-icon>
-  <!--</button>-->
-  <b>{{ getName() }}</b>
+    <!--</button>-->
+    <b>{{ getName() }}</b>
+    </td><td align="right"><mat-icon (click)='clickSettings()' class="widget-icon" >settings</mat-icon></td>
+  </tr></table>
   <div [id]="getSvgName()"  #mysvgdiv class="common-widget common-widget-svgdiv">
 
 

@@ -170,6 +170,10 @@ export class WidgetComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  clickSettings() {
+    alert("The " + this.getName() +" widget does not yet have settings.")
+  }
+
   getExpanded() {
     return (this._hidden == false);
   }

@@ -40,6 +40,8 @@ export class DataService {
   public static db: Dexie;
   public static instance: DataService;
  
+  public static naDefaultColor = 13421772  // "#cccccc"
+
   public static cognitoSessionTimeLeft(): number {
     if (window['storedAuthBits'] ) {
       let nowSeconds:number = Math.floor((new Date().getTime() / 1000));
@@ -372,6 +374,7 @@ export class DataService {
       );
     }
 
+
     // Min Max Dec
     return observableFrom(
       new Promise(resolve => {
@@ -404,13 +407,9 @@ export class DataService {
                       .map(w => Math.round(w))
                       .join(' to ')
                   );
-                  if (!decorator.legend.labels.find(v => v === 'NA')) {
-                    decorator.legend.labels = decorator.legend.labels.concat(['NA']);
-                  }
-                  if(decorator.legend.labels.length = decorator.legend.values.length+1){
-                    decorator.legend.values = scale['range']().concat(['#dddddd']);
-                  }
-             
+                  console.log('Calling addNaIfMissing ............');
+                  this.addNaIfMissing(decorator, scale, "COLOR");
+
                   break;
 
                 case DataDecoratorTypeEnum.SHAPE:
@@ -433,12 +432,9 @@ export class DataService {
                       .map(w => Math.round(w))
                       .join(' to ')
                   );
-                  if (!decorator.legend.labels.find(v => v === 'NA')) {
-                    decorator.legend.labels.concat(['NA']);
-                  }
-                  if(decorator.legend.labels.length = decorator.legend.values.length+1){
-                    decorator.legend.values = scale['range']().concat(['#dddddd']);
-                  }
+                  this.addNaIfMissing(decorator, scale, "COLOR");
+
+
                   break;
               }
               // db.close();
@@ -449,10 +445,54 @@ export class DataService {
     );
   }
 
+  private addNaIfMissing(decorator: DataDecorator, scale: any, legendType: Legend["type"]) {
+    // Assume gray color value, for COLOR legend. Otherwise special case the NA value.
+    let NaValue:any =  DataService.naDefaultColor; //13421772; // equivalent of '#cccccc';
+    if (legendType == 'SHAPE'){
+      NaValue = SpriteMaterialEnum.NA;  // solid legend PNG filename
+    }
+
+    console.log(`addNaIfMissing... ${decorator.toString()}.`)  ;
+    
+    // add 'na' if missing
+    if (!decorator.legend.labels.find(v => (v as String).toLowerCase() === 'na')) {
+      decorator.legend.labels = decorator.legend.labels.concat(['na']);
+    } else {
+      // if "NA" exists, change it to "na"".
+      if (decorator.legend.labels.find(v => v === 'NA')) {
+        decorator.legend.labels[decorator.legend.labels.indexOf("NA")] = "na";
+      }
+    }
+
+    if(scale && scale['range']){
+      // Set na value to gray etc., whether na was here whwen we started or not. 
+      // This stops na from getting blue or other default (non gray) color.
+      decorator.legend.values = scale['range']();
+      if(decorator.legend.labels.length == decorator.legend.values.length + 1) {
+        decorator.legend.values = decorator.legend.values.concat('na');
+      }
+      decorator.legend.values[decorator.legend.labels.indexOf('na')] = NaValue;
+
+      // if(labels.length = scale['range']().length+1){
+      //   decorator.legend.values = scale['range']().concat([NaValue]);
+      // }
+    } else{
+      console.warn('Decorator legend range has no values yet.');
+    }
+
+    // if "(empty)" exists, delete it. TBD: Make sure to change an y (empty) values in real data to na.
+    if (decorator.legend.labels.find(v => v === '(empty)')) {
+      let i = decorator.legend.labels.indexOf("(empty)");
+      decorator.legend.labels.splice(i,1);
+      decorator.legend.values.splice(i,1);
+    }
+    
+  }
+
   private createSampleDataDecorator(config: GraphConfig, decorator: DataDecorator): Observable<any> {
     const formatLabel = (field: DataField, value: any): string => {
       if (value === null || value === undefined) {
-        return 'NA';
+        return 'na';
       }
       let rv = value;
       switch (field.type) {
@@ -461,7 +501,7 @@ export class DataService {
         case DataTypeEnum.STRING:
           rv = String(rv).trim();
           if (rv === 'undefined') {
-            rv = 'NA';
+            rv = 'na';
           }
           break;
       }
@@ -473,7 +513,7 @@ export class DataService {
         case DataTypeEnum.STRING:
           rv = String(rv).trim();
           if (rv === 'undefined') {
-            rv = 'NA';
+            rv = 'na';
           }
           break;
       }
@@ -526,8 +566,8 @@ export class DataService {
                         pid: result.sampleMap[sid],
                         mid: null,
                         key: EntityTypeEnum.SAMPLE,
-                        label: 'NA',
-                        value: 'NA'
+                        label: DataService.naDefaultColor,
+                        value: DataService.naDefaultColor //'na'
                       };
                     }
                     return {
@@ -551,8 +591,8 @@ export class DataService {
                         pid: result.sampleMap[sid],
                         mid: null,
                         key: EntityTypeEnum.SAMPLE,
-                        label: 'NA',
-                        value: 'NA'
+                        label: 'na',
+                        value: DataService.naDefaultColor //'na'
                       };
                     }
                     return {
@@ -623,21 +663,21 @@ export class DataService {
                       pid: result.sampleMap[sid],
                       mid: null,
                       key: EntityTypeEnum.SAMPLE,
-                      label: 'NA',
-                      value: '#dddddd'
+                      label: DataService.naDefaultColor,
+                      value: DataService.naDefaultColor
                     };
                   } else {
                     let fieldValue = data[sid][decorator.field.key];
 
-                    let fieldValueLowercase = fieldValue ? fieldValue.toString().toLowerCase() : "untitled";
+                    let fieldValueLowercase = fieldValue ? fieldValue.toString().toLowerCase() : "na";
                     if (fieldValueLowercase=="" || fieldValueLowercase == "na" || fieldValueLowercase == "empty" || fieldValueLowercase=="untitled") {
                       return {
                         sid: sid,
                         pid: result.sampleMap[sid],
                         mid: null,
                         key: EntityTypeEnum.SAMPLE,
-                        label: 'NA',
-                        value: '#dddddd'
+                        label: DataService.naDefaultColor,
+                        value: DataService.naDefaultColor
                       };
                     }
                     return {
@@ -662,23 +702,23 @@ export class DataService {
                       pid: result.sampleMap[sid],
                       mid: null,
                       key: EntityTypeEnum.SAMPLE,
-                      label: '#dddddd', // WAS     'NA',
-                      value: '#dddddd'
+                      label: 'na', // DataService.naDefaultColor, // WAS     'NA',
+                      value: DataService.naDefaultColor
                     };
                   }
 
                   let dataFromPid = data[result.sampleMap[sid]];
                   let fieldValue = dataFromPid ? dataFromPid[decorator.field.key] : null;  
 
-                  let fieldValueLowercase = fieldValue ? fieldValue.toString().toLowerCase() : "untitled";
-                  if (fieldValueLowercase=="" || fieldValueLowercase == "na" || fieldValueLowercase == "empty" || fieldValueLowercase=="untitled") {
+                  let fieldValueLowercase = fieldValue ? fieldValue.toString().toLowerCase() : "na";
+                  if (fieldValueLowercase=="" || fieldValueLowercase == "na" || fieldValueLowercase == "empty" || fieldValueLowercase == "(empty)" || fieldValueLowercase=="untitled") {
                     return {
                       sid: sid,
                       pid: result.sampleMap[sid],
                       mid: null,
                       key: EntityTypeEnum.SAMPLE,
-                      label: '#dddddd', // WAS     'NA',
-                      value: '#dddddd'
+                      label: DataService.naDefaultColor, // DataService.naDefaultColor, // WAS     'NA',
+                      value: DataService.naDefaultColor
                     };
                   } else {
 
@@ -713,25 +753,30 @@ export class DataService {
               console.log('data is good here?');
               if (decorator.field.type === 'STRING') {
                 decorator.legend.labels = scale['domain']().filter(v => v);
-                if (!decorator.legend.labels.find(v => v === 'NA')) {
-                  decorator.legend.labels = decorator.legend.labels.concat(['NA']);
-                }
-                decorator.legend.values = scale['range']().concat(['#dddddd']);
+                this.addNaIfMissing(decorator, scale, "COLOR");
+
+                // if (!decorator.legend.labels.find(v => v === 'NA')) {
+                //   decorator.legend.labels = decorator.legend.labels.concat(['NA']);
+                // }
+                // if(decorator.legend.labels.length = decorator.legend.values.length+1){
+                //   decorator.legend.values = scale['range']().concat(['#dddddd']);
+                // }
               } else {
                 decorator.legend.labels = scale['range']().map(v =>
                   scale['invertExtent'](v)
                     .map(w => Math.round(w))
                     .join(' to ')
                 );
-                if (!decorator.legend.labels.find(v => v === 'NA')) {
-                  decorator.legend.labels = decorator.legend.labels.concat(['NA']);
-                }
-                decorator.values.forEach(v => {
-                  if (v.label === 'NA') {
-                    v.value = '#dddddd';
-                  }
-                });
-                decorator.legend.values = scale['range']().concat(['#dddddd']);
+                this.addNaIfMissing(decorator, scale, "COLOR");
+
+                // if (!decorator.legend.labels.find(v => v === 'NA')) {
+                //   decorator.legend.labels = decorator.legend.labels.concat(['NA']);
+                // }
+                // if(decorator.legend.labels.length = decorator.legend.values.length+1){
+                //   decorator.legend.values = scale['range']().concat(['#dddddd']);
+                // }
+
+
 
               }
               decorator.legend.visibility = new Array(decorator.legend.labels.length).fill(1); 
@@ -780,8 +825,8 @@ export class DataService {
                       pid: result.sampleMap[sid],
                       mid: null,
                       key: EntityTypeEnum.SAMPLE,
-                      label: 'NA',
-                      value: 'NA'
+                      label: 'na',
+                      value: DataService.naDefaultColor //'na'
                     };
                   }
                   return {
@@ -805,8 +850,8 @@ export class DataService {
                       pid: result.sampleMap[sid],
                       mid: null,
                       key: EntityTypeEnum.SAMPLE,
-                      label: 'NA',
-                      value: 'NA'
+                      label: DataService.naDefaultColor,
+                      value: DataService.naDefaultColor //'na'
                     };
                   }
                   return {
@@ -830,20 +875,16 @@ export class DataService {
                   : 'Patient ' + decorator.field.label;
               if (decorator.field.type === 'STRING') {
                 decorator.legend.labels = scale['domain']();
-                if (!decorator.legend.labels.find(v => v === 'NA')) {
-                  decorator.legend.labels = decorator.legend.labels.concat(['NA']);
-                }
-                decorator.legend.values = scale['range']().concat([SpriteMaterialEnum.NA]);
+
+                console.log('Calling addNaIfMissing ............');
+                this.addNaIfMissing(decorator, scale, "SHAPE");
               } else {
                 decorator.legend.labels = scale['range']().map(v =>
                   scale['invertExtent'](v)
                     .map(w => Math.round(w))
                     .join(' to ')
                 );
-                if (!decorator.legend.labels.find(v => v === 'NA')) {
-                  decorator.legend.labels = decorator.legend.labels.concat(['NA']);
-                }
-                decorator.legend.values = scale['range']().concat([SpriteMaterialEnum.NA]);
+                this.addNaIfMissing(decorator, scale, "SHAPE");
               }
               resolve(decorator);
               break;

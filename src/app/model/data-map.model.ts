@@ -8,7 +8,7 @@ export interface DataDecoratorValue {
   mid: string;
   key: EntityTypeEnum;
   value: any;
-  label: string;
+  label: any; // MJ: string;
 }
 export const enum DataDecoratorTypeEnum {
   COLOR = 0,
